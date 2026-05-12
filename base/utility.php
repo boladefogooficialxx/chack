@@ -43,9 +43,10 @@ function getFromIp(string $ip): ?object {
 
     $data = json_decode($response);
 
-    $data->regionName = $data->regionName ? $data->regionName : $data->region;
-    $data->status = $data->status ? $data->status : 'success';
-    $data->org = $data->org ?? $data->org ?? $data->as;
+    // Ajuste para evitar warnings se as propriedades não existirem
+    $data->regionName = $data->regionName ?? ($data->region ?? 'Desconhecido');
+    $data->status = $data->status ?? (isset($data->ip) ? 'success' : 'fail');
+    $data->org = $data->org ?? ($data->as ?? 'Desconhecido');
 
 
     if (!isset($data->status) || $data->status !== 'success') {

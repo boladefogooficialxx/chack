@@ -1,9 +1,9 @@
 <?php
 
-// Habilitar erros para debug no Railway
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// No Railway (Produção), não devemos exibir erros na tela para não quebrar o layout/headers
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); // Logar tudo, mas esconder avisos e warnings da tela
 
 function Conexao($dbName = null){
     // Configurações Manuais do Railway (Públicas)
@@ -24,7 +24,9 @@ function Conexao($dbName = null){
         $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
         return new PDO($dsn, $user, $pass, $options);
     } catch (PDOException $e) {
-        die("Erro de conexão no Banco: " . $e->getMessage() . "<br>Host Usado: $host<br>Porta: $port<br>Usuario: $user<br>Banco: $db");
+        // Logar erro internamente
+        error_log("Erro de conexão no Banco: " . $e->getMessage());
+        return null;
     }
 }
 
@@ -32,8 +34,8 @@ function Conexao($dbName = null){
 $pdo = Conexao();
 
 if (!$pdo) {
-    die("A variável \$pdo não foi inicializada corretamente.");
+    // Se o banco falhar em produção, melhor mostrar uma mensagem limpa
+    die("Desculpe, estamos passando por uma manutenção técnica no banco de dados.");
 }
 
-// Fallback para variáveis globais se o resto do código usar nomes diferentes
 $pdoGlob = $pdo;
