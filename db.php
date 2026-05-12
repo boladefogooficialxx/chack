@@ -1,16 +1,28 @@
 <?php
 
-error_reporting(E_ALL); // Habilitar para ver erros no log do Railway
+// Habilitar erros para debug no Railway
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 function Conexao($dbName = null){
-
-    // No Railway, usamos o Root Password se o usuário comum não estiver configurado
+    // Tenta pegar as variáveis do Railway de várias formas possíveis
     $host = getenv('RAILWAY_PRIVATE_DOMAIN') ?: (getenv('MYSQLHOST') ?: 'db');
     $user = getenv('MYSQLUSER') ?: 'bit';
     $pass = getenv('MYSQL_ROOT_PASSWORD') ?: (getenv('MYSQLPASSWORD') ?: 'Flipmoney123#');
     $port = getenv('MYSQLPORT') ?: '3306';
     $db   = $dbName ?: (getenv('MYSQL_DATABASE') ?: 'chak');
     $charset = 'utf8mb4';
+
+    // Se estiver no Railway e houver uma URL completa, ela tem prioridade
+    if (getenv('MYSQL_URL')) {
+        $url = parse_url(getenv('MYSQL_URL'));
+        $host = $url['host'] ?? $host;
+        $user = $url['user'] ?? $user;
+        $pass = $url['pass'] ?? $pass;
+        $port = $url['port'] ?? $port;
+        $db   = ltrim($url['path'], '/') ?: $db;
+    }
 
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -19,21 +31,24 @@ function Conexao($dbName = null){
     ];
 
     try {
-        $pdo = new PDO("mysql:host=$host;port=$port;dbname=$db;charset=$charset", $user, $pass, $options);
-        return $pdo;
+        $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=$charset";
+        return new PDO($dsn, $user, $pass, $options);
     } catch (PDOException $e) {
-        // No Railway, o erro aparecerá nos logs do serviço
-        error_log('Erro de conexão: ' . $e->getMessage());
-        return null;
+        // Se falhar, vamos imprimir o erro para você ver no log do Railway
+        die("Erro de conexão no Banco: " . $e->getMessage() . " | Host: $host | DB: $db");
     }
 }
 
 // Conexão principal
 $pdo = Conexao();
 
-// Se você realmente precisar de uma conexão chamada 'glob'
-$pdoGlob = Conexao('glob');
+if (!$pdo) {
+    die("A variável \$pdo não foi inicializada corretamente.");
+}
 
+// Se você realmente precisar de uma conexão chamada 'glob'
+// $pdoGlob = Conexao('glob'); 
+?>
 
 
 
