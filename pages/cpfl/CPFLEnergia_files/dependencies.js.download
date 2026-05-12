@@ -1,0 +1,259 @@
+//Mon May 08 2023 14:58:08 GMT-0300 (Horário Padrão de Brasília)
+(function () {
+    var requirejs_shim = {
+        'f9c5ae2a56be.cpflAgenciavirtualWeb.login': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '2302c9aae806.cpflAgenciavirtualWeb.religacaoEnergia', 'e12755632c52.cpflAgenciavirtualWeb.faltaDeEnergia']
+        },
+        'd4ea8ca832fd.cpflAgenciavirtualWeb.common': {
+            deps: ['990d1cbc354a.modules', '3cf6b2b824a7.cpflAgenciavirtualWeb.historicoNotificacoes']
+        },
+        '990d1cbc354a.modules': {
+            deps: ['724d1582601b.acn-framework']
+        },
+        '724d1582601b.acn-framework': {
+            deps: ['c4e34ea062b1.vendor']
+        },
+        'c4e34ea062b1.vendor': {
+            deps: []
+        },
+        "config/settings": {
+            deps: ['f9c5ae2a56be.cpflAgenciavirtualWeb.login', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '37d49f731ad4.cpflAgenciavirtualWeb.indicadoresQualidade': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '7c5014d14cb5.cpflAgenciavirtualWeb.indicadoresProcessoAmostral': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '7776db6794ab.cpflAgenciavirtualWeb.desligamentoProgramado': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '5732e29f981b.cpflAgenciavirtualWeb.baixaRenda': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'c83d975f12af.cpflAgenciavirtualWeb.desligarEnergia': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'f05a431b6d78.cpflAgenciavirtualWeb.cadastroSms': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '1be265ccb476.cpflAgenciavirtualWeb.consultaSolicitacao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '18f1dfed88fd.cpflAgenciavirtualWeb.debitoAutomatico': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'bf60265d50a9.cpflAgenciavirtualWeb.dataLeitura': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'bf2dd641d83b.cpflAgenciavirtualWeb.contratoFornecimento': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'e09b2fb97a90.cpflAgenciavirtualWeb.denunciaFurto': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '0dfacc89446c.cpflAgenciavirtualWeb.podaArvore': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'f898a5ac349a.cpflAgenciavirtualWeb.autoLeituraRural': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'adb7317728b7.cpflAgenciavirtualWeb.reparosIp': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '56f79c7f2b7b.cpflAgenciavirtualWeb.recebimentoFatura': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', 'f9c58f5f3c6e.cpflAgenciavirtualWeb.historicoContas']
+        },
+        '2302c9aae806.cpflAgenciavirtualWeb.religacaoEnergia': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', 'f05a431b6d78.cpflAgenciavirtualWeb.cadastroSms', 'f9c58f5f3c6e.cpflAgenciavirtualWeb.historicoContas', 'e12755632c52.cpflAgenciavirtualWeb.faltaDeEnergia']
+        },
+        'f9c58f5f3c6e.cpflAgenciavirtualWeb.historicoContas': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '2375bed99ca9.cpflAgenciavirtualWeb.viaPagamento']
+        },
+        'b9ac73ed2558.cpflAgenciavirtualWeb.alteracaoDataVencimento': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'ec6e43f689ef.cpflAgenciavirtualWeb.historicoConsumo': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'e12755632c52.cpflAgenciavirtualWeb.faltaDeEnergia': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '0bbc0d9fb28b.cpflAgenciavirtualWeb.meusDados': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '1c027ba1b90f.cpflAgenciavirtualWeb.dadosPromocao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'ff99c798f23d.cpflAgenciavirtualWeb.analiseTaxa': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '7624f3eb5563.cpflAgenciavirtualWeb.envioDocumentos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'd315db0eb6be.cpflAgenciavirtualWeb.indenizacaoDanos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '17821f9ad32f.cpflAgenciavirtualWeb.parceiroNegocio': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common','627015c6caf3.cpflAgenciavirtualWeb.trocaNomeFatura']
+        },
+        '28759dd7dd60.cpflAgenciavirtualWeb.ligacaoNova': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '818dd4e6a3fb.cpflAgenciavirtualWeb.migracaoTarifaria']
+        },
+        '627015c6caf3.cpflAgenciavirtualWeb.trocaNomeFatura': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', 'f9c58f5f3c6e.cpflAgenciavirtualWeb.historicoContas']
+        },
+        'f45138e576d0.cpflAgenciavirtualWeb.alterarEnderecoConta': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '9f605878660e.cpflAgenciavirtualWeb.alteracaoCarga': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'a2fde1fc93f4.cpflAgenciavirtualWeb.gestaoMobileApp': {
+            deps: ['990d1cbc354a.modules', 'f9c5ae2a56be.cpflAgenciavirtualWeb.login', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'c1fff319a51f.cpflAgenciavirtualWeb.reformarPadraoEntrada': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'e252d9840fe5.cpflAgenciavirtualWeb.taxasTarifas': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '36a7b63fac90.cpflAgenciavirtualWeb.microMiniGeracao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'c94d5d0b61d0.cpflAgenciavirtualWeb.testarMedidor': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'd23ab615d166.cpflAgenciavirtualWeb.validacaoDocumentos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '947a64981a5e.cpflAgenciavirtualWeb.demaisServicos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '42685febab7c.cpflAgenciavirtualWeb.reprogramacaoNs': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'bca7d18c064b.cpflAgenciavirtualWeb.cipRelatorios': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'c2315f0bac90.cpflAgenciavirtualWeb.faturaObras': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'b2e944824a24.cpflAgenciavirtualWeb.doacoesHospitais': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'bf7297e4c259.cpflAgenciavirtualWeb.documentosDeInspecao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '9ffc255eba4b.cpflAgenciavirtualWeb.remocaoPosteAfastamentoRede': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'f2474cf3306b.cpflAgenciavirtualWeb.alteracoesIp': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'f01cfd4e52cf.cpflAgenciavirtualWeb.ipRelatorios': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'a2fde1fc93f4.cpflAgenciavirtualWeb.gestaoMobileApp': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '5ae01d1294c4.cpflAgenciavirtualWeb.ligacaoProvisoria': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '28759dd7dd60.cpflAgenciavirtualWeb.ligacaoNova']
+        },
+        'f9484898640e.cpflAgenciavirtualWeb.ligacaoNovaRedeComunidade': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '28759dd7dd60.cpflAgenciavirtualWeb.ligacaoNova']
+        },
+        'd039406bf570.cpflAgenciavirtualWeb.ouvidoria': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '818dd4e6a3fb.cpflAgenciavirtualWeb.migracaoTarifaria': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'bbdfff563be0.cpflAgenciavirtualWeb.meusContratos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'b7923b01cc85.cpflAgenciavirtualWeb.custeioIluminacaoPublica': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '45c32e6cf005.cpflAgenciavirtualWeb.itensFaturamento': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '2375bed99ca9.cpflAgenciavirtualWeb.viaPagamento': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '54cfb75f00c7.cpflAgenciavirtualWeb.contaMinima': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '3cf6b2b824a7.cpflAgenciavirtualWeb.historicoNotificacoes': {
+            deps: ['990d1cbc354a.modules']
+        },
+        'f98495be87e1.cpflAgenciavirtualWeb.atualizacaoConjuge': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '17821f9ad32f.cpflAgenciavirtualWeb.parceiroNegocio']
+        },
+        '529bd94fdae7.cpflAgenciavirtualWeb.seguradora': {
+            deps: ['990d1cbc354a.modules']
+        },
+        '6393aef1e4f3.cpflAgenciavirtualWeb.consultaDebitosCliente': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', 'f9c58f5f3c6e.cpflAgenciavirtualWeb.historicoContas', '2375bed99ca9.cpflAgenciavirtualWeb.viaPagamento', 'e09b2fb97a90.cpflAgenciavirtualWeb.denunciaFurto']
+        },
+        '691335b2f278.cpflAgenciavirtualWeb.centralAjuda': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'aed76981e3fa.cpflAgenciavirtualWeb.revisaoCadastral': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'd62f49070b18.cpflAgenciavirtualWeb.envioDocumentosJuridicos': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '463ba055f383.cpflAgenciavirtualWeb.energiaInteligente': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'ebd9974d2ab7.cpflAgenciavirtualWeb.contaFacil': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'd1009c421d51.cpflAgenciavirtualWeb.cadastroUtiDomiciliar': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '462713141843.cpflAgenciavirtualWeb.consultaUc': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '29fcbb508327.cpflAgenciavirtualWeb.ressarcimentoOrientacao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '7a1bae77a24e.cpflAgenciavirtualWeb.guiaPraticoGeracaoDistribuicao': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '0f1c58eb78be.cpflAgenciavirtualWeb.termoConfissaoDivida': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        '9fcd95b1306c.cpflAgenciavirtualWeb.doacoes': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common', '2302c9aae806.cpflAgenciavirtualWeb.religacaoEnergia']
+        },
+        'e56499625533.cpflAgenciavirtualWeb.estouDeMudanca': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        },
+        'ac61f4de017f.cpflAgenciavirtualWeb.autorizadoXMLNF3e': {
+            deps: ['990d1cbc354a.modules', 'd4ea8ca832fd.cpflAgenciavirtualWeb.common']
+        }
+    };
+
+    requirejs.config({
+        baseUrl: "scripts/",
+        waitSeconds: 0,
+        shim: requirejs_shim
+    });
+
+    require(["config/settings"], function () {
+        //loading screen
+        window.loading_screen.finish();
+
+        angular.bootstrap(document, ["cpflAgenciavirtualWeb"]);
+
+        define = _define;
+        _define = undefined;
+    });
+
+    //Disable other modules lazyload
+    var _define = define;
+    define = undefined;
+})();

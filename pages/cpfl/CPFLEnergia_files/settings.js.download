@@ -1,0 +1,51 @@
+(function () {
+    "use strict";
+
+    //identifica qual app chamou
+    var clientId = "agencia-virtual-cpfl-web";
+
+    var appSettings = {
+        backEnd: window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '') + "/agencia-webapi",
+        logLevel: "error",
+        clientId: clientId,
+        gtmId: 'GTM-MXVHR66',
+        gtmId2: 'GTM-PKP9VKG',
+        gId: 'G-9MZPXVBDH8',
+        appPath: "/agencia-webapp",
+        reCaptchaKey: "6LcJDCwUAAAAAPZsx3c7deGx7REdi5U3eNERQ_0j",
+        chatFrontEnd: "https://servicosonline.cpfl.com.br/webchat/chatpanel.aspx",
+        notificationSettings: {
+            firebase: {
+                apiKey: "AIzaSyA56zsNPkdtnvTN_aLtlGUEsBMhLyyFASk",
+                authDomain: "cpfl-push.firebaseapp.com",
+                databaseURL: "https://cpfl-push.firebaseio.com",
+                projectId: "cpfl-push",
+                storageBucket: "cpfl-push.appspot.com",
+                messagingSenderId: "1093488926891"
+            },
+            server: {
+                publicKey: "BA6SzkZjS-B-YAIvCQzo7lFtBkeux96yd6x61YLU63X9ihSk-E9fWcnokO4H1OQTXvIdpj7Al53zLLVKHmUzm_Q"
+            }
+        },
+        chatBoot: {
+            chatbotAvatarImgURL: "https://cpfl--c.documentforce.com/servlet/servlet.ImageServer?id=0153k00000AltlG&oid=00D3k000000sl0M&lastMod=1577404575000",
+            waitingStateBackgroundImgURL: "https://cpfl--c.documentforce.com/servlet/servlet.ImageServer?id=0153k00000AltlB&oid=00D3k000000sl0M&lastMod=1577404340000",
+            embedded_svc_1: "https://cpfl.my.salesforce.com",
+            embedded_svc_2: "https://cpfl.force.com/cpfl",
+            embedded_svc_code: "00D3k000000sl0M",
+            baseLiveAgentContentURL: "https://c.la4-c3-ph2.salesforceliveagent.com/content",
+            deploymentId: "5723k000000Tf7V",
+            buttonId: "5733k000000TfP5",
+            baseLiveAgentURL: "https://d.la4-c3-ph2.salesforceliveagent.com/chat",
+            embedded_svc_3: "https://cpfl.my.salesforce.com/embeddedservice/5.0/esw.min.js"
+
+        },
+        cielo: {
+            environment: "production",
+            urlSDB:"https://mpisandbox.braspag.com.br/v2/auth/token",
+            urlPRD:"https://mpi.braspag.com.br/v2/auth/token"
+        }
+    };
+
+    angular.module("cpflAgenciavirtualWeb").constant("appSettings", appSettings);
+})();

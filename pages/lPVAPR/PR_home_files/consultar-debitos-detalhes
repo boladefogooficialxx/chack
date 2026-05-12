@@ -1,0 +1,2 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<partial-response><error redirect="true"><error-name>ViewExpiredException</error-name><error-message><![CDATA[Devido à inatividade, sua sessão atingiu o tempo limite e foi desativada. Clique em OK para recarregar a página.]]></error-message></error></partial-response>

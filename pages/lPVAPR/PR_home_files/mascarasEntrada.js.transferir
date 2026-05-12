@@ -1,0 +1,305 @@
+var numberKeys = new Array(48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105);
+var numeros = new Array(0,1,2,3,4,5,6,7,8,9);
+var ignoredControlKeys = new Array(AdfKeyStroke.TAB_KEY, AdfKeyStroke.ARROWLEFT_KEY, AdfKeyStroke.ARROWRIGHT_KEY, AdfKeyStroke.ARROWUP_KEY, AdfKeyStroke.ARROWDOWN_KEY, AdfKeyStroke.ESC_KEY, AdfKeyStroke.ENTER_KEY, AdfKeyStroke.HOME_KEY, AdfKeyStroke.END_KEY, AdfKeyStroke.INSERT_KEY, AdfKeyStroke.PAGEUP_KEY, AdfKeyStroke.PAGEDOWN_KEY);
+var processableControlKeys = new Array(AdfKeyStroke.BACKSPACE_KEY, AdfKeyStroke.DELETE_KEY);
+
+function isNumberKey(keyCode) {
+    for (keyPos in numberKeys) {
+        if (keyCode == numberKeys[keyPos]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+function isNumber(caracter) {
+    for (key in numeros) {
+        if (caracter != " " &&
+            (Number(caracter) === numeros[key])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isIgnoredControlKey(keyCode) {
+    for (keyPos in ignoredControlKeys) {
+        if (keyCode == ignoredControlKeys[keyPos]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function isProcessableControlKey(keyCode) {
+    for (keyPos in processableControlKeys) {
+        if (keyCode == processableControlKeys[keyPos]) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function formataNumProjudi(numProjudi) {
+    if (numProjudi.length > 7 && numProjudi.length <= 9) {
+        r = numProjudi.substring(0, 7) + "-" + numProjudi.substring(7);
+    }
+    else if (numProjudi.length > 9 && numProjudi.length <= 13) {
+        r = numProjudi.substring(0, 7) + "-" + numProjudi.substring(7, 9);
+        r += "." + numProjudi.substring(9);
+    }
+    else if (numProjudi.length > 13 && numProjudi.length <= 14) {
+        r = numProjudi.substring(0, 7) + "-" + numProjudi.substring(7, 9);
+        r += "." + numProjudi.substring(9, 13);
+        r += "." + numProjudi.substring(13);
+    }
+    else if (numProjudi.length > 14 && numProjudi.length <= 16) {
+        r = numProjudi.substring(0, 7) + "-" + numProjudi.substring(7, 9);
+        r += "." + numProjudi.substring(9, 13);
+        r += "." + numProjudi.substring(13, 14);
+        r += "." + numProjudi.substring(14);
+    }
+    else if (numProjudi.length > 16) {
+        r = numProjudi.substring(0, 7) + "-" + numProjudi.substring(7, 9);
+        r += "." + numProjudi.substring(9, 13);
+        r += "." + numProjudi.substring(13, 14);
+        r += "." + numProjudi.substring(14, 16);
+        r += "." + numProjudi.substring(16);
+    }
+
+    return r;
+}
+
+function removeZerosAEsquerda(valor) {
+    for (i = 0; i < valor.length; i++) {
+        if (valor.charAt(i) != '0') {
+            return valor.substring(i);
+        }
+    }
+
+    return valor;
+}
+
+function formataValorInteiro(valor) {
+    r = "";
+    agrupamento = "";
+
+    for (i = valor.length - 1; i >= 0; i--) {
+        if (agrupamento.length == 3) {
+            r = r == "" ? agrupamento : agrupamento+"."+r;
+            agrupamento = "";
+        }
+
+        agrupamento = valor.charAt(i) + agrupamento;
+    }
+
+    r = r == "" ? agrupamento : agrupamento+"."+r;
+    return r;
+}
+
+function formataValorMonetario(valor) {
+    pInt = pDec = "0";
+    comprimento = valor.length;
+
+    switch (comprimento) {
+        case 0:
+            pDec += "0";
+            break;
+        case 1:
+            pDec += valor;
+            break;
+        case 2:
+            pDec = valor;
+            break;
+        default :
+            pInt = "";
+            pDec = "";
+
+            for (i = 0; i < comprimento; i++) {
+                if (i < comprimento - 2) {
+                    pInt += valor.charAt(i);
+                } else {
+                    pDec += valor.charAt(i);
+                }
+            }
+    }
+
+    return formataValorInteiro(pInt)+","+pDec;
+}
+
+function mascaraData(evt) {
+    obtemMascaraMascarasEntrada(evt, "DATA");
+}
+function mascaraHora(evt) {
+    obtemMascaraMascarasEntrada(evt, "HORA");
+}
+
+function mascaraCPF(evt) {
+    obtemMascaraMascarasEntrada(evt, "CPF");
+}
+
+function mascaraCNPJ(evt) {
+    obtemMascaraMascarasEntrada(evt, "CNPJ");
+}
+
+function mascaraTelefone(evt) {
+    obtemMascaraMascarasEntrada(evt, "TEL");
+}
+
+function mascaraCEP(evt) {
+    obtemMascaraMascarasEntrada(evt, "CEP");
+}
+
+function mascaraNumPROJUDI(evt) {
+    obtemMascaraMascarasEntrada(evt, "PROJUDI");
+}
+
+function mascaraMonetaria(evt) {
+    obtemMascaraMascarasEntrada(evt, "MONET");
+}
+function mascaraDeclaracao(evt) {
+    obtemMascaraMascarasEntrada(evt, "DEC");
+}
+
+function obtemMascaraMascarasEntrada(evt, tipo) {
+    if (!isIgnoredControlKey(evt.getKeyCode())) {
+        var input = evt.getCurrentTarget();
+        var oldValue = input.getValue().replace(/\s/g, '');
+        if (!isProcessableControlKey(evt.getKeyCode()) && (!isNumberKey(evt.getKeyCode())|| !isNumber(evt.Event.key))) {
+            input.setValue(oldValue);
+            evt.cancel();
+            return;
+        }
+
+        var newValue = input.getSubmittedValue();
+        input.setValue(processaMascaraMascarasEntrada(newValue, tipo));
+    }
+}
+
+function processaMascaraMascarasEntrada(v, t) {
+    v = v.replace(/\D/g, "");
+
+    if (t == "DATA") {
+        v = v.replace(/(\d{2})(\d)/, "$1/$2");
+        v = v.replace(/(\d{2})(\d)/, "$1/$2");
+    } else if (t == "HORA") {
+        v = v.replace(/(\d{2})(\d)/, "$1:$2");
+    } else if (t == "CPF") {
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1-$2");
+    } else if (t == "CNPJ") {
+        v = v.replace(/(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+    } else if (t == "TEL") {
+        v = v.replace(/^(\d\d)(\d)/g, "($1) $2");
+
+        if (v.length >= 13) {
+            v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        } else {
+            v = v.replace(/(\d{4})(\d)/, "$1-$2");
+        }
+    } else if (t == "CEP") {
+        v = v.replace(/(\d{5})(\d)/, "$1-$2");
+        } else if (t == "DEC") {
+        v = v.replace(/(\d{12})(\d)/, "$1-$2");
+    } else if (t == "PROJUDI") {
+        v = formataNumProjudi(v);
+    } else if (t == "MONET") {
+        v = formataValorMonetario(removeZerosAEsquerda(v));
+    }
+
+    v = v.replace(/\s/g, '');
+
+    return v;
+}
+
+function mascaraCpfCnpj(evt) {
+ if (!isIgnoredControlKey(evt.getKeyCode())) {
+        var input = evt.getCurrentTarget();
+        var oldValue = input.getValue();
+
+        if (!isProcessableControlKey(evt.getKeyCode()) && !isNumberKey(evt.getKeyCode())) {
+            input.setValue(oldValue);
+            evt.cancel();
+            return;
+        }
+
+        var newValue = input.getSubmittedValue();
+        input.setValue(maskCpfCnpj(newValue));
+    }
+}
+
+function maskCpfCnpj(v) {
+    //Remove tudo o que não é dígito
+    v = v.replace(/\D/g, "");
+
+    if (v.length <= 11) { //CPF
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    } else if (v.length <= 18) { //CNPJ
+        v = v.replace(/^(\d{2})(\d)/, "$1.$2");
+        v = v.replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3");
+        v = v.replace(/\.(\d{3})(\d)/, ".$1/$2");
+        v = v.replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return v;
+}
+
+function complementaNumPROJUDI(evt) {
+    input = evt.getCurrentTarget();
+    v = input.getSubmittedValue();
+
+    v = v.replace(/\D/g, "");
+
+    if (v.length >= 13 && v.length < 20) {
+        complemento = "";
+
+        for (i = 1;i <= 20 - v.length;i++) {
+            complemento += "0";
+        }
+
+        v = complemento + v;
+    }
+
+    input.setValue(formataNumProjudi(v));
+}
+
+function somenteNumeros(evt) {
+    if (!isIgnoredControlKey(evt.getKeyCode())) {
+        var input = evt.getCurrentTarget();
+        var oldValue = input.getValue().replace(/\s/g, '');
+        if (!isProcessableControlKey(evt.getKeyCode()) && !isNumber(evt.Event.key)) {
+            input.setValue(oldValue.trim());
+            evt.cancel();
+            return;
+        }
+    }
+}
+function aprovaNumeros(evt) {
+      var _keyCode = evt.getKeyCode();
+     var _filterField = evt.getCurrentTarget();
+     var _oldValue = _filterField.getValue();
+     //check for characters
+     if (_keyCode > 64 && _keyCode < 91){
+       _filterField.setValue(_oldValue);
+       evt.cancel();
+            return;
+        }
+}
+
+function validaTelefone(evt) {
+    input = evt.getCurrentTarget();
+    var value = input.getValue().replace(/\s/g, '');
+    if(value.length != 14 && value.length != 15) {
+        value = '';
+        input.setValue(value);
+    }
+}

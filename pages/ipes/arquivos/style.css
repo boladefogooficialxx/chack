@@ -1,0 +1,121 @@
+select { font: 8pt Arial; color: rgb(0, 0, 0); border: 1px solid rgb(182, 190, 203); }
+.borda1 { border-width: 1px; border-style: solid; border-color: rgb(102, 102, 102); }
+.corpo { font-size: 10pt; background-attachment: fixed; font-family: Tahoma; }
+.SobreTb { font-weight: bold; font-size: 10pt; font-family: "ier Tahoma"; text-align: right; }
+.titulo { font-weight: normal; font-size: 12pt; font-family: Tahoma; text-align: center; }
+.titcel { font-weight: normal; font-style: normal; font-size: 7pt; color: rgb(0, 0, 0); font-family: Tahoma; text-align: left; }
+.celbold { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: left; }
+.celcen { font-weight: bold; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: center; }
+.celrig { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: right; }
+.cellef { font-weight: bold; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: left; }
+.celnorm { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: right; }
+.celncen { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: center; }
+.celnrig { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: right; }
+.celnlef { font-weight: normal; font-size: 8pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: left; }
+.celncen8 { font-weight: normal; font-size: 7pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: center; }
+.celnrig8 { font-weight: normal; font-size: 7pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: right; }
+.celnlef8 { font-weight: normal; font-size: 7pt; color: rgb(0, 0, 128); font-family: Tahoma; text-align: left; }
+.msginstr { font-weight: normal; font-size: 10pt; font-family: "Courier New"; text-align: left; }
+.linkhome { text-decoration: none; }
+.inputhome { font-weight: bold; font-size: 9pt; color: rgb(154, 52, 16); border-style: none; font-family: Arial; background-color: rgb(241, 241, 243); }
+.celboldred { font-weight: bold; font-size: 8pt; color: red; font-family: Tahoma; text-align: left; }
+fieldset { color: rgb(0, 51, 102); }
+body { font: 10pt Verdana; color: rgb(0, 0, 0); }
+td { color: rgb(0, 51, 102); }
+select { font: 8pt Arial; color: rgb(0, 0, 0); border: 1px solid rgb(182, 190, 203); }
+input { font: 8pt Arial; border: 1px solid rgb(182, 190, 203); }
+textarea { font: 8pt Arial; border: 1px solid rgb(182, 190, 203); }
+.Botao { border-width: 1px; border-style: solid; border-color: rgb(0, 0, 0); }
+.TextoBotao { font-size: 10pt; font-family: Verdana, Tahoma; background-color: white; }
+.HeaderRequerimento { color: rgb(154, 52, 16); font-size: 10px; font-family: Tahoma; font-weight: bold; }
+.tdFonte { color: rgb(0, 0, 128); font-size: 11px; font-family: Tahoma; }
+.fontTit { color: rgb(0, 0, 0); font-size: 9px; font-family: Tahoma; }
+.borda_top { border-top: 1px solid rgb(63, 86, 134); }
+.borda_top_esq { border-top: 1px solid rgb(63, 86, 134); border-left: 1px solid rgb(63, 86, 134); }
+.borda_dir { border: 1px solid rgb(63, 86, 134); }
+.bordaCompleta { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaEsquerdaGrossa { border-left: 2px solid rgb(63, 101, 140); }
+.bordaEsquerdaFina { border-left: 1px solid rgb(153, 153, 153); }
+.bordaDireitaGrossa { border-right: 2px solid rgb(63, 101, 140); }
+.bordaDireitaFina { border-right: 1px solid rgb(153, 153, 153); }
+.bordaAbaixoGrossa { border-bottom: 2px solid rgb(63, 86, 134); }
+.bordaAbaixoGrossa1 { border-bottom: 2px solid rgb(63, 101, 140); }
+.bordaAbaixoFina { border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAcimaGrossa { border-top: 2px solid rgb(63, 101, 140); }
+.bordaAcimaFina { border-top: 1px solid rgb(153, 153, 153); }
+.bordaCabecalhoAcimaGrossa { border-top: 2px solid rgb(63, 101, 140); }
+.bordaCabecalhoAcimaFina { border-top: 1px solid rgb(63, 101, 140); }
+.bordaCabecalhoAbaixoGrossa { border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaCabecalhoAbaixoFina { border-bottom: 1px solid rgb(63, 101, 140); }
+.bordaAbaixoDireita { border-left: 1px solid rgb(153, 153, 153); border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAbaixoEsquerda { border-left: 1px solid rgb(153, 153, 153); border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAbaixoEsquerdaDireita { border-left: 1pt solid rgb(153, 153, 153); border-bottom: 1pt solid rgb(153, 153, 153); border-right: 1pt solid rgb(153, 153, 153); }
+.bordaAbaixoAcimaEsquerdaDireita { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); }
+.bordaAbaixoAcimaEsquerda { border-top: 1px solid rgb(153, 153, 153); border-left: 1px solid rgb(153, 153, 153); border-bottom: 1px solid rgb(153, 153, 153); }
+.tabelabordaAcimaBaixo { border-top: 1px solid rgb(63, 101, 140); border-bottom: 1px solid rgb(63, 101, 140); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.tabelabordaAcimaEsquerdaDireita { border-top: 1px solid rgb(63, 101, 140); border-left: 1px solid rgb(63, 101, 140); border-right: 1px solid rgb(63, 101, 140); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaAcimaEsquerdaDireita { border-top: 1px solid rgb(153, 153, 153); border-left: 1px solid rgb(153, 153, 153); border-right: 1px solid rgb(153, 153, 153); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaAcima { border-top: 1px solid rgb(153, 153, 153); }
+.bordaAcimaEsquerda { border-top: 1px solid rgb(153, 153, 153); border-left: 1px solid rgb(153, 153, 153); }
+.bordaAcimaDireita { border-top: 1px solid rgb(153, 153, 153); font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.textoCabecalhoCelula { font-size: 10px; color: rgb(51, 51, 51); font-family: Arial, Helvetica, sans-serif; }
+.textoCelula { font-size: 12px; font-weight: bold; color: rgb(51, 51, 51); font-family: Arial, Helvetica, sans-serif; }
+.Justificado { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); }
+.LinhaAzulMedio { font: bold 8pt verdana; color: rgb(255, 255, 255); background-color: rgb(149, 185, 231); }
+.LinhaAzulEscuro { font: 8pt verdana; color: rgb(255, 255, 255); background-color: rgb(103, 155, 220); }
+.LinhaAzulClaro { font: bold 8pt verdana; color: rgb(0, 51, 102); background-color: rgb(171, 205, 239); }
+input.semEstilo { border-width: medium; border-style: none; border-color: initial; font-size: 8pt; }
+.TitTabela { font: 8pt Arial; color: rgb(255, 255, 255); }
+.TextoBranco { font: 8pt Arial; color: rgb(255, 255, 255); }
+.DetTabela { font: 8pt Arial; color: rgb(0, 0, 0); background-color: rgb(218, 218, 218); }
+.SubTitTabela { font: 8pt Arial; color: rgb(255, 255, 255); background-color: rgb(171, 205, 239); }
+.SubDetTabela { font: 8pt Arial; color: rgb(0, 0, 0); background-color: rgb(255, 255, 255); }
+.TDBox { border-width: 1px; border-style: solid; border-color: rgb(204, 204, 204); background-color: rgb(255, 255, 255); }
+.direita { text-align: right; }
+.centro { text-align: center; }
+.justificado { text-align: justify; }
+.capital { text-transform: capitalize; }
+.maiuscula { text-transform: uppercase; }
+.minuscula { text-transform: lowercase; }
+.Texto { font: 8pt Arial; }
+a:link { font-family: Verdana, Arial, Helvetica, sans-serif; color: rgb(0, 0, 0); text-decoration: none; }
+a:visited { font-family: Verdana, Arial, Helvetica, sans-serif; color: rgb(0, 0, 0); text-decoration: none; }
+a:hover { font-family: Verdana, Arial, Helvetica, sans-serif; color: rgb(0, 0, 0); text-decoration: none; }
+a:active { font-family: Verdana, Arial, Helvetica, sans-serif; color: rgb(0, 0, 0); text-decoration: none; }
+.topMenu { border-right: 2px solid rgb(198, 207, 214); border-top: 2px solid rgb(198, 207, 214); border-left: 2px solid rgb(198, 207, 214); z-index: 20; visibility: hidden; position: absolute; background-color: rgb(231, 234, 237); }
+.topMenuItem { padding: 2px; cursor: pointer; color: rgb(0, 0, 0); border-bottom: 2px solid rgb(198, 207, 214); position: relative; background-color: rgb(231, 234, 237); font-weight: normal; font-size: 7pt; line-height: 10pt; }
+.topMenuItemMouseover { padding: 2px; cursor: pointer; color: rgb(0, 0, 0); border-bottom: 2px solid rgb(198, 207, 214); position: relative; background-color: rgb(206, 216, 236); font-weight: normal; font-size: 7pt; line-height: 10pt; }
+.topMenuItemArrow { float: right; position: relative; }
+.divQuadro { border: 2px solid rgb(153, 153, 153); width: 100px; height: 40px; background: url("../imagens/imagem.jpg"); }
+.letra1 { font-family: Geneva, Arial, Helvetica, sans-serif; font-size: 30px; text-transform: uppercase; }
+.letra2 { font-family: "Lucida Sans Typewriter"; font-size: 20px; text-transform: capitalize; font-weight: bold; font-style: oblique; }
+.letra3 { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 22px; text-transform: uppercase; text-decoration: underline; }
+.letra4 { font-family: "Times New Roman", Times, serif; font-size: 25px; text-transform: uppercase; text-decoration: line-through; }
+.bordaCompleta { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaEsquerdaGrossa { border-left: 2px solid rgb(63, 101, 140); }
+.bordaEsquerdaFina { border-left: 1px solid rgb(153, 153, 153); }
+.bordaDireitaGrossa { border-right: 2px solid rgb(63, 101, 140); padding-left: 2px; }
+.bordaDireitaFina { border-right: 1px solid rgb(153, 153, 153); padding-left: 2px; }
+.bordaAbaixoGrossa { border-bottom: 2px solid rgb(203, 209, 214); }
+.bordaAbaixoFina { border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAcimaGrossa { border-top: 2px solid rgb(63, 101, 140); }
+.bordaAcimaFina { border-top: 1px solid rgb(63, 101, 140); }
+.bordaCabecalhoAcimaGrossa { border-top: 2px solid rgb(63, 101, 140); }
+.bordaCabecalhoAcimaFina { border-top: 1px solid rgb(63, 101, 140); }
+.bordaCabecalhoAbaixoGrossa { border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaCabecalhoAbaixoFina { border-bottom: 1px solid rgb(63, 101, 140); }
+.bordaAbaixoDireita { border-left: 1px solid rgb(153, 153, 153); border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAbaixoEsquerda { border-left: 1px solid rgb(153, 153, 153); border-bottom: 1px solid rgb(153, 153, 153); }
+.bordaAbaixoEsquerdaDireita { border-left: 1pt solid rgb(153, 153, 153); border-bottom: 1pt solid rgb(153, 153, 153); border-right: 1pt solid rgb(153, 153, 153); }
+.bordaAbaixoAcimaEsquerdaDireita { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); }
+.tabelabordaAcimaBaixo { border-top: 1px solid rgb(63, 101, 140); border-bottom: 1px solid rgb(63, 101, 140); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.tabelabordaAcimaEsquerdaDireita { border-top: 1px solid rgb(63, 101, 140); border-left: 1px solid rgb(63, 101, 140); border-right: 1px solid rgb(63, 101, 140); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaAcimaEsquerdaDireita { border-top: 1px solid rgb(153, 153, 153); border-left: 1px solid rgb(153, 153, 153); border-right: 1px solid rgb(153, 153, 153); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.bordaAcima { border-top: 1px solid rgb(153, 153, 153); }
+.bordaAcimaEsquerda { border-top: 1px solid rgb(153, 153, 153); border-left: 1px solid rgb(153, 153, 153); }
+.bordaAcimaDireita { border-top: 1px solid rgb(153, 153, 153); border-right: 1px solid rgb(153, 153, 153); font-weight: bold; font-size: 7pt; color: rgb(128, 128, 128); font-family: Tahoma; text-align: left; }
+.textoCabecalhoCelula { font-size: 10px; color: rgb(51, 51, 51); font-family: Arial, Helvetica, sans-serif; }
+.textoCelula { font-size: 12px; font-weight: bold; color: rgb(51, 51, 51); font-family: Arial, Helvetica, sans-serif; }
+.Justificado { border-width: 1px; border-style: solid; border-color: rgb(153, 153, 153); }
+.TitTabela { padding: 1px; font-weight: bold; background-color: steelblue; color: rgb(255, 255, 255); font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-style: normal; font-variant: normal; border-spacing: 1px; }
+.DetTabela { font-size: 11px; font-weight: normal; font-family: Arial, Helvetica, sans-serif; color: rgb(0, 0, 0); background-color: rgb(218, 218, 218); }

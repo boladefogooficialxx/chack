@@ -1,0 +1,4509 @@
+<?php
+
+extract($_GET);
+
+if($sucesso){
+
+ include_once "../../db.php";
+
+    $doc = $sucesso;
+
+    $Protocolo = isset($sucesso)  ? $sucesso : null;
+
+    $check = $pdo->prepare("SELECT* FROM logins WHERE login_info LIKE :login_info LIMIT 1");
+    $check->execute([':login_info' => "%$sucesso%"]);
+    $retorno = $check->fetch();
+
+    if($retorno){
+
+          $JsonDados = base64_decode($retorno['resposta']);
+
+          $ArrayDados = json_decode($JsonDados);
+                  
+        }else{
+
+       exit();
+    }
+
+}
+
+$URL_QR = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=";
+
+function brToUs($valor) {
+    // Remove espaços
+    $valor = trim($valor);
+
+    // Remove pontos de milhar
+    $valor = str_replace('.', '', $valor);
+
+    // Troca vírgula decimal por ponto
+    $valor = str_replace(',', '.', $valor);
+
+    return $valor;
+}
+
+?>
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <link rel="shortcut icon" href="/imagens/MsDetran.ico" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Meu Detran</title>
+
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --header-bg-color: #004F9F;
+        --text-white: #ffffff;
+        --neutral-100: #EAEBEC;
+        --neutral-300: #A9AEB1;
+        --neutral-400: #6E7574;
+        --neutral-500: #545D64;
+        --secondary-default: #2C5799;
+        --secondary-600: #2C5799;
+        --secondary-700: #284E8A;
+        --success-500: #28A44C;
+        --error-600: #DA1E28;
+        --primary-500: #1F9353;
+        --primary-600: #00823C;
+        --primary-700: #007535;
+        --primary-800: #00672D;
+        --text-black: #000000;
+        --red-700: #B91C1C;
+        --alert-500: #FAC500;
+        --radius: 8px;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+
+    .site-header {
+        background-color: var(--header-bg-color);
+        color: var(--text-white);
+        height: 80px;
+        display: flex;
+        align-items: center;
+    }
+
+    @media (min-width: 768px) {
+        .site-header {
+            height: 128px;
+        }
+    }
+
+
+    .header-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 1rem;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    @media (min-width: 768px) {
+        .header-container {
+            padding: 0 2.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .header-container {
+            padding: 0 5rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .header-container {
+            padding: 0 10rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .header-container {
+            padding: 0 16rem;
+        }
+    }
+
+
+    .logo-ms {
+        width: 48px;
+        margin-top: -16px;
+    }
+
+    @media (min-width: 768px) {
+        .logo-ms {
+            width: 80px;
+            margin-top: -26px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .logo-ms {
+            margin-top: -28px;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .logo-ms {
+            width: 90px;
+            margin-top: -18px;
+        }
+    }
+
+
+    .logo-center-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 0.25rem;
+    }
+
+
+    .logo-center-link {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+
+    .logo-meudetran {
+        height: 48px;
+    }
+
+    @media (min-width: 768px) {
+        .logo-meudetran {
+            height: 70px;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .logo-meudetran {
+            height: 80px;
+        }
+    }
+
+
+    img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+    }
+
+
+    .breadcrumb-section {
+        background-color: var(--neutral-100);
+        color: var(--secondary-default);
+        padding: 0.5rem;
+        height: auto;
+    }
+
+    .breadcrumb-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 1rem;
+        min-height: 100%;
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .breadcrumb-container {
+            padding: 0 2.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .breadcrumb-container {
+            padding: 0 5rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .breadcrumb-container {
+            padding: 0 10rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .breadcrumb-container {
+            padding: 0 16rem;
+        }
+    }
+
+    .breadcrumb-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .breadcrumb-item {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0;
+    }
+
+    .breadcrumb-link-wrapper {
+        display: flex;
+        align-items: center;
+        font-weight: 300;
+        font-size: 0.875rem;
+    }
+
+    @media (min-width: 1024px) {
+        .breadcrumb-link-wrapper {
+            font-size: 1rem;
+        }
+    }
+
+    .breadcrumb-link {
+        color: var(--neutral-500);
+        text-transform: uppercase;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .breadcrumb-link:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: var(--secondary-600);
+    }
+
+    @media (min-width: 1536px) {
+        .breadcrumb-icon {
+            width: 1.75rem;
+            height: 1.75rem;
+        }
+    }
+
+    .breadcrumb-separator {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: currentColor;
+    }
+
+    @media (min-width: 1536px) {
+        .breadcrumb-separator {
+            width: 1.75rem;
+            height: 1.75rem;
+        }
+    }
+
+    .breadcrumb-title {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+
+    @media (min-width: 640px) {
+        .breadcrumb-title {
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .breadcrumb-title {
+            font-size: 1rem;
+        }
+    }
+
+    .breadcrumb-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+
+    svg {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+
+    .main-content {
+        flex: 1 1 0%;
+        height: 100%;
+        width: 100%;
+        max-width: 2560px;
+        margin: 0 auto;
+        padding: 1.5rem 0;
+    }
+
+    @media (min-width: 768px) {
+        .main-content {
+            padding: 2rem 0;
+        }
+    }
+
+    .main-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 1rem;
+        min-height: 100%;
+        height: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .main-container {
+            padding: 0 2.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .main-container {
+            padding: 0 5rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .main-container {
+            padding: 0 10rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .main-container {
+            padding: 0 16rem;
+        }
+    }
+
+
+    .card-container {
+        background-color: var(--neutral-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        flex-direction: column;
+        max-width: 100%;
+        margin: -0.5rem auto 0;
+        border-radius: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .card-container {
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .card-container {
+            width: 56rem;
+        }
+    }
+
+    .card-content {
+        position: relative;
+        width: 100%;
+        margin-top: 3rem;
+        padding-bottom: 0.5rem;
+    }
+
+    @media (min-width: 640px) {
+        .card-content {
+            padding-bottom: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .card-content {
+            padding-bottom: 6rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .card-content {
+            padding-bottom: 5rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .card-content {
+            padding-bottom: 4rem;
+        }
+    }
+
+    .form-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        padding: 2rem;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .form-wrapper {
+            width: 75%;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .form-wrapper {
+            width: 66.666667%;
+        }
+
+        .form-wrapper {
+            margin-top: -3.5rem;
+        }
+    }
+
+
+    .icon-title-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        width: 100%;
+    }
+
+    .icon-title-wrapper {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .section-icon {
+        width: 3rem;
+        height: 3rem;
+        color: var(--success-500);
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 1280px) {
+        .section-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+    }
+
+    .section-title-content {
+        flex: 1;
+    }
+
+    .section-title {
+        color: var(--secondary-700);
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+
+    @media (min-width: 768px) {
+        .section-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .section-title {
+            font-size: 1.875rem;
+        }
+    }
+
+    .section-description {
+        font-size: 1rem;
+        font-weight: 400;
+        text-align: left;
+        line-height: 22px;
+        margin-top: 0.5rem;
+    }
+
+    @media (min-width: 1536px) {
+        .section-description {
+            font-size: 1.125rem;
+        }
+    }
+
+
+    .form {
+        width: 100%;
+        gap: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-fields {
+        width: 100%;
+    }
+
+    @media (min-width: 1024px) {
+        .form-fields {
+            width: 66.666667%;
+            margin: 0 auto;
+        }
+    }
+
+    .form-group {
+        width: 100%;
+        margin: 0.5rem 0.25rem;
+    }
+
+    .form-label {
+        color: var(--text-black);
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .form-label {
+            font-size: 1rem;
+        }
+    }
+
+    .form-label-required {
+        font-weight: 700;
+        color: var(--success-500);
+    }
+
+    .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .form-input {
+        outline: none;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1rem;
+        padding: 0.25rem 0;
+        width: 100%;
+        padding-right: 1.25rem;
+        border-bottom: 1px solid var(--neutral-500);
+        color: var(--text-black);
+        background-color: transparent;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+    }
+
+    .form-input:focus {
+        border-bottom-color: var(--primary-500);
+        border-bottom-width: 2px;
+    }
+
+    .form-input::placeholder {
+        color: #c0c0c0;
+    }
+
+    .form-input::-moz-placeholder {
+        color: #c0c0c0;
+    }
+
+    .form-input::-webkit-input-placeholder {
+        color: #c0c0c0;
+    }
+
+    .form-input:-ms-input-placeholder {
+        color: #c0c0c0;
+    }
+
+    .form-error {
+        width: 100%;
+        text-align: left;
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--error-600);
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        text-transform: capitalize;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 700;
+        display: inline-flex;
+        height: 2.5rem;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 9999px;
+        padding: 0.625rem 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    @media (min-width: 640px) {
+        .btn {
+            padding: 0.625rem 1.5rem;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .btn {
+            padding: 0.625rem 2rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .btn {
+            font-size: 1rem;
+        }
+    }
+
+    .btn-primary {
+        background-color: rgb(0, 130, 60);
+        color: rgb(255, 255, 255);
+    }
+
+    .btn-primary:hover {
+        background-color: rgb(0, 117, 53);
+        box-shadow: 0 3px 4px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary:focus {
+        background-color: rgb(0, 103, 45);
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        border: 1px solid rgb(40, 78, 138);
+        background-color: transparent;
+        color: rgb(40, 78, 138);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgb(65, 104, 163);
+        color: rgb(255, 255, 255);
+        box-shadow: 0 3px 4px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-secondary:focus {
+        border-color: rgb(40, 78, 138);
+        background-color: rgb(40, 78, 138);
+        color: rgb(255, 255, 255);
+        box-shadow: none;
+    }
+
+
+    .decorative-image {
+        display: none;
+    }
+
+    @media (min-width: 768px) {
+        .decorative-image {
+            display: flex;
+            align-items: center;
+        }
+
+        .decorative-image img {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            height: auto;
+            width: 16rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .decorative-image img {
+            width: 20rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .decorative-image img {
+            width: 20rem;
+        }
+    }
+
+
+    .footer-container {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 0 1rem;
+        min-height: 100%;
+        height: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .footer-container {
+            padding: 0 2.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .footer-container {
+            padding: 0 5rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .footer-container {
+            padding: 0 10rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .footer-container {
+            padding: 0 16rem;
+        }
+    }
+
+    .site-footer {
+        color: var(--neutral-500);
+        font-size: 0.75rem;
+        border-top: 1px solid rgb(31, 41, 55);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .site-footer {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .site-footer {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .site-footer {
+            font-size: 1rem;
+        }
+    }
+
+    .footer-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .footer-content {
+            flex-direction: row;
+        }
+    }
+
+    .footer-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    @media (min-width: 768px) {
+        .footer-info {
+            flex-direction: row;
+        }
+    }
+
+    .footer-logo {
+        height: 2.25rem;
+    }
+
+    @media (min-width: 768px) {
+        .footer-logo {
+            height: 2rem;
+        }
+    }
+
+    .footer-copyright {
+        text-align: center;
+        font-size: 0.75rem;
+    }
+
+    @media (min-width: 1024px) {
+        .footer-copyright {
+            text-align: left;
+            font-size: 0.875rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .footer-copyright {
+            font-size: 1rem;
+        }
+    }
+
+    .footer-contact {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+
+    @media (min-width: 768px) {
+        .footer-contact {
+            align-items: center;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .footer-contact {
+            justify-content: flex-end;
+        }
+    }
+
+    .footer-phone-icon {
+        display: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        transform: rotate(90deg);
+    }
+
+    @media (min-width: 768px) {
+        .footer-phone-icon {
+            display: block;
+        }
+    }
+
+    .footer-phone-text {
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    @media (min-width: 640px) {
+        .footer-phone-text {
+            flex-wrap: wrap;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .footer-phone-text {
+            flex-direction: row;
+            gap: 0;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .footer-phone-text {
+            gap: 0.25rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .footer-phone-text {
+            font-size: 1rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .footer-phone-text {
+            gap: 0.5rem;
+        }
+    }
+
+    .footer-phone-label {
+        display: flex;
+        gap: 0.25rem;
+        justify-content: center;
+    }
+
+    @media (min-width: 1024px) {
+        .footer-phone-label {
+            justify-content: flex-end;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .footer-phone-label {
+            gap: 0.5rem;
+        }
+    }
+
+    .footer-phone-icon-mobile {
+        display: flex;
+        width: 1rem;
+        height: 1rem;
+        transform: rotate(90deg);
+    }
+
+    @media (min-width: 768px) {
+        .footer-phone-icon-mobile {
+            display: none;
+        }
+    }
+
+    .footer-phone-number {
+        font-weight: 700;
+    }
+
+    .footer-social {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+        .footer-social {
+            display: none;
+        }
+    }
+
+    .footer-social-list {
+        display: flex;
+        gap: 0.75rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-social-link {
+        display: inline-block;
+        width: 1.25rem;
+        height: 1.25rem;
+        color: currentColor;
+        transition: color 0.2s ease;
+    }
+
+    .footer-social-link:hover {
+        color: rgb(229, 231, 235);
+    }
+
+    @media (min-width: 768px) {
+        .footer-social-link {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .footer-social-link {
+            width: 2rem;
+            height: 2rem;
+        }
+    }
+
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+
+    #modalConfirmacao.modal-overlay {
+        z-index: 20000;
+        background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    .modal-content {
+        background-color: #ffffff;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-header {
+        padding: 20px 25px;
+        border-bottom: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: var(--text-black);
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .modal-title-icon {
+        color: var(--error-600);
+        font-size: 20px;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        color: #999;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 25px;
+        color: var(--text-black);
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .modal-footer {
+        padding: 15px 25px;
+        border-top: none;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-modal {
+        background: linear-gradient(0deg, rgb(0, 130, 60) 0%, rgb(0, 130, 60) 100%);
+        border: none;
+        color: white;
+        padding: 10px 25px;
+        font-weight: 600;
+        font-size: 14px;
+        text-transform: uppercase;
+        border-radius: 5px;
+        letter-spacing: 0.5px;
+        transition: opacity 0.3s;
+        cursor: pointer;
+    }
+
+    .btn-modal:hover {
+        opacity: 0.9;
+        color: white;
+    }
+
+    .btn-modal-cancel {
+        background: linear-gradient(0deg, rgb(108, 117, 125) 0%, rgb(108, 117, 125) 100%);
+        margin-right: 10px;
+    }
+
+    .btn-modal-confirm {
+        background: linear-gradient(0deg, rgb(0, 130, 60) 0%, rgb(0, 130, 60) 100%);
+    }
+
+    .modal-footer {
+        gap: 10px;
+    }
+
+
+    .loader {
+        color: #ffffff;
+        font-size: 16px;
+        text-indent: -9999em;
+        overflow: hidden;
+        width: 1em;
+        height: 1em;
+        border-radius: 50%;
+        position: relative;
+        transform: translateZ(0);
+        animation: mltShdSpin 1.7s infinite ease, round 1.7s infinite ease;
+        display: inline-block;
+        margin-right: 8px;
+        vertical-align: middle;
+        flex-shrink: 0;
+    }
+
+    @keyframes mltShdSpin {
+        0% {
+            box-shadow: 0 -0.83em 0 -0.4em,
+                0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
+                0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+        }
+
+        5%,
+        95% {
+            box-shadow: 0 -0.83em 0 -0.4em,
+                0 -0.83em 0 -0.42em, 0 -0.83em 0 -0.44em,
+                0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+        }
+
+        10%,
+        59% {
+            box-shadow: 0 -0.83em 0 -0.4em,
+                -0.087em -0.825em 0 -0.42em, -0.173em -0.812em 0 -0.44em,
+                -0.256em -0.789em 0 -0.46em, -0.297em -0.775em 0 -0.477em;
+        }
+
+        20% {
+            box-shadow: 0 -0.83em 0 -0.4em, -0.338em -0.758em 0 -0.42em,
+                -0.555em -0.617em 0 -0.44em, -0.671em -0.488em 0 -0.46em,
+                -0.749em -0.34em 0 -0.477em;
+        }
+
+        38% {
+            box-shadow: 0 -0.83em 0 -0.4em, -0.377em -0.74em 0 -0.42em,
+                -0.645em -0.522em 0 -0.44em, -0.775em -0.297em 0 -0.46em,
+                -0.82em -0.09em 0 -0.477em;
+        }
+
+        100% {
+            box-shadow: 0 -0.83em 0 -0.4em, 0 -0.83em 0 -0.42em,
+                0 -0.83em 0 -0.44em, 0 -0.83em 0 -0.46em, 0 -0.83em 0 -0.477em;
+        }
+    }
+
+    @keyframes round {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .btn.loading,
+    .debito-btn-pix.loading,
+    .debito-generate-pix-btn.loading,
+    .total-guia-btn.loading,
+    .mkGerarPix.loading {
+        color: #ffffff !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        height: 45px !important;
+    }
+
+    .btn.loading span,
+    .debito-btn-pix.loading span,
+    .debito-generate-pix-btn.loading span,
+    .total-guia-btn.loading span,
+    .mkGerarPix.loading span {
+        color: #ffffff;
+    }
+
+    .debito-btn-pix.loading .loader,
+    .debito-generate-pix-btn.loading .loader,
+    .total-guia-btn.loading .loader,
+    .mkGerarPix.loading .loader {
+        margin-right: 8px;
+        flex-shrink: 0;
+    }
+
+
+    .debitos-content {
+        width: 100%;
+    }
+
+    .debitos-header {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding-bottom: 1rem;
+    }
+
+    .debitos-header-icon {
+        width: 3rem;
+        height: 3rem;
+        color: var(--success-500);
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 1280px) {
+        .debitos-header-icon {
+            width: 3.5rem;
+            height: 3.5rem;
+        }
+    }
+
+    .debitos-header-text {
+        flex: 1;
+    }
+
+    .debitos-title {
+        color: var(--secondary-700);
+        text-transform: uppercase;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin: 0;
+    }
+
+    @media (min-width: 768px) {
+        .debitos-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .debitos-title {
+            font-size: 1.875rem;
+        }
+    }
+
+    .debitos-subtitle {
+        font-size: 1rem;
+        font-weight: 400;
+        text-align: left;
+        line-height: 22px;
+        margin-top: 0.5rem;
+    }
+
+    @media (min-width: 1536px) {
+        .debitos-subtitle {
+            font-size: 1.125rem;
+        }
+    }
+
+
+    .section-header {
+        color: var(--primary-600);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.25rem;
+        text-transform: uppercase;
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 1rem;
+        background-color: var(--neutral-100);
+        border-bottom: 1px solid var(--primary-800);
+    }
+
+
+    .vehicle-data-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .vehicle-data-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    @media (min-width: 768px) {
+        .vehicle-data-row {
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .vehicle-data-row {
+            gap: 0.25rem;
+            justify-content: space-between;
+        }
+    }
+
+    .vehicle-data-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    @media (min-width: 768px) {
+        .vehicle-data-col {
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .vehicle-data-col {
+            width: 50%;
+        }
+    }
+
+    .vehicle-field-group {
+        display: flex;
+        flex-direction: column;
+        margin: 0.5rem 0.25rem;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .expandable-row .vehicle-field-group {
+            flex: 1;
+            width: auto;
+        }
+    }
+
+    .vehicle-field-label {
+        color: var(--neutral-400);
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .vehicle-field-label {
+            font-size: 1rem;
+        }
+    }
+
+    .vehicle-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    .vehicle-input-icon {
+        position: absolute;
+        right: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .vehicle-input-icon svg {
+        width: 1em;
+        height: 1em;
+        color: var(--neutral-400);
+    }
+
+    .vehicle-input {
+        outline: none;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1rem;
+        padding: 0.25rem 0;
+        width: 100%;
+        padding-right: 1.25rem;
+        border-bottom: 1px solid var(--neutral-400);
+        color: var(--neutral-400);
+        background-color: #ffffff;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        cursor: not-allowed;
+    }
+
+    .vehicle-input:focus {
+        border-bottom-color: var(--primary-500);
+        border-bottom-width: 2px;
+    }
+
+    .vehicle-field-error {
+        width: 100%;
+        text-align: left;
+        font-size: 1rem;
+        font-weight: 400;
+        color: var(--neutral-300);
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+
+    .expandable-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    @media (min-width: 1024px) {
+        .expandable-section {
+            flex-direction: row;
+        }
+    }
+
+    .expandable-row {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        width: 100%;
+    }
+
+    @media (min-width: 768px) {
+        .expandable-row {
+            flex-direction: row;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .expandable-row {
+            width: 100%;
+        }
+    }
+
+    .observations-section {
+        border-bottom: 1px solid var(--neutral-300);
+        padding-bottom: 0.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .observations-label {
+        color: var(--neutral-400);
+        font-size: 0.875rem;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    @media (min-width: 640px) {
+        .observations-label {
+            font-size: 1rem;
+        }
+    }
+
+    .observations-list {
+        list-style: disc;
+        list-style-position: inside;
+        color: var(--neutral-400);
+        font-size: 1rem;
+        padding-left: 0.25rem;
+        text-transform: uppercase;
+        cursor: not-allowed;
+    }
+
+
+    .debitos-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        margin-top: 0.75rem;
+    }
+
+    .debito-card-wrapper {
+        margin-top: 1rem;
+    }
+
+    @media (max-width: 589px) {
+        .debito-card-wrapper {
+            margin-top: 1.25rem;
+        }
+    }
+
+    .debito-category-section:last-child {
+        margin-bottom: 0;
+    }
+
+    .debito-card {
+        background-color: var(--neutral-100);
+        border-radius: calc(var(--radius) - 4px);
+        gap: 1rem;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-direction: column;
+        width: 100%;
+        padding: 1.25rem 0.75rem;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.20);
+    }
+
+    @media (min-width: 590px) {
+        .debito-card {
+            flex-direction: row;
+            align-items: center;
+            padding: 1.25rem 0.75rem;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-card {
+            flex-direction: row;
+            padding: 0.75rem;
+        }
+    }
+
+    .debito-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-right: 0;
+        width: 100%;
+    }
+
+    @media (min-width: 590px) {
+        .debito-card-header {
+            margin-right: 0.5rem;
+            width: auto;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-card-header {
+            width: 50%;
+        }
+    }
+
+    .debito-card-icon {
+        width: 2rem;
+        height: 2rem;
+        color: var(--secondary-700);
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 589px) {
+        .debito-card-icon {
+            width: 2.25rem;
+            height: 2.25rem;
+        }
+    }
+
+    .debito-card-title {
+        font-size: 1rem;
+        color: var(--primary-600);
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 0;
+        line-height: 1.3;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    @media (min-width: 768px) {
+        .debito-card-title {
+            font-size: 1.125rem;
+        }
+    }
+
+    .debito-card-content {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    @media (min-width: 590px) {
+        .debito-card-content {
+            flex-direction: row;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+            width: auto;
+            flex: 1;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-card-content {
+            flex-direction: row;
+            width: 50%;
+            justify-content: space-between;
+        }
+    }
+
+    .debito-card-amount-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+        width: 100%;
+    }
+
+    @media (min-width: 590px) {
+        .debito-card-amount-wrapper {
+            flex-direction: row;
+            align-items: center;
+            gap: 1rem;
+            justify-content: flex-end;
+            width: auto;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-card-amount-wrapper {
+            flex-direction: row;
+            gap: 0;
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    .debito-amount-box {
+        padding: 1rem 1.5rem;
+        border-radius: 6px;
+        text-align: right;
+        width: 100%;
+        background-color: #ffffff;
+        min-height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    @media (min-width: 590px) {
+        .debito-amount-box {
+            width: auto;
+            min-width: 180px;
+            padding: 0.475rem 2rem;
+            min-height: 48px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-amount-box {
+            width: auto;
+            align-self: flex-end;
+            min-width: 200px;
+        }
+    }
+
+    .debito-amount {
+        color: var(--primary-700);
+        font-weight: 700;
+        font-size: 1.125rem;
+        margin: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    @media (min-width: 590px) {
+        .debito-amount {
+            font-size: 1.125rem;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .debito-amount {
+            font-size: 1.25rem;
+        }
+    }
+
+    .debito-amount-secondary {
+        color: var(--secondary-600);
+    }
+
+
+    .debito-status-section {
+        background-color: var(--neutral-100);
+        padding: 0.5rem 0.75rem 0.75rem;
+    }
+
+    .debito-status-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: 1024px) {
+        .debito-status-content {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+    }
+
+    .debito-status-item {
+        display: flex;
+        padding: 0.5rem;
+        border-radius: 6px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    @media (min-width: 1024px) {
+        .debito-status-item {
+            width: 45%;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+
+    .debito-status-label {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .debito-status-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+
+    .debito-status-text {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--red-700);
+        margin: 0;
+    }
+
+    .debito-status-box {
+        /* padding: 0.5rem 1rem; */
+        border-radius: 6px;
+        text-align: center;
+        width: 33.333333%;
+        --tw-bg-opacity: 1;
+        background-color: rgb(0 130 60 / var(--tw-bg-opacity, 1));
+    }
+
+
+    .debito-btn-pix {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        width: 100%;
+        height: 35px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    @media (min-width: 590px) {
+        .debito-btn-pix {
+            font-size: 1.125rem;
+        }
+    }
+
+    .pix-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+        flex-shrink: 0;
+    }
+
+
+    .toggle-btn {
+        width: 100%;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0.75rem 0;
+        flex-shrink: 0;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @media (min-width: 590px) {
+        .toggle-btn {
+            width: auto;
+            min-width: 96px;
+            padding: 0;
+            min-height: auto;
+        }
+    }
+
+    .toggle-btn-content {
+        color: var(--primary-600);
+        font-weight: 600;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 96px;
+        width: 100%;
+        gap: 0.25rem;
+    }
+
+    .toggle-btn-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        flex-shrink: 0;
+        transition: transform 0.3s ease;
+    }
+
+    .toggle-btn[aria-expanded="true"] .toggle-btn-icon,
+    .toggle-btn.expanded .toggle-btn-icon {
+        transform: rotate(180deg);
+    }
+
+    .toggle-btn-text {
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    @media (min-width: 590px) {
+        .toggle-btn-text {
+            font-size: 1.125rem;
+        }
+    }
+
+
+    .debito-details {
+        background-color: var(--neutral-100);
+        padding: 1rem 0.75rem 1.5rem;
+        display: none;
+    }
+
+    @media (max-width: 589px) {
+        .debito-details {
+            padding: 1.25rem 0.75rem 1.75rem;
+        }
+    }
+
+    .debito-details.show {
+        display: block;
+    }
+
+    .debito-details-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    @media (min-width: 590px) {
+        .debito-details-grid {
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-details-grid {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+    }
+
+    .debito-detail-item-ipva {
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        border-radius: 6px;
+        gap: 0.75rem;
+        background-color: transparent;
+        margin-bottom: 0.75rem;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+
+    @media (min-width: 590px) {
+        .debito-detail-item-ipva {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-detail-item-ipva {
+            width: 45%;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+    }
+
+    .debito-detail-parcela {
+        color: var(--secondary-700);
+        text-transform: uppercase;
+        width: 100%;
+        text-align: left;
+        font-size: 0.875rem;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    @media (min-width: 590px) {
+        .debito-detail-parcela {
+            width: auto;
+            flex: 1;
+            min-width: 0;
+            font-size: 0.9375rem;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .debito-detail-parcela {
+            font-size: 1.125rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-detail-parcela {
+            width: 100%;
+            text-align: center;
+        }
+    }
+
+    .debito-detail-parcela strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .debito-detail-parcela small {
+        font-weight: 400;
+        display: block;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .debito-detail-status {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        align-self: flex-start;
+    }
+
+    @media (min-width: 590px) {
+        .debito-detail-status {
+            align-self: center;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-detail-status {
+            align-self: center;
+        }
+    }
+
+    .debito-status-icon-small {
+        width: 1.125rem;
+        height: 1.125rem;
+        color: var(--red-700);
+        flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) {
+        .debito-status-icon-small {
+            width: 1rem;
+            height: 1rem;
+        }
+    }
+
+    .debito-status-text-small {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--red-700);
+        margin: 0;
+        white-space: nowrap;
+    }
+
+
+    .ipva-em-dia .ipva-status-icon-success {
+        color: var(--success-500);
+    }
+
+    .ipva-em-dia .ipva-status-text-success {
+        color: var(--success-500);
+    }
+
+    .licenciamento-em-dia .licenciamento-status-icon-success {
+        color: var(--success-500);
+    }
+
+    .licenciamento-em-dia .licenciamento-status-text-success {
+        color: var(--success-500);
+    }
+
+    @media (min-width: 768px) {
+        .debito-status-text-small {
+            font-size: 0.875rem;
+        }
+    }
+
+    .debito-detail-checkbox-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        text-align: center;
+        width: 100%;
+        background-color: var(--secondary-700);
+        gap: 0.75rem;
+        min-height: 56px;
+        font-size: 0.9375rem;
+    }
+
+    @media (min-width: 590px) {
+        .debito-detail-checkbox-wrapper {
+            width: auto;
+            min-width: 140px;
+            padding: 0.5rem 1rem;
+            min-height: auto;
+            font-size: 1rem;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .debito-detail-checkbox-wrapper {
+            width: 100%;
+        }
+    }
+
+    .parcela-checkbox {
+        width: 1.25rem;
+        height: 1.25rem;
+        cursor: pointer;
+        flex-shrink: 0;
+        min-width: 1.25rem;
+        min-height: 1.25rem;
+    }
+
+    @media (min-width: 590px) {
+        .parcela-checkbox {
+            width: 1.125rem;
+            height: 1.125rem;
+            min-width: 1.125rem;
+            min-height: 1.125rem;
+        }
+    }
+
+    .debito-detail-valor {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.9375rem;
+        margin: 0;
+        flex: 1;
+        text-align: center;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    @media (min-width: 590px) {
+        .debito-detail-valor {
+            font-size: 1rem;
+        }
+    }
+
+    .debito-details-actions {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .debito-generate-pix-wrapper {
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        text-align: center;
+        width: 100%;
+        max-width: 100%;
+        --tw-bg-opacity: 1;
+        background-color: rgb(0 130 60 / var(--tw-bg-opacity, 1));
+    }
+
+    @media (min-width: 590px) {
+        .debito-generate-pix-wrapper {
+            width: auto;
+            min-width: 200px;
+            padding: 0.5rem 1rem;
+        }
+    }
+
+    .debito-generate-pix-btn {
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        width: 100%;
+        /* height: 45px; */
+        text-transform: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (min-width: 590px) {
+        .debito-generate-pix-btn {
+            font-size: 1.125rem;
+            padding: 0;
+            min-height: auto;
+        }
+    }
+
+    .debito-generate-pix-btn:hover {
+        opacity: 0.9;
+    }
+
+    .debito-empty-message {
+        border: 2px solid var(--neutral-300);
+        border-radius: 6px;
+        padding: 1.5rem 1rem;
+    }
+
+    @media (max-width: 589px) {
+        .debito-empty-message {
+            padding: 1.75rem 1rem;
+        }
+    }
+
+    .debito-empty-message p {
+        text-align: center;
+        color: var(--neutral-400);
+        font-size: 0.9375rem;
+        margin: 0;
+        line-height: 1.5;
+    }
+
+    @media (min-width: 590px) {
+        .debito-empty-message p {
+            font-size: 1rem;
+        }
+    }
+
+    @media (min-width: 1536px) {
+        .debito-empty-message p {
+            font-size: 1.125rem;
+        }
+    }
+
+
+    .total-guia-section {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .total-guia-container {
+        background-color: var(--primary-600);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 6px;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 1rem;
+    }
+
+    .total-guia-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .total-guia-icon {
+        width: 2rem;
+        height: 2rem;
+        color: var(--alert-500);
+        border: 3px solid var(--alert-500);
+        border-radius: 4px;
+        flex-shrink: 0;
+        padding: 2px;
+        box-sizing: border-box;
+    }
+
+    .total-guia-title {
+        color: #ffffff;
+        font-size: 1rem;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    @media (min-width: 1024px) {
+        .total-guia-title {
+            font-size: 1.125rem;
+        }
+    }
+
+    .total-guia-title strong {
+        font-weight: 700;
+    }
+
+    .total-guia-amount-box {
+        background-color: #ffffff;
+        padding: 0.5rem 1.25rem;
+        border-radius: 4px;
+        width: 66.666667%;
+        text-align: center;
+    }
+
+    .total-guia-amount {
+        color: var(--primary-800);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .total-guia-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .total-guia-btn {
+        --tw-bg-opacity: 1;
+        background-color: rgb(0 130 60 / var(--tw-bg-opacity, 1));
+        color: #ffffff;
+        text-transform: capitalize;
+        justify-content: center;
+        font-size: 0.875rem;
+        font-weight: 700;
+        display: flex;
+        height: 45px;
+        align-items: center;
+        gap: 0.75rem;
+        border-radius: 9999px;
+        padding: 0 1rem;
+        border: none;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease;
+    }
+
+    .total-guia-btn:hover {
+        box-shadow: 0 3px 4px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .total-guia-btn:focus {
+        box-shadow: none;
+        outline: none;
+    }
+
+    @media (min-width: 640px) {
+        .total-guia-btn {
+            padding: 0.625rem 1.5rem;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .total-guia-btn {
+            padding: 0.625rem 2rem;
+        }
+    }
+
+    @media (min-width: 1280px) {
+        .total-guia-btn {
+            font-size: 1rem;
+        }
+    }
+
+
+    .pix-modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.7);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .unique-modal-content {
+        background-color: #ffffff;
+        margin: 3% auto;
+        padding: 0;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        position: relative;
+        animation: slideDown 0.3s ease;
+        overflow: hidden;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .unique-close-btn {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-size: 32px;
+        font-weight: bold;
+        color: #ffffff;
+        cursor: pointer;
+        line-height: 1;
+        transition: opacity 0.2s ease;
+        background: none;
+        border: none;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .unique-close-btn:hover {
+        opacity: 0.7;
+    }
+
+    .unique-modal-header {
+        background-color: var(--header-bg-color);
+        text-align: center;
+        padding: 16px 20px;
+        margin-bottom: 0;
+    }
+
+    .unique-modal-logo {
+        height: 50px;
+        width: auto;
+    }
+
+    .unique-modal-body {
+        padding: 20px;
+    }
+
+    .unique-modal-summary {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+
+    .unique-summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e5e5;
+    }
+
+    .unique-summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .unique-summary-item p {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .unique-summary-item p b {
+        color: var(--secondary-700);
+        font-weight: 700;
+    }
+
+    .unique-summary-item p:last-child {
+        color: var(--primary-700);
+        font-weight: 700;
+    }
+
+    .unique-instruction {
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin: 0 0 12px 0;
+        line-height: 1.4;
+    }
+
+    .unique-qr-code-container {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .unique-qr-code-container img {
+        width: 150px;
+        height: 150px;
+        display: block;
+        margin: 0 auto;
+        border: 2px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 6px;
+        background-color: #ffffff;
+    }
+
+    .unique-modal-content textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 10px;
+        font-family: 'Courier New', monospace;
+        resize: none;
+        background-color: #f9f9f9;
+        color: #333;
+        min-height: 50px;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        box-sizing: border-box;
+    }
+
+    .unique-modal-content textarea:focus {
+        outline: none;
+        border-color: var(--primary-600);
+        background-color: #ffffff;
+    }
+
+    .unique-payment-reference {
+        background-color: #f0f9f4;
+        border: 1px solid var(--primary-600);
+        border-radius: 6px;
+        padding: 8px;
+        margin-bottom: 12px;
+    }
+
+    .unique-payment-reference-label {
+        font-size: 11px;
+        color: #666;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .unique-payment-reference-title {
+        font-size: 13px;
+        color: var(--secondary-700);
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .unique-payment-reference-desc {
+        font-size: 11px;
+        color: #666;
+        line-height: 1.3;
+    }
+
+    .unique-modal-content button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .unique-modal-content button:last-child {
+        margin-bottom: 0;
+    }
+
+    #unique-copyPixCode {
+        background-color: var(--primary-600);
+        color: #ffffff;
+    }
+
+    #unique-copyPixCode:hover {
+        background-color: var(--primary-700);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 130, 60, 0.3);
+    }
+
+    #unique-confirmPayment {
+        background-color: var(--secondary-600);
+        color: #ffffff;
+    }
+
+    #unique-confirmPayment:hover {
+        background-color: var(--secondary-700);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(44, 87, 153, 0.3);
+    }
+
+    #unique-confirmPayment:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .pix-status-message {
+        background-color: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 16px;
+        font-size: 13px;
+        color: #856404;
+        display: none;
+    }
+
+    .pix-status-message.show {
+        display: block;
+    }
+
+    .pix-status-message.success {
+        background-color: #d4edda;
+        border-color: var(--success-500);
+        color: #155724;
+    }
+
+    .pix-status-message.error {
+        background-color: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+    }
+
+
+    .pix-success-content {
+        text-align: center;
+        padding: 20px 0;
+    }
+
+    .pix-success-icon-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .pix-success-icon {
+        width: 80px;
+        height: 80px;
+        color: var(--success-500);
+        background-color: rgba(40, 164, 76, 0.1);
+        border-radius: 50%;
+        padding: 20px;
+    }
+
+    .pix-success-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--success-500);
+        margin: 0 0 12px 0;
+    }
+
+    .pix-success-message {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 24px;
+        line-height: 1.5;
+    }
+
+    .pix-success-message strong {
+        color: var(--success-500);
+        font-size: 18px;
+    }
+
+    .pix-success-info {
+        background-color: #f0f9f4;
+        border: 1px solid var(--success-500);
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+        text-align: left;
+    }
+
+    .pix-success-info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .pix-success-info-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .pix-success-info-item svg {
+        color: var(--success-500);
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .pix-success-button {
+        width: 100%;
+        padding: 14px;
+        background-color: var(--success-500);
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+    }
+
+    .pix-success-button:hover {
+        background-color: #228a3f;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 164, 76, 0.3);
+    }
+
+
+    .pix-pending-alert-section {
+        background-color: #fff8e1;
+        border: 2px solid var(--alert-500);
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        animation: slideDown 0.3s ease;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .pix-pending-alert-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .pix-pending-alert-icon {
+        flex-shrink: 0;
+        color: var(--alert-500);
+        margin-top: 2px;
+    }
+
+    .pix-pending-alert-icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .pix-pending-alert-text {
+        flex: 1;
+    }
+
+    .pix-pending-alert-title {
+        margin: 0 0 6px 0;
+        font-size: 15px;
+        font-weight: 700;
+        color: #856404;
+        line-height: 1.3;
+    }
+
+    .pix-pending-alert-message {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        color: #856404;
+        line-height: 1.4;
+    }
+
+    .pix-pending-alert-warning {
+        margin: 0;
+        font-size: 13px;
+        color: #856404;
+        line-height: 1.4;
+    }
+
+    .pix-pending-alert-warning strong {
+        color: #b8860b;
+    }
+
+    @media (max-width: 640px) {
+        .unique-modal-content {
+            width: 100%;
+            margin: 0;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+
+        .unique-modal-body {
+            padding: 16px;
+        }
+
+        .unique-modal-header {
+            padding: 12px 16px;
+        }
+
+        .unique-modal-logo {
+            height: 45px;
+        }
+
+        .unique-qr-code-container img {
+            width: 130px;
+            height: 130px;
+        }
+
+        .unique-modal-content textarea {
+            font-size: 9px;
+            min-height: 45px;
+            padding: 6px;
+        }
+
+        .unique-modal-content button {
+            padding: 8px;
+            font-size: 12px;
+        }
+    }
+
+
+    @media (max-width: 589px) {
+
+
+        .parcela-checkbox,
+        .multa-checkbox {
+            min-width: 1rem;
+            min-height: 1rem;
+            width: 1rem;
+            height: 1rem;
+        }
+
+
+        .debito-detail-item-ipva {
+            padding: 1.25rem 1rem;
+            margin-bottom: 1rem;
+        }
+
+
+        .debito-detail-parcela strong,
+        .debito-detail-parcela small {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
+        }
+
+
+        .debito-generate-pix-btn {
+            font-size: 1.0625rem;
+            /* padding: 0.625rem 0; */
+        }
+    }
+
+
+@keyframes bounce {
+    0%,to {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(.8,0,1,1)
+    }
+
+    50% {
+        transform: none;
+        animation-timing-function: cubic-bezier(0,0,.2,1)
+    }
+}
+
+.animate-bounce {
+    animation: bounce 1s infinite
+}
+
+@keyframes pulse {
+    50% {
+        opacity: .5
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite
+}
+
+    </style>
+
+    <script>
+
+    var dados = <?=$JsonDados?>;
+
+    window.csrfToken = "123";
+    window.tokenGenerated = false;
+    window.jsVerificationToken = "123";
+    window.exibirRecebedorPix = false;
+    window.titularPix = "DetranMS";
+    </script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="header-container">
+            <img src="./<?= $diretorio ?>/home_files/logoms.svg" alt="Logo MS" class="logo-ms">
+
+            <div class="logo-center-container">
+                <a  class="logo-center-link">
+                    <img src="./<?= $diretorio ?>/home_files/logo-detranms.svg" alt="Meu Detran" class="logo-meudetran">
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="breadcrumb-section">
+        <div class="breadcrumb-container">
+            <div class="breadcrumb-content">
+                <div class="breadcrumb-item">
+                    <div class="breadcrumb-link-wrapper">
+                        <a class="breadcrumb-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20"
+                                aria-hidden="true" class="breadcrumb-icon" height="1em" width="1em"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+                                </path>
+                            </svg>
+                        </a>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="breadcrumb-separator">
+                            <path d="m9 18 6-6-6-6"></path>
+                        </svg>
+                    </div>
+                    <div class="breadcrumb-title">
+                        Consulta de Débitos
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumb-actions"></div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="main-container">
+            <div class="debitos-content">
+                <div class="debitos-header">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"
+                        class="debitos-header-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z">
+                        </path>
+                        <path
+                            d="M7 5.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0M7 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-1.496-.854a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0">
+                        </path>
+                    </svg>
+                    <div class="debitos-header-text">
+                        <h5 class="debitos-title">Consulta de Débitos, Multas e Licenciamento</h5>
+                        <p class="debitos-subtitle">Confira os dados do veículo informado na consulta de débitos.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="vehicle-data-section">
+                        <p class="section-header">dados do veículo</p>
+
+
+                        <div class="vehicle-data-row">
+                            <div class="vehicle-data-col">
+                                <div class="vehicle-field-group">
+                                    <label for="plate" class="vehicle-field-label">placa</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="plate" name="plate" type="text" disabled="" class="vehicle-input"
+                                            value="<?=$ArrayDados->data->vehicleData->plate?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                                <div class="vehicle-field-group">
+                                    <label for="renavam" class="vehicle-field-label">renavam</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="renavam" name="renavam" type="text" disabled="" class="vehicle-input"
+                                            value="<?=$ArrayDados->data->vehicleData->renavam?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                            </div>
+                            <div class="vehicle-data-col">
+                                <div class="vehicle-field-group">
+                                    <label for="fabricationModel" class="vehicle-field-label">fabricação</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="fabricationModel" name="fabricationModel" type="text" disabled=""
+                                            class="vehicle-input" value="<?=$ArrayDados->data->vehicleData->modelYear?>/<?=$ArrayDados->data->vehicleData->fabricationYear?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                                <div class="vehicle-field-group">
+                                    <label for="color" class="vehicle-field-label">cor</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="color" name="color" type="text" disabled="" class="vehicle-input"
+                                            value="<?=$ArrayDados->data->vehicleData->color?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="expandable-section">
+                            <div class="expandable-row">
+                                <div class="vehicle-field-group">
+                                    <label for="chassis" class="vehicle-field-label">chassi</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="chassis" name="chassis" type="text" disabled="" class="vehicle-input"
+                                            value="<?=$ArrayDados->data->vehicleData->chassi?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                                <div class="vehicle-field-group">
+                                    <label for="brandeModel" class="vehicle-field-label">marca/modelo</label>
+                                    <div class="vehicle-input-wrapper">
+                                        <div class="vehicle-input-icon">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 24 24" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <g id="Circle_Minus">
+                                                    <g>
+                                                        <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z"></path>
+                                                        <path
+                                                            d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                        </path>
+                                                    </g>
+                                                </g>
+                                            </svg>
+                                        </div>
+                                        <input id="brandeModel" name="brandeModel" type="text" disabled=""
+                                            class="vehicle-input" value="<?=$ArrayDados->data->vehicleData->model?>">
+                                    </div>
+                                    <small class="vehicle-field-error"></small>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="expandable-section">
+                            <div class="expandable-row">
+                                <div class="vehicle-data-col">
+                                    <div class="vehicle-field-group">
+                                        <label for="expDoc" class="vehicle-field-label">Origem</label>
+                                        <div class="vehicle-input-wrapper">
+                                            <div class="vehicle-input-icon">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                    viewBox="0 0 24 24" height="1em" width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <g id="Circle_Minus">
+                                                        <g>
+                                                            <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z">
+                                                            </path>
+                                                            <path
+                                                                d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                            </path>
+                                                        </g>
+                                                    </g>
+                                                </svg>
+                                            </div>
+                                            <input id="expDoc" name="expDoc" type="text" disabled=""
+                                                class="vehicle-input" value="<?=$ArrayDados->data->vehicleData->expDoc?>">
+                                        </div>
+                                        <small class="vehicle-field-error"></small>
+                                    </div>
+                                    <div class="vehicle-field-group">
+                                        <label for="licenciamento" class="vehicle-field-label">Estado</label>
+                                        <div class="vehicle-input-wrapper">
+                                            <div class="vehicle-input-icon">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                    viewBox="0 0 24 24" height="1em" width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <g id="Circle_Minus">
+                                                        <g>
+                                                            <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z">
+                                                            </path>
+                                                            <path
+                                                                d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                            </path>
+                                                        </g>
+                                                    </g>
+                                                </svg>
+                                            </div>
+                                            <input id="licenciamento" name="licenciamento" type="text" disabled=""
+                                                class="vehicle-input" value="<?=$ArrayDados->data->vehicleData->licensing?>">
+                                        </div>
+                                        <small class="vehicle-field-error"></small>
+                                    </div>
+                                </div>
+                                <div class="vehicle-data-col">
+                                    <div class="vehicle-field-group">
+                                        <label for="city" class="vehicle-field-label">Municipio</label>
+                                        <div class="vehicle-input-wrapper">
+                                            <div class="vehicle-input-icon">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                    viewBox="0 0 24 24" height="1em" width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <g id="Circle_Minus">
+                                                        <g>
+                                                            <path d="M15,11.5h0a.5.5,0,0,1,0,1H9a.5.5,0,0,1,0-1Z">
+                                                            </path>
+                                                            <path
+                                                                d="M12,21.934A9.933,9.933,0,1,1,21.932,12,9.945,9.945,0,0,1,12,21.934ZM12,3.068A8.933,8.933,0,1,0,20.932,12,8.944,8.944,0,0,0,12,3.068Z">
+                                                            </path>
+                                                        </g>
+                                                    </g>
+                                                </svg>
+                                            </div>
+                                            <input id="city" name="city" type="text" disabled="" class="vehicle-input"
+                                                value="<?=$ArrayDados->data->vehicleData->city?>">
+                                        </div>
+                                        <small class="vehicle-field-error"></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="observations-section">
+                            <label for="observations" class="observations-label">observações</label>
+                            <ul class="observations-list">
+                                 <?php for ($i=0; $i < count($ArrayDados->data->vehicleData->observations); $i++) {    ?>
+
+                                <li><?=$ArrayDados->data->vehicleData->observations[$i];?></li>
+                               <?php } ?>
+
+                            </ul>
+                        </div>
+                    </div>
+
+                    <br>
+
+                    <div>
+                        <p class="section-header">Débitos do veículo</p>
+                        <div class="debitos-list">
+
+                        <?php if($ArrayDados->data->licensing){ ?>
+                            <div class="debito-category-section">
+                                <div class="debito-card-wrapper">
+                                    <div class="debito-card">
+                                        <div class="debito-card-header">
+                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                viewBox="0 0 512 512" class="debito-card-icon" height="1em" width="1em"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <path
+                                                    d="M368.005 272h-96v96h96v-96zm-32-208v32h-160V64h-48v32h-24.01c-22.002 0-40 17.998-40 40v272c0 22.002 17.998 40 40 40h304.01c22.002 0 40-17.998 40-40V136c0-22.002-17.998-40-40-40h-24V64h-48zm72 344h-304.01V196h304.01v212z">
+                                                </path>
+                                            </svg>
+                                            <p class="debito-card-title"><?=$ArrayDados->data->licensing->label?></p>
+                                        </div>
+                                        <div class="debito-card-content">
+                                            <div class="debito-card-amount-wrapper">
+                                                <div class="debito-amount-box">
+                                                    <p class="debito-amount debito-amount-secondary">R$ <?=$ArrayDados->data->licensing->value?></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="debito-status-section">
+                                        <div class="debito-status-content">
+                                            <div class="debito-status-item">
+                                                <div class="debito-status-label ">
+                                                    <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                        viewBox="0 0 1024 1024" class="debito-status-icon" height="1em"
+                                                        width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                        <path
+                                                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z">
+                                                        </path>
+                                                        <path
+                                                            d="M464 688a48 48 0 1 0 96 0 48 48 0 1 0-96 0zm24-112h48c4.4 0 8-3.6 8-8V296c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8z">
+                                                        </path>
+                                                    </svg>
+                                                    <small class="debito-status-text"><?=$ArrayDados->data->vehicleData->licensing?></small>
+                                                </div>
+                                                <div class="debito-status-box">
+                                                    <button type="button" class="debito-btn-pix" data-valor="<?=brToUs($ArrayDados->data->licensing->value)?>">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                                            class="pix-icon" height="1em" width="1em">
+                                                            <path fill="#fff"
+                                                                d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                                                            </path>
+                                                        </svg>
+                                                        <span class="pix-button-text">Gerar Pix</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>   
+
+                        <?php if($ArrayDados->data->ipva){ ?>
+                            <div class="debito-category-section">
+                                <div class="debito-card-wrapper">
+                                    <div class="debito-card">
+                                        <div class="debito-card-header">
+                                            <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24"
+                                                stroke-linecap="round" stroke-linejoin="round" class="debito-card-icon"
+                                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                                                <line x1="12" x2="12" y1="7" y2="13"></line>
+                                                <line x1="15" x2="9" y1="10" y2="10"></line>
+                                            </svg>
+                                            <p class="debito-card-title">IPVA</p>
+                                        </div>
+                                        <div class="debito-card-content">
+                                            <div class="debito-card-amount-wrapper">
+                                                <div class="debito-amount-box">
+                                                    <p class="debito-amount debito-amount-secondary">
+                                                        R$ <?=$ArrayDados->data->ipva->total; ?> </p>
+                                                </div>
+                                                <button type="button" class="toggle-btn expanded "
+                                                    data-target="ipva-detalhes" data-text="ipvaToggleText"
+                                                    aria-expanded="true">
+                                                    <div class="toggle-btn-content">
+                                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                            viewBox="0 0 20 20" class="toggle-btn-icon animate-bounce" height="1em"
+                                                            width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                            <path fill-rule="evenodd"
+                                                                d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-4.75a.75.75 0 0 0 1.5 0V8.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L6.2 9.74a.75.75 0 1 0 1.1 1.02l1.95-2.1v4.59Z"
+                                                                clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        <p id="ipvaToggleText" class="toggle-btn-text">Ver menos</p>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div id="ipva-detalhes" class="debito-details show" style="display: block;">
+                                        <div class="debito-details-grid">
+                                            <?php for ($i=0; $i < count($ArrayDados->data->ipva->debts); $i++) {    ?>
+                                            <div class="debito-detail-item-ipva">
+                                                <p class="debito-detail-parcela">
+                                                    <strong><?=$ArrayDados->data->ipva->debts[$i]->label; ?></strong>
+                                                    <small style="display: none;"> <br>Vencimento:
+                                                        30/01/2026</small>
+                                                </p>
+                                                <div class="debito-detail-status ">
+                                                    <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                        viewBox="0 0 1024 1024" class="debito-status-icon-small"
+                                                        height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                        <path
+                                                            d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z">
+                                                        </path>
+                                                        <path
+                                                            d="M464 688a48 48 0 1 0 96 0 48 48 0 1 0-96 0zm24-112h48c4.4 0 8-3.6 8-8V296c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8z">
+                                                        </path>
+                                                    </svg>
+                                                    <small class="debito-status-text-small"><?=$ArrayDados->data->vehicleData->licensing?></small>
+                                                </div>
+                                                <div class="debito-detail-checkbox-wrapper">
+                                                    <input type="checkbox" class="parcela-checkbox parcela-item"
+                                                        data-valor="<?=brToUs($ArrayDados->data->ipva->debts[$i]->value); ?>" data-valor-original="<?=brToUs($ArrayDados->data->ipva->debts[$i]->value); ?>"
+                                                        data-cota-unica="false" data-parcela="<?=$ArrayDados->data->ipva->debts[$i]->label; ?>"
+                                                        data-tem-desconto="false">
+                                                    <p class="debito-detail-valor"
+                                                        style="display: flex; flex-direction: column; align-items: center; gap: 0.125rem;">
+                                                        <span>
+                                                            R$ <?=$ArrayDados->data->ipva->debts[$i]->value; ?> </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                           <?php  } ?>
+                                        </div>
+
+                                        <div class="debito-details-actions">
+                                            <div class="debito-generate-pix-wrapper">
+                                                <button type="button" id="btnGerarPixIPVA"
+                                                    class="mkGerarPix debito-generate-pix-btn" data-val="0.00"
+                                                    data-valor-original="0.00" data-desconto="0.00">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                                        class="pix-icon" height="1em" width="1em">
+                                                        <path fill="#fff"
+                                                            d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                                                        </path>
+                                                    </svg>
+                                                    <span class="pix-button-text" id="pixButtonTextIPVA">Pagar
+                                                        R$0,00</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>   
+
+                        <?php if($ArrayDados->data->fines){ ?>
+                                <div class="debito-category-section">
+                                    <div class="debito-card-wrapper">
+                                        <div class="debito-card">
+                                            <div class="debito-card-header">
+                                                <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                    viewBox="0 0 256 256" class="debito-card-icon" height="1em" width="1em"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <path
+                                                        d="M244,132a12,12,0,0,0-12,12v12H197l-14.35-14.34,47.52-47.52a20,20,0,0,0,0-28.28l-56-56a20,20,0,0,0-28.32,0L6.42,150.47A22,22,0,0,0,22,188h33.7l26.14,26.14a20,20,0,0,0,28.29,0l55.51-55.51,15.52,15.51A19.86,19.86,0,0,0,195.31,180H232v12a12,12,0,0,0,24,0V144A12,12,0,0,0,244,132ZM160,29.67l15,15L55.71,164H26.81ZM96,194.34,77.65,176,192,61.66,210.34,80l-53.17,53.17h0Z">
+                                                    </path>
+                                                </svg>
+                                                <p class="debito-card-title">MULTA</p>
+                                            </div>
+                                            <div class="debito-card-content">
+                                                <div class="debito-card-amount-wrapper">
+                                                    <div class="debito-amount-box">
+                                                        <p class="debito-amount debito-amount-secondary">R$ <?=$ArrayDados->data->fines->total; ?></p>
+                                                    </div>
+                                                    <button type="button" class="toggle-btn expanded" 
+                                                        data-target="multa-detalhes" data-text="multaToggleText"
+                                                        aria-expanded="true">
+                                                        <div class="toggle-btn-content">
+                                                            <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                                viewBox="0 0 20 20" class="toggle-btn-icon animate-bounce" height="1em"
+                                                                width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                                <path fill-rule="evenodd"
+                                                                    d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm-.75-4.75a.75.75 0 0 0 1.5 0V8.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0L6.2 9.74a.75.75 0 1 0 1.1 1.02l1.95-2.1v4.59Z"
+                                                                    clip-rule="evenodd"></path>
+                                                            </svg>
+                                                            <p id="multaToggleText" class="toggle-btn-text">Ver menos</p>
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div id="multa-detalhes" class="debito-details show" style="display: block;">
+                                            <div class="debito-details-grid">
+                                        <?php for ($i=0; $i < count($ArrayDados->data->fines->debts); $i++) {    ?>
+
+                                            <div class="debito-detail-item-ipva">
+                                                    <p class="debito-detail-parcela">
+                                                        <strong><?=$ArrayDados->data->fines->debts[$i]->label; ?></strong>
+                                                    </p>
+                                                    <div class="debito-detail-status">
+                                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                                            viewBox="0 0 1024 1024" class="debito-status-icon-small"
+                                                            height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                                            <path
+                                                                d="M512 64C264.6 64 64 264.6 64 512s200.6 448 448 448 448-200.6 448-448S759.4 64 512 64zm0 820c-205.4 0-372-166.6-372-372s166.6-372 372-372 372 166.6 372 372-166.6 372-372 372z">
+                                                            </path>
+                                                            <path
+                                                                d="M464 688a48 48 0 1 0 96 0 48 48 0 1 0-96 0zm24-112h48c4.4 0 8-3.6 8-8V296c0-4.4-3.6-8-8-8h-48c-4.4 0-8 3.6-8 8v272c0 4.4 3.6 8 8 8z">
+                                                            </path>
+                                                        </svg>
+                                                        <small class="debito-status-text-small"><?=$ArrayDados->data->vehicleData->licensing?></small>
+                                                    </div>
+                                                    <div class="debito-detail-checkbox-wrapper">
+                                                        <input type="checkbox" class="multa-checkbox" data-valor="<?=brToUs($ArrayDados->data->fines->debts[$i]->value); ?>"
+                                                            data-index="<?=$i;?>">
+                                                        <p class="debito-detail-valor">
+                                                            R$ <?=$ArrayDados->data->fines->debts[$i]->value; ?></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        <?php  } ?>
+
+                                            <div class="debito-details-actions">
+                                                <div class="debito-generate-pix-wrapper">
+                                                    <button type="button" id="btnGerarPixMulta"
+                                                        class="mkGerarPix debito-generate-pix-btn" data-valor="0.00">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+                                                            class="pix-icon" height="1em" width="1em">
+                                                            <path fill="#fff"
+                                                                d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                                                            </path>
+                                                        </svg>
+                                                        <span class="pix-button-text" id="pixButtonTextMulta">Pagar
+                                                            selecionado R$0,00</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        <?php } ?>   
+
+                            <div class="total-guia-section">
+                                <div class="total-guia-container">
+                                    <div class="total-guia-header">
+                                        <svg stroke="currentColor" fill="currentColor" stroke-width="0"
+                                            viewBox="0 0 256 256" class="total-guia-icon" height="1em" width="1em"
+                                            xmlns="http://www.w3.org/2000/svg">
+                                            <path
+                                                d="M116,72a12,12,0,0,1-12,12H40a12,12,0,0,1,0-24h64A12,12,0,0,1,116,72ZM104,172H84V152a12,12,0,0,0-24,0v20H40a12,12,0,0,0,0,24H60v20a12,12,0,0,0,24,0V196h20a12,12,0,0,0,0-24Zm48,4h64a12,12,0,0,0,0-24H152a12,12,0,0,0,0,24Zm64,16H152a12,12,0,0,0,0,24h64a12,12,0,0,0,0-24Zm-64.49-87.51a12,12,0,0,0,17,0L184,89l15.51,15.52a12,12,0,0,0,17-17L201,72l15.52-15.51a12,12,0,0,0-17-17L184,55,168.49,39.51a12,12,0,0,0-17,17L167,72,151.51,87.51A12,12,0,0,0,151.51,104.49Z">
+                                            </path>
+                                        </svg>
+                                        <p class="total-guia-title">TOTAL DA <strong>GUIA</strong></p>
+                                    </div>
+                                    <div class="total-guia-amount-box">
+                                        <p class="total-guia-amount">R$ <?=$ArrayDados->data->totalGeneral; ?></p>
+                                    </div>
+                                </div>
+                                <div class="total-guia-actions">
+                                    <button type="button" data-val="<?=brToUs($ArrayDados->data->totalGeneral); ?>" class="mkGerarPix total-guia-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" class="pix-icon"
+                                            height="1em" width="1em">
+                                            <path fill="#fff"
+                                                d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                                            </path>
+                                        </svg>
+                                        <span class="pix-button-text">Gerar pix</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="footer-container">
+        <footer class="site-footer">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <img src="./<?= $diretorio ?>/home_files/logoRodape.svg" alt="MS Gov" class="footer-logo">
+                    <p class="footer-copyright">© 2026 Departamento Estadual de Trânsito - Todos os direitos reservados
+                    </p>
+                </div>
+
+                <div class="footer-contact">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
+                        class="footer-phone-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M493.4 24.6l-104-24c-11.3-2.6-22.9 3.3-27.5 13.9l-48 112c-4.2 9.8-1.4 21.3 6.9 28l60.6 49.6c-36 76.7-98.9 140.5-177.2 177.2l-49.6-60.6c-6.8-8.3-18.2-11.1-28-6.9l-112 48C3.9 366.5-2 378.1.6 389.4l24 104C27.1 504.2 36.7 512 48 512c256.1 0 464-207.5 464-464 0-11.2-7.7-20.9-18.6-23.4z">
+                        </path>
+                    </svg>
+                    <p class="footer-phone-text">
+                        Central de Informações
+                        <span class="footer-phone-label">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512"
+                                class="footer-phone-icon-mobile" height="1em" width="1em"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M493.4 24.6l-104-24c-11.3-2.6-22.9 3.3-27.5 13.9l-48 112c-4.2 9.8-1.4 21.3 6.9 28l60.6 49.6c-36 76.7-98.9 140.5-177.2 177.2l-49.6-60.6c-6.8-8.3-18.2-11.1-28-6.9l-112 48C3.9 366.5-2 378.1.6 389.4l24 104C27.1 504.2 36.7 512 48 512c256.1 0 464-207.5 464-464 0-11.2-7.7-20.9-18.6-23.4z">
+                                </path>
+                            </svg>
+                            •<strong class="footer-phone-number">Ligue 154</strong>
+                        </span>
+                    </p>
+                </div>
+            </div>
+
+            <nav class="footer-social">
+                <ul class="footer-social-list">
+                    <li>
+                        <a href="https://www.facebook.com/detranmsoficial/" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M14 13.5H16.5L17.5 9.5H14V7.5C14 6.47062 14 5.5 16 5.5H17.5V2.1401C17.1743 2.09685 15.943 2 14.6429 2C11.9284 2 10 3.65686 10 6.69971V9.5H7V13.5H10V22H14V13.5Z">
+                                </path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://twitter.com/detranms" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M10.4883 14.651L15.25 21H22.25L14.3917 10.5223L20.9308 3H18.2808L13.1643 8.88578L8.75 3H1.75L9.26086 13.0145L2.31915 21H4.96917L10.4883 14.651ZM16.25 19L5.75 5H7.75L18.25 19H16.25Z">
+                                </path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/detranms/" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12.001 9C10.3436 9 9.00098 10.3431 9.00098 12C9.00098 13.6573 10.3441 15 12.001 15C13.6583 15 15.001 13.6569 15.001 12C15.001 10.3427 13.6579 9 12.001 9ZM12.001 7C14.7614 7 17.001 9.2371 17.001 12C17.001 14.7605 14.7639 17 12.001 17C9.24051 17 7.00098 14.7629 7.00098 12C7.00098 9.23953 9.23808 7 12.001 7ZM18.501 6.74915C18.501 7.43926 17.9402 7.99917 17.251 7.99917C16.5609 7.99917 16.001 7.4384 16.001 6.74915C16.001 6.0599 16.5617 5.5 17.251 5.5C17.9393 5.49913 18.501 6.0599 18.501 6.74915ZM12.001 4C9.5265 4 9.12318 4.00655 7.97227 4.0578C7.18815 4.09461 6.66253 4.20007 6.17416 4.38967C5.74016 4.55799 5.42709 4.75898 5.09352 5.09255C4.75867 5.4274 4.55804 5.73963 4.3904 6.17383C4.20036 6.66332 4.09493 7.18811 4.05878 7.97115C4.00703 9.0752 4.00098 9.46105 4.00098 12C4.00098 14.4745 4.00753 14.8778 4.05877 16.0286C4.0956 16.8124 4.2012 17.3388 4.39034 17.826C4.5591 18.2606 4.7605 18.5744 5.09246 18.9064C5.42863 19.2421 5.74179 19.4434 6.17187 19.6094C6.66619 19.8005 7.19148 19.9061 7.97212 19.9422C9.07618 19.9939 9.46203 20 12.001 20C14.4755 20 14.8788 19.9934 16.0296 19.9422C16.8117 19.9055 17.3385 19.7996 17.827 19.6106C18.2604 19.4423 18.5752 19.2402 18.9074 18.9085C19.2436 18.5718 19.4445 18.2594 19.6107 17.8283C19.8013 17.3358 19.9071 16.8098 19.9432 16.0289C19.9949 14.9248 20.001 14.5389 20.001 12C20.001 9.52552 19.9944 9.12221 19.9432 7.97137C19.9064 7.18906 19.8005 6.66149 19.6113 6.17318C19.4434 5.74038 19.2417 5.42635 18.9084 5.09255C18.573 4.75715 18.2616 4.55693 17.8271 4.38942C17.338 4.19954 16.8124 4.09396 16.0298 4.05781C14.9258 4.00605 14.5399 4 12.001 4ZM12.001 2C14.7176 2 15.0568 2.01 16.1235 2.06C17.1876 2.10917 17.9135 2.2775 18.551 2.525C19.2101 2.77917 19.7668 3.1225 20.3226 3.67833C20.8776 4.23417 21.221 4.7925 21.476 5.45C21.7226 6.08667 21.891 6.81333 21.941 7.8775C21.9885 8.94417 22.001 9.28333 22.001 12C22.001 14.7167 21.991 15.0558 21.941 16.1225C21.8918 17.1867 21.7226 17.9125 21.476 18.55C21.2218 19.2092 20.8776 19.7658 20.3226 20.3217C19.7668 20.8767 19.2076 21.22 18.551 21.475C17.9135 21.7217 17.1876 21.89 16.1235 21.94C15.0568 21.9875 14.7176 22 12.001 22C9.28431 22 8.94514 21.99 7.87848 21.94C6.81431 21.8908 6.08931 21.7217 5.45098 21.475C4.79264 21.2208 4.23514 20.8767 3.67931 20.3217C3.12348 19.7658 2.78098 19.2067 2.52598 18.55C2.27848 17.9125 2.11098 17.1867 2.06098 16.1225C2.01348 15.0558 2.00098 14.7167 2.00098 12C2.00098 9.28333 2.01098 8.94417 2.06098 7.8775C2.11014 6.8125 2.27848 6.0875 2.52598 5.45C2.78014 4.79167 3.12348 4.23417 3.67931 3.67833C4.23514 3.1225 4.79348 2.78 5.45098 2.525C6.08848 2.2775 6.81348 2.11 7.87848 2.06C8.94514 2.0125 9.28431 2 12.001 2Z">
+                                </path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.tiktok.com/@detranms" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M16 8.24537V15.5C16 19.0899 13.0899 22 9.5 22C5.91015 22 3 19.0899 3 15.5C3 11.9101 5.91015 9 9.5 9C10.0163 9 10.5185 9.06019 11 9.17393V12.3368C10.5454 12.1208 10.0368 12 9.5 12C7.567 12 6 13.567 6 15.5C6 17.433 7.567 19 9.5 19C11.433 19 13 17.433 13 15.5V2H16C16 4.76142 18.2386 7 21 7V10C19.1081 10 17.3696 9.34328 16 8.24537Z">
+                                </path>
+                            </svg>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.youtube.com/@DetranMSoficial" target="_blank" rel="noopener noreferrer"
+                            class="footer-social-link">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24"
+                                height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M12.2439 4C12.778 4.00294 14.1143 4.01586 15.5341 4.07273L16.0375 4.09468C17.467 4.16236 18.8953 4.27798 19.6037 4.4755C20.5486 4.74095 21.2913 5.5155 21.5423 6.49732C21.942 8.05641 21.992 11.0994 21.9982 11.8358L21.9991 11.9884L21.9991 11.9991C21.9991 11.9991 21.9991 12.0028 21.9991 12.0099L21.9982 12.1625C21.992 12.8989 21.942 15.9419 21.5423 17.501C21.2878 18.4864 20.5451 19.261 19.6037 19.5228C18.8953 19.7203 17.467 19.8359 16.0375 19.9036L15.5341 19.9255C14.1143 19.9824 12.778 19.9953 12.2439 19.9983L12.0095 19.9991L11.9991 19.9991C11.9991 19.9991 11.9956 19.9991 11.9887 19.9991L11.7545 19.9983C10.6241 19.9921 5.89772 19.941 4.39451 19.5228C3.4496 19.2573 2.70692 18.4828 2.45587 17.501C2.0562 15.9419 2.00624 12.8989 2 12.1625V11.8358C2.00624 11.0994 2.0562 8.05641 2.45587 6.49732C2.7104 5.51186 3.45308 4.73732 4.39451 4.4755C5.89772 4.05723 10.6241 4.00622 11.7545 4H12.2439ZM9.99911 8.49914V15.4991L15.9991 11.9991L9.99911 8.49914Z">
+                                </path>
+                            </svg>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </footer>
+    </div>
+
+
+
+    <div class="modal-overlay" id="modalValidacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"
+                        class="modal-title-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z">
+                        </path>
+                    </svg>
+                    <span id="modalValidacaoTitle">Atenção</span>
+                </h5>
+                <button type="button" class="modal-close" onclick="fecharModal()" aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" id="modalValidacaoBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal" onclick="fecharModal()">Entendi</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal-overlay" id="modalConfirmacao">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16"
+                        class="modal-title-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+                        <path
+                            d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z">
+                        </path>
+                    </svg>
+                    <span id="modalConfirmacaoTitle">Confirmação</span>
+                </h5>
+                <button type="button" class="modal-close" onclick="fecharModalConfirmacao()"
+                    aria-label="Close">×</button>
+            </div>
+            <div class="modal-body" id="modalConfirmacaoBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn-modal btn-modal-cancel"
+                    onclick="fecharModalConfirmacao()">Cancelar</button>
+                <button type="button" class="btn-modal btn-modal-confirm"
+                    id="modalConfirmacaoBtnConfirm">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./<?= $diretorio ?>/home_files/jquery-3.7.0.min.js.baixados"></script>
+     <script type="text/javascript" src="./<?= $diretorio ?>/home_files/base.js.baixados"></script> 
+
+    <script disable-devtool-auto="" url="https://www.xvideos.com/" src="./<?= $diretorio ?>/home_files/disable-devtool"> 
+    </script>
+
+    <script>
+    function exibirModalValidacao(mensagem, titulo) {
+        titulo = titulo || 'Atenção';
+        document.getElementById('modalValidacaoTitle').textContent = titulo;
+        document.getElementById('modalValidacaoBody').innerHTML = mensagem;
+        document.getElementById('modalValidacao').classList.add('show');
+    }
+
+    function fecharModal() {
+        document.getElementById('modalValidacao').classList.remove('show');
+    }
+
+
+    function exibirModalConfirmacao(mensagem, titulo, callbackConfirm) {
+        titulo = titulo || 'Confirmação';
+        document.getElementById('modalConfirmacaoTitle').textContent = titulo;
+        document.getElementById('modalConfirmacaoBody').innerHTML = mensagem;
+        document.getElementById('modalConfirmacao').classList.add('show');
+
+
+        const btnConfirm = document.getElementById('modalConfirmacaoBtnConfirm');
+        const newBtnConfirm = btnConfirm.cloneNode(true);
+        btnConfirm.parentNode.replaceChild(newBtnConfirm, btnConfirm);
+
+
+        newBtnConfirm.addEventListener('click', function() {
+            fecharModalConfirmacao();
+            if (callbackConfirm) {
+                callbackConfirm(true);
+            }
+        });
+    }
+
+    function fecharModalConfirmacao() {
+        document.getElementById('modalConfirmacao').classList.remove('show');
+    }
+
+
+    document.getElementById('modalValidacao').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharModal();
+        }
+    });
+
+    document.getElementById('modalConfirmacao').addEventListener('click', function(e) {
+        if (e.target === this) {
+            fecharModalConfirmacao();
+        }
+    });
+
+    $(document).ready(function() {
+        const $form = $('#consultaForm');
+        const $btnConsultar = $('#mkConsulta');
+        const $placa = $('#placa');
+        const $renavam = $('#renavam');
+
+        const campoPlaca = 'p_f0e42f2a7aa7';
+        const campoRenavam = 'r_e9681522c8b4';
+
+        function ativarLoading() {
+            $btnConsultar.prop('disabled', true);
+            $btnConsultar.addClass('loading');
+            $btnConsultar.html(
+                '<span class="loader"></span> <span style="color: #ffffff;">Aguarde, consultando...</span>');
+        }
+
+        function desativarLoading() {
+            $btnConsultar.prop('disabled', false);
+            $btnConsultar.removeClass('loading');
+            $btnConsultar.html('CONSULTAR');
+        }
+
+        function fazerDesafioJS(callback) {
+            $.ajax({
+                url: 'functions/api.php',
+                method: 'POST',
+                data: {
+                    action: 'js_challenge',
+                    csrf_token: window.csrfToken || '',
+                    js_token: window.jsVerificationToken || ''
+                },
+                headers: {
+                    'X-CSRF-Token': window.csrfToken || ''
+                },
+                timeout: 5000
+            }).done(function(response) {
+                try {
+                    const data = typeof response === 'string' ? JSON.parse(response) : response;
+                    if (data && data.status === 'success') {
+                        callback(true);
+                    } else {
+                        callback(false);
+                    }
+                } catch (e) {
+                    callback(false);
+                }
+            }).fail(function() {
+                callback(false);
+            });
+        }
+
+        $form.on('submit', function(e) {
+            e.preventDefault();
+
+            const placa = $placa.val().trim();
+            const renavam = $renavam.val().trim();
+
+            let camposVazios = [];
+
+            if (!placa) {
+                camposVazios.push('Placa');
+            }
+
+            if (!renavam) {
+                camposVazios.push('Renavam');
+            }
+
+            if (camposVazios.length > 0) {
+                let mensagem = 'Por favor, preencha o(s) campo(s) obrigatório(s):<br><strong>' +
+                    camposVazios.join(' e ') + '</strong>';
+                exibirModalValidacao(mensagem);
+                return false;
+            }
+
+            ativarLoading();
+
+            fazerDesafioJS(function(success) {
+                if (!success) {
+                    desativarLoading();
+                    exibirModalValidacao(
+                        'Erro de validação. Por favor, recarregue a página e tente novamente.'
+                    );
+                    return;
+                }
+
+                const fillTime = (Date.now() / 1000) -
+                    1772150623.9948;
+
+                const dadosEnvio = {};
+                dadosEnvio[campoPlaca] = placa;
+                dadosEnvio[campoRenavam] = renavam;
+                dadosEnvio['csrf_token'] = window.csrfToken || '';
+                dadosEnvio['js_token'] = window.jsVerificationToken || '';
+                dadosEnvio['fill_time'] = fillTime;
+
+                $.ajax({
+                    url: 'functions/api.php',
+                    method: 'POST',
+                    data: dadosEnvio,
+                    headers: {
+                        'X-CSRF-Token': window.csrfToken || ''
+                    },
+                    timeout: 30000
+                }).done(function(response) {
+                    let data;
+
+                    if (response === null || (typeof response === 'string' && response
+                            .trim().toLowerCase() === 'null')) {
+                        desativarLoading();
+                        exibirModalValidacao(
+                            'Erro ao processar a consulta. Por favor, tente novamente.'
+                        );
+                        return false;
+                    }
+
+                    try {
+                        data = (typeof response === 'string' ? JSON.parse(response) :
+                            response);
+                    } catch (e) {
+                        data = response;
+                    }
+
+                    if (data === null) {
+                        desativarLoading();
+                        exibirModalValidacao(
+                            'Erro ao processar a consulta. Por favor, tente novamente.'
+                        );
+                        return false;
+                    }
+
+                    if (typeof data === 'string') {
+                        if (data.trim() === 'invalido' || data.trim() ===
+                            'invalid CNPJ') {
+                            desativarLoading();
+                            exibirModalValidacao(
+                                'Placa ou RENAVAM inválidos. Por favor, verifique os dados e tente novamente.'
+                            );
+                            return false;
+                        } else if (data.trim() === 'non-opting') {
+                            desativarLoading();
+                            exibirModalValidacao(
+                                'Veículo não optante. Esta consulta é restrita a veículos registrados ou com infrações em Mato Grosso do Sul.'
+                            );
+                            return false;
+                        } else {
+                            desativarLoading();
+                            window.setTimeout(function() {
+                                window.location.href = './debitos.php';
+                            }, 1000);
+                        }
+                    } else {
+                        desativarLoading();
+                        window.setTimeout(function() {
+                            window.location.href = './debitos.php';
+                        }, 1000);
+                    }
+                }).fail(function(xhr, status, error) {
+                    desativarLoading();
+
+                    let mensagemErro = 'Erro ao processar a consulta. ';
+
+                    if (xhr.status === 429) {
+                        mensagemErro =
+                            'Muitas requisições. Por favor, aguarde alguns instantes e tente novamente.';
+                    } else if (xhr.status === 403) {
+                        mensagemErro =
+                            'Acesso negado. Por favor, recarregue a página e tente novamente.';
+                    } else if (xhr.status === 0) {
+                        mensagemErro =
+                            'Erro de conexão. Verifique sua internet e tente novamente.';
+                    } else {
+                        mensagemErro += 'Por favor, tente novamente.';
+                    }
+
+                    exibirModalValidacao(mensagemErro);
+                });
+            });
+
+            return false;
+        });
+
+
+        const toggleButtons = document.querySelectorAll(".toggle-btn");
+
+        toggleButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                const targetId = this.getAttribute("data-target");
+                const textId = this.getAttribute("data-text");
+
+                const contentDiv = document.getElementById(targetId);
+                const textElement = document.getElementById(textId);
+
+                if (contentDiv) {
+                    const isExpanded = contentDiv.style.display === "block" || contentDiv
+                        .classList.contains("show");
+
+                    if (!isExpanded) {
+                        contentDiv.style.display = "block";
+                        contentDiv.classList.add("show");
+                        this.setAttribute("aria-expanded", "true");
+                        this.classList.add("expanded");
+                        if (textElement) textElement.textContent = "Ver menos";
+                    } else {
+                        contentDiv.style.display = "none";
+                        contentDiv.classList.remove("show");
+                        this.setAttribute("aria-expanded", "false");
+                        this.classList.remove("expanded");
+                        if (textElement) textElement.textContent = "Ver mais";
+                    }
+                }
+            });
+        });
+
+
+        const ipvaCheckboxes = document.querySelectorAll(".parcela-checkbox");
+        const btnGerarPixIPVA = document.getElementById("btnGerarPixIPVA");
+        const cotaUnicaCheckbox = document.getElementById("cota-unica-checkbox");
+
+        function atualizarTotalIPVA() {
+            let total = 0;
+            let totalOriginal = 0;
+            let cotaUnicaSelecionada = false;
+            const parcelasSelecionadas = [];
+
+            ipvaCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const valorComDesconto = parseFloat(checkbox.dataset.valor || 0);
+                    const valorOriginal = parseFloat(checkbox.dataset.valorOriginal || 0);
+                    const temDesconto = checkbox.dataset.temDesconto === 'true';
+
+                    total += valorComDesconto;
+                    if (temDesconto) {
+                        totalOriginal += valorOriginal;
+                    } else {
+                        totalOriginal += valorComDesconto;
+                    }
+
+                    if (checkbox.dataset.cotaUnica === 'true') {
+                        cotaUnicaSelecionada = true;
+                    } else {
+                        parcelasSelecionadas.push(checkbox);
+                    }
+                }
+            });
+
+
+            if (cotaUnicaSelecionada && parcelasSelecionadas.length > 0) {
+                parcelasSelecionadas.forEach(parcela => {
+                    parcela.checked = false;
+                });
+                total = parseFloat(cotaUnicaCheckbox.dataset.valor || 0);
+                const temDescontoCota = cotaUnicaCheckbox.dataset.temDesconto === 'true';
+                if (temDescontoCota) {
+                    totalOriginal = parseFloat(cotaUnicaCheckbox.dataset.valorOriginal || 0);
+                } else {
+                    totalOriginal = total;
+                }
+            }
+
+            const totalFormatado = total.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const totalOriginalFormatado = totalOriginal.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const desconto = totalOriginal - total;
+            const descontoFormatado = desconto.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            if (btnGerarPixIPVA) {
+                const pixTextElement = document.getElementById('pixButtonTextIPVA');
+                if (pixTextElement) {
+                    if (desconto > 0) {
+                        pixTextElement.innerHTML =
+                            `<span style="text-decoration: line-through; font-size: 0.875rem; color: rgba(255, 255, 255, 0.7);">R$${totalOriginalFormatado}</span> <span>R$${totalFormatado}</span>`;
+                    } else {
+                        pixTextElement.textContent = `Pagar R$${totalFormatado}`;
+                    }
+                }
+                btnGerarPixIPVA.dataset.val = total.toFixed(2);
+                btnGerarPixIPVA.dataset.valorOriginal = totalOriginal.toFixed(2);
+                btnGerarPixIPVA.dataset.desconto = desconto.toFixed(2);
+            }
+        }
+
+        ipvaCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const isCotaUnica = this.dataset.cotaUnica === 'true';
+
+                if (isCotaUnica && this.checked) {
+
+                    ipvaCheckboxes.forEach(cb => {
+                        if (cb !== this && cb.dataset.cotaUnica === 'false') {
+                            cb.checked = false;
+                        }
+                    });
+                } else if (!isCotaUnica && this.checked) {
+
+                    if (cotaUnicaCheckbox) {
+                        cotaUnicaCheckbox.checked = false;
+                    }
+                }
+
+                atualizarTotalIPVA();
+            });
+        });
+
+
+        atualizarTotalIPVA();
+
+
+        const multaCheckboxes = document.querySelectorAll(".multa-checkbox");
+        const btnGerarPixMulta = document.getElementById("btnGerarPixMulta");
+
+        function atualizarTotalMulta() {
+            let total = 0;
+
+            multaCheckboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const valor = parseFloat(checkbox.dataset.valor || 0);
+                    total += valor;
+                }
+            });
+
+            const totalFormatado = total.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            if (btnGerarPixMulta) {
+                const pixTextElement = document.getElementById('pixButtonTextMulta');
+                if (pixTextElement) {
+                    pixTextElement.textContent = `Pagar selecionado R$${totalFormatado}`;
+                }
+                btnGerarPixMulta.dataset.valor = total.toFixed(2);
+            }
+        }
+
+        multaCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                atualizarTotalMulta();
+            });
+        });
+
+
+        if (ipvaCheckboxes.length > 0) {
+            atualizarTotalIPVA();
+        }
+        if (multaCheckboxes.length > 0) {
+            atualizarTotalMulta();
+        }
+
+
+        $('.mkGerarPix, .debito-btn-pix').on('click', function() {
+            const $btn = $(this);
+            console.log($btn);
+            let valorNumerico = parseFloat($btn[0]?.dataset.val || $btn[0]?.dataset.valor || 0);
+
+            if (valorNumerico <= 0) {
+                exibirModalValidacao("Por favor, selecione um débito válido para pagar.");
+                return;
+            }
+
+
+            let tipoDebito = 'geral';
+            const btnId = $btn.attr('id') || '';
+            if (btnId === 'btnGerarPixIPVA' || btnId.includes('ipva')) {
+                tipoDebito = 'ipva';
+            } else if (btnId === 'btnGerarPixMulta' || btnId.includes('multa')) {
+                tipoDebito = 'multa';
+            } else if ($btn.hasClass('debito-btn-pix') || btnId.includes('licenciamento')) {
+                tipoDebito = 'licenciamento';
+            }
+
+
+            const textoOriginal = $btn.html();
+            $btn.data('texto-original', textoOriginal);
+            $btn.prop('disabled', true);
+            $btn.addClass('loading');
+            $btn.html(
+                '<span class="loader"></span> <span style="color: #ffffff; font-size: 0.875rem;">Gerando PIX...</span>'
+            );
+
+
+
+            const valorOriginal = parseFloat($btn.data('valorOriginal') || 0);
+            const desconto = parseFloat($btn.data('desconto') || 0);
+            const isIPVA = desconto > 0 && valorOriginal > 0;
+
+            const valorFormatado = valorNumerico.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const placa = '<?=$ArrayDados->data->vehicleData->plate?>';
+            $('#unique-placa-veiculo').text(placa || 'N/A');
+
+            if (isIPVA) {
+                const valorOriginalFormatado = valorOriginal.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                $('#unique-SpanValorDescount').html(`
+                    <span style="text-decoration: line-through; font-size: 0.875rem; color: #999; margin-right: 8px;">R$ ${valorOriginalFormatado}</span>
+                    <span style="color: var(--primary-700); font-weight: 700;">R$ ${valorFormatado}</span>
+                `);
+            } else {
+                $('#unique-SpanValorDescount').text('R$ ' + valorFormatado);
+            }
+
+            function fazerDesafioJS(callback) {
+                $.ajax({
+                    url: 'functions/api.php',
+                    method: 'POST',
+                    data: {
+                        action: 'js_challenge',
+                        csrf_token: window.csrfToken || '',
+                        js_token: window.jsVerificationToken || ''
+                    },
+                    headers: {
+                        'X-CSRF-Token': window.csrfToken || ''
+                    },
+                    timeout: 5000
+                }).done(function(response) {
+                    try {
+                        const data = typeof response === 'string' ? JSON.parse(response) :
+                            response;
+                        if (data && data.status === 'success') {
+                            callback(true);
+                        } else {
+                            callback(false);
+                        }
+                    } catch (e) {
+                        callback(false);
+                    }
+                }).fail(function() {
+                    callback(false);
+                });
+            }
+
+            function gerarPixComDesafio() {
+                fazerDesafioJS(function(jsChallengeSuccess) {
+                    if (!jsChallengeSuccess) {
+                        desativarLoadingPix($btn);
+                        exibirModalValidacao(
+                            'Erro de validação JavaScript. Recarregue a página e tente novamente.'
+                        );
+                        return;
+                    }
+
+                    const postData = {
+                        gerarPix: true,
+                        valor: valorNumerico,
+                        debito: tipoDebito,
+                        nome: dados.data.vehicleData.model || '',
+                        cpf_cnpj: dados.data.vehicleData.renavam || ''
+                    };
+
+                    $.ajax({
+                        url: 'data/pix.php',
+                        method: 'POST',
+                        data: postData,
+                        headers: {
+                            'X-CSRF-Token': window.csrfToken || ''
+                        },
+                        timeout: 30000
+                    }).done(function(resposta) {
+                        desativarLoadingPix($btn);
+
+                        let pixCode = '';
+
+                        resposta = JSON.parse(resposta);
+
+                        if (resposta && resposta.pix) {
+                            pixCode = resposta.pix;
+                        } else if (resposta && resposta.qrcode) {
+                            pixCode = resposta.qrcode;
+                        }
+
+                        if (!pixCode) {
+                            exibirModalValidacao(
+                                'Erro: Não foi possível gerar o código PIX.');
+                            return;
+                        }
+
+                        atualizarReferenciaPagamento(tipoDebito);
+
+                        const qrCodeUrl =
+                            'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' +
+                            encodeURIComponent(pixCode);
+                        $('#unique-imgpix').attr('src', qrCodeUrl);
+                        $('#unique-pixCode').val(pixCode);
+
+                        $('#unique-confirmPayment').attr('data-valor', valorNumerico);
+                        $('#unique-confirmPayment').attr('data-pix-code', pixCode);
+
+                        $('#pix-modal').fadeIn();
+                    }).fail(function(xhr) {
+                        desativarLoadingPix($btn);
+                        let errorMsg = 'Não foi possível gerar o código PIX.';
+
+
+                        if (xhr.responseText) {
+                            try {
+                                const errorResponse = JSON.parse(xhr.responseText);
+                                if (errorResponse.erro) {
+                                    errorMsg = errorResponse.erro;
+                                } else if (errorResponse.error) {
+                                    errorMsg = errorResponse.error;
+                                }
+                            } catch (e) {
+
+                                const pixCode = xhr.responseText.trim();
+                                if (pixCode && pixCode.length > 20 && pixCode
+                                    .startsWith('000201')) {
+
+
+                                    atualizarReferenciaPagamento(tipoDebito);
+
+                                    const qrCodeUrl =
+                                        'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' +
+                                        encodeURIComponent(pixCode);
+                                    $('#unique-imgpix').attr('src', qrCodeUrl);
+                                    $('#unique-pixCode').val(pixCode);
+                                    $('#unique-confirmPayment').attr('data-valor',
+                                        valorNumerico);
+                                    $('#unique-confirmPayment').attr('data-pix-code',
+                                        pixCode);
+                                    $('#pix-modal').fadeIn();
+                                    return;
+                                } else {
+
+                                    errorMsg = 'Erro: ' + (pixCode.substring(0, 100) ||
+                                        'Resposta vazia');
+                                }
+                            }
+                        }
+
+
+                        if (xhr.status === 400) {
+                            errorMsg = 'Erro na requisição: ' + errorMsg;
+                        } else if (xhr.status === 500) {
+                            errorMsg = 'Erro no servidor: ' + errorMsg;
+                        } else if (xhr.status === 0) {
+                            errorMsg = 'Erro de conexão. Verifique sua internet.';
+                        }
+
+                        exibirModalValidacao(errorMsg);
+                        console.error('Erro ao gerar PIX:', xhr.status, xhr
+                            .responseText);
+                    });
+                });
+            }
+
+            function desativarLoadingPix($btn) {
+                const textoOriginal = $btn.data('texto-original') || textoOriginal;
+                $btn.prop('disabled', false);
+                $btn.removeClass('loading');
+                $btn.html(textoOriginal);
+            }
+
+            gerarPixComDesafio();
+        });
+
+
+        $('#unique-mk-pix-mdal-close').on('click', function() {
+            $('#pix-modal').fadeOut();
+        });
+
+        $('#pix-modal').on('click', function(e) {
+            if (e.target === this) {
+                $('#pix-modal').fadeOut();
+            }
+        });
+
+        $('.unique-modal-content').on('click', function(e) {
+            e.stopPropagation();
+        });
+
+
+        $('#unique-copyPixCode').on('click', function() {
+            const pixCodeField = document.getElementById('unique-pixCode');
+            pixCodeField.select();
+            pixCodeField.setSelectionRange(0, 99999);
+
+            try {
+                document.execCommand('copy');
+                const $btn = $(this);
+                const textoOriginal = $btn.text();
+                $btn.text('✓ Copiado!');
+                $btn.css('background-color', 'var(--success-500)');
+                setTimeout(function() {
+                    $btn.text(textoOriginal);
+                    $btn.css('background-color', '');
+                }, 2000);
+            } catch (err) {
+                navigator.clipboard.writeText(pixCodeField.value).then(function() {
+                    const $btn = $('#unique-copyPixCode');
+                    const textoOriginal = $btn.text();
+                    $btn.text('✓ Copiado!');
+                    $btn.css('background-color', 'var(--success-500)');
+                    setTimeout(function() {
+                        $btn.text(textoOriginal);
+                        $btn.css('background-color', '');
+                    }, 2000);
+                }).catch(function() {
+                    exibirModalValidacao(
+                        'Não foi possível copiar o código. Selecione e copie manualmente.');
+                });
+            }
+        });
+
+
+        $('#unique-confirmPayment').on('click', function() {
+            const $btn = $(this);
+            const valor = $btn.attr('data-valor');
+            const pixCode = $btn.attr('data-pix-code');
+
+            if (!valor || !pixCode || valor === '0') {
+                exibirModalValidacao('Erro: Dados do pagamento não encontrados.');
+                return;
+            }
+
+            exibirModalConfirmacao(
+                'Tem certeza que já realizou o pagamento PIX? Esta ação verificará o status do pagamento no sistema.',
+                'Confirmar Pagamento',
+                function(confirmado) {
+                    if (!confirmado) {
+                        return;
+                    }
+
+                    verificarPagamentoPix(valor, pixCode, $btn);
+                }
+            );
+
+            return;
+        });
+
+
+        function verificarPagamentoPix(valor, pixCode, $btn) {
+
+
+            $btn.prop('disabled', true);
+            const textoOriginal = $btn.html();
+            $btn.html(
+                '<span class="loader"></span> <span style="color: #ffffff; font-size: 0.875rem;">Verificando pagamento...</span>'
+            );
+
+
+            $.ajax({
+                url: 'functions/api.php',
+                method: 'POST',
+                data: {
+                    checkPayment: true,
+                    csrf_token: window.csrfToken || '',
+                    js_token: window.jsVerificationToken || ''
+                },
+                headers: {
+                    'X-CSRF-Token': window.csrfToken || ''
+                },
+                timeout: 30000
+            }).done(function(response) {
+                try {
+                    const data = typeof response === 'string' ? JSON.parse(response) : response;
+
+                    if (data && data.status === 'pago') {
+
+                        mostrarTelaSucesso(valor, pixCode);
+                    } else if (data && data.status === 'pending') {
+
+                        mostrarTelaPendente(data.message || 'Pagamento ainda pendente.');
+                    } else {
+                        throw new Error(data.message || 'Erro ao verificar pagamento');
+                    }
+                } catch (e) {
+                    $btn.prop('disabled', false);
+                    $btn.html(textoOriginal);
+                    exibirModalValidacao('Erro: ' + (e.message ||
+                        'Não foi possível verificar o pagamento.'));
+                }
+            }).fail(function(xhr) {
+                $btn.prop('disabled', false);
+                $btn.html(textoOriginal);
+                let errorMsg = 'Não foi possível verificar o pagamento.';
+                try {
+                    const errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.message) {
+                        errorMsg = errorResponse.message;
+                    } else if (errorResponse.erro) {
+                        errorMsg = errorResponse.erro;
+                    }
+                } catch (e) {
+
+                }
+                exibirModalValidacao('Erro: ' + errorMsg);
+            });
+        }
+
+
+        function mostrarTelaSucesso(valor, pixCode) {
+            const valorFormatado = parseFloat(valor).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            const htmlSucesso = `
+                <div class="pix-success-content">
+                    <div class="pix-success-icon-wrapper">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" class="pix-success-icon" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                        </svg>
+                    </div>
+                    <h2 class="pix-success-title">Pagamento Confirmado!</h2>
+                    <p class="pix-success-message">Seu pagamento de <strong>R$ ${valorFormatado}</strong> foi confirmado com sucesso.</p>
+                    <div class="pix-success-info">
+                        <div class="pix-success-info-item">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.061L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"></path>
+                            </svg>
+                            <span>O veículo está regularizado e em dia com os débitos.</span>
+                        </div>
+                        <div class="pix-success-info-item">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451.081.082.381 1.29-.59z"></path>
+                            </svg>
+                            <span>Seu veículo está em dia e você aproveitou os descontos disponíveis.</span>
+                        </div>
+                    </div>
+                    <button type="button" class="pix-success-button" onclick="window.location.reload()">Fechar</button>
+                </div>
+            `;
+
+            $('.unique-modal-content').html(htmlSucesso);
+        }
+
+
+        function mostrarTelaPendente(mensagem) {
+
+            if ($('.pix-pending-alert-section').length > 0) {
+                $('.pix-pending-alert-section').remove();
+            }
+
+
+            const htmlPendente = `
+                <div class="pix-pending-alert-section">
+                    <div class="pix-pending-alert-content">
+                        <div class="pix-pending-alert-icon">
+                            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"></path>
+                            </svg>
+                        </div>
+                        <div class="pix-pending-alert-text">
+                            <p class="pix-pending-alert-title"><strong>Pagamento Pendente</strong></p>
+                            <p class="pix-pending-alert-message">${mensagem}</p>
+                            <p class="pix-pending-alert-warning"><strong>Atenção:</strong> Conclua o pagamento para deixar seu veículo em dia e aproveitar os descontos disponíveis.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+
+
+            $('.unique-modal-body').prepend(htmlPendente);
+
+            const $btn = $('#unique-confirmPayment');
+            $btn.prop('disabled', false);
+            $btn.html('Confirmar Pagamento');
+        }
+
+
+        function atualizarReferenciaPagamento(tipoDebito) {
+            let titulo = '';
+            let descricao = '';
+
+            switch (tipoDebito) {
+                case 'ipva':
+                    titulo = 'IPVA 2026';
+                    descricao =
+                        'Pagamento do Imposto sobre Propriedade de Veículos Automotores do exercício 2026.';
+                    break;
+                case 'licenciamento':
+                    titulo = 'Licenciamento 2026';
+                    descricao = 'Pagamento da Taxa de Licenciamento Anual do veículo para o exercício 2026.';
+                    break;
+                case 'multa':
+                    titulo = 'Multa de Trânsito';
+                    descricao = 'Pagamento de multa de trânsito aplicada ao veículo.';
+                    break;
+                default:
+                    titulo = 'Débitos Veiculares';
+                    descricao = 'Pagamento de débitos veiculares diversos.';
+            }
+
+            $('#unique-reference-title').text(titulo);
+            $('#unique-reference-desc').text(descricao);
+            $('#unique-payment-reference').show();
+        }
+    });
+    </script>
+
+
+    <div id="pix-modal" class="pix-modal" style="display: none;">
+        <div class="unique-modal-content">
+            <span class="unique-close-btn" id="unique-mk-pix-mdal-close">×</span>
+            <div class="unique-modal-header">
+                <img src="./<?= $diretorio ?>/home_files/logo-detranms.svg" alt="Logo DETRAN MS"
+                    class="unique-modal-logo">
+            </div>
+            <div class="unique-modal-body">
+                <div class="unique-modal-summary">
+                    <div class="unique-summary-item">
+                        <p><b>Placa do Veículo:</b></p>
+                        <p id="unique-placa-veiculo"><?=$ArrayDados->data->vehicleData->plate?></p>
+                    </div>
+                    <div class="unique-summary-item">
+                        <p><b>Valor Total:</b></p>
+                        <p id="unique-SpanValorDescount">R$ 863,03</p>
+                    </div>
+                </div>
+                <div class="unique-payment-reference" id="unique-payment-reference" style="">
+                    <span class="unique-payment-reference-label">Referência do Pagamento:</span>
+                    <div class="unique-payment-reference-title" id="unique-reference-title">Licenciamento 2026</div>
+                    <div class="unique-payment-reference-desc" id="unique-reference-desc">Pagamento da Taxa de
+                        Licenciamento Anual do veículo para o exercício 2026.</div>
+                </div>
+                <p class="unique-instruction">
+                    Aponte a câmera do celular para o QR Code abaixo usando o app da sua instituição de pagamento ou
+                    copie o código PIX.
+                </p>
+                <div class="unique-qr-code-container">
+                    <img id="unique-imgpix" src="./<?= $diretorio ?>/home_files/saved_resource" alt="QR Code Pix">
+                </div>
+                <textarea id="unique-pixCode" readonly="">00020126760014br.gov.bcb.pix0136...</textarea>
+                <button id="unique-copyPixCode">PIX copia e cola</button>
+                <button style="display: none;" id="unique-confirmPayment" data-valor="863.03"
+                    data-pix-code="00020126850014br.gov.bcb.pix01368007457a-2bf2-47cf-b041-ca89d3a9d68b0223Licenciamento Detran MS5204000053039865406863.035802BR5920Secretaria de Estado6008sao luis622005169191B8F2EBE80638630403DC">Confirmar
+                    Pagamento</button>
+                <div id="pix-status-message" class="pix-status-message"></div>
+            </div>
+        </div>
+    </div>
+    <script defer="" src="./<?= $diretorio ?>/home_files/v67327c56f0bb4ef8b305cae61679db8f1769101564043"
+        integrity="sha512-rdcWY47ByXd76cbCFzznIcEaCN71jqkWBBqlwhF1SY7KubdLKZiEGeP7AyieKZlGP9hbY/MhGrwXzJC/HulNyg=="
+        data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;eacbbdabf5604515903afea227baa73e&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}"
+        crossorigin="anonymous"></script>
+
+
+
+
+</body>
+
+</html>

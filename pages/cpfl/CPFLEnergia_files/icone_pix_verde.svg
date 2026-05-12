@@ -1,0 +1,47 @@
+<svg version="1.1" id="svg2" width="700" height="700" class="svg-icon" viewBox="25.343 14.856 174.782 173.909" xmlns="http://www.w3.org/2000/svg">
+  <defs id="defs6">
+    <clipPath clipPathUnits="userSpaceOnUse" id="clipPath970-9">
+      <path d="M 0,1080 H 1920 V 0 H 0 Z" id="path968-7" />
+    </clipPath>
+  </defs>
+  <g id="g10" transform="matrix(1.333333, 0, 0, -1.333333, -69.912613, 445.692871)">
+    <g id="g964" transform="matrix(0.5829914,0,0,0.5829914,-284.91265,-151.3235)">
+      <g id="g966" clip-path="url(#clipPath970-9)">
+        <g id="g972" transform="translate(881.9583,610.8618)" />
+        <g id="g976" transform="translate(1018.428,785.3266)" />
+        <g id="g980" transform="translate(1049.4836,800.4702)" />
+        <g id="g984" transform="translate(1085.2297,785.4135)" />
+        <g id="g988" transform="translate(1085.2297,670.5434)" />
+        <g id="g992" transform="translate(782.8699,645.7084)">
+          <path d="m 0,0 c -8.342,0 -16.187,3.248 -22.085,9.144 l -31.89,31.889 c -2.238,2.245 -6.141,2.238 -8.379,0 L -94.36,9.027 c -5.899,-5.895 -13.744,-9.143 -22.086,-9.143 h -6.284 l 40.388,-40.389 c 12.614,-12.613 33.065,-12.613 45.679,0 L 3.842,0 Z" style="fill-opacity: 1; fill-rule: nonzero; stroke: none; fill: #32bcad;" id="path994" />
+        </g>
+        <g id="g996" transform="translate(666.4241,758.5073)">
+          <path d="m 0,0 c 8.342,0 16.187,-3.249 22.085,-9.145 l 32.006,-32.011 c 2.305,-2.305 6.069,-2.315 8.38,0.003 L 94.36,-9.261 c 5.899,5.896 13.744,9.144 22.086,9.144 h 3.841 L 79.783,40.387 c -12.614,12.614 -33.065,12.614 -45.679,0 L -6.283,0 Z" style="fill-opacity: 1; fill-rule: nonzero; stroke: none; fill: #32bcad;" id="path998" />
+        </g>
+        <g id="g1000" transform="translate(820.2131,724.8881)">
+          <path d="m 0,0 -24.477,24.477 c -0.539,-0.216 -1.122,-0.351 -1.738,-0.351 h -11.128 c -5.754,0 -11.386,-2.333 -15.451,-6.401 l -31.89,-31.89 c -2.983,-2.984 -6.904,-4.478 -10.822,-4.478 -3.921,0 -7.839,1.494 -10.823,4.475 l -32.009,32.009 c -4.066,4.068 -9.697,6.401 -15.451,6.401 h -13.684 c -0.583,0 -1.129,0.138 -1.644,0.332 L -193.691,0 c -12.614,-12.613 -12.614,-33.064 0,-45.679 l 24.573,-24.573 c 0.515,0.194 1.062,0.332 1.645,0.332 h 13.684 c 5.754,0 11.385,2.333 15.451,6.401 l 32.006,32.006 c 5.785,5.78 15.869,5.783 21.648,-0.003 l 31.89,-31.886 c 4.065,-4.069 9.697,-6.402 15.451,-6.402 h 11.128 c 0.617,0 1.199,-0.134 1.739,-0.35 L 0,-45.679 C 12.614,-33.064 12.614,-12.613 0,0" style="fill-opacity: 1; fill-rule: nonzero; stroke: none; fill: #32bcad" id="path1002" />
+        </g>
+        <g id="g1004" transform="translate(915.1824,621.9838)" />
+        <g id="g1008" transform="translate(931.2317,622.0317)" />
+        <g id="g1012" transform="translate(955.304,611.4037)" />
+        <g id="g1016" transform="translate(969.8879,622.0541)" />
+        <g id="g1020" transform="translate(980.3625,611.4037)" />
+        <g id="g1024" transform="translate(995.301,622.0541)" />
+        <g id="g1028" transform="translate(1016.6765,621.2524)" />
+        <g id="g1032" transform="translate(1037.7957,621.9838)" />
+        <g id="g1036" transform="translate(1045.5945,606.9721)" />
+        <g id="g1040" transform="translate(1077.1594,617.9858)" />
+        <g id="g1044" transform="translate(1098.6228,616.2485)" />
+        <g id="g1048" transform="translate(1116.9124,611.4037)" />
+        <g id="g1052" transform="translate(1129.2156,611.0844)" />
+        <g id="g1056" transform="translate(1144.3552,620.8442)" />
+        <g id="g1060" transform="translate(1170.637,611.0844)" />
+        <g id="g1064" transform="translate(1187.6472,621.2084)" />
+        <g id="g1068" transform="translate(1209.0212,611.4037)" />
+        <g id="g1072" transform="translate(1221.3933,611.0844)" />
+        <g id="g1076" transform="translate(1227.6902,611.4037)" />
+        <g id="g1080" transform="translate(1248.2717,616.2485)" />
+      </g>
+    </g>
+  </g>
+</svg>

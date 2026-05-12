@@ -1,0 +1,16 @@
+function voltarPaginaInicial(){
+    var n = 0;
+    while(n < 20){
+         var button = AdfPage.PAGE.findComponentByAbsoluteId('pt1:r1:'+n+':btnVoltSobr');
+         if(button != null){
+            AdfActionEvent.queue(button,true);
+            break;
+         }
+        n++;
+    }
+    
+}
+
+function refreshCaptcha(){
+    document.getElementsByClassName('captchaservlet')[0].src=AdfPage.PAGE.getResourceURL('/captchaservlet?'+Math.floor(Math.random() * 10000));
+}
