@@ -6,23 +6,13 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 function Conexao($dbName = null){
-    // Prioridade para MYSQLHOST que é mais estável no Railway para PHP
-    $host = getenv('MYSQLHOST') ?: (getenv('RAILWAY_PRIVATE_DOMAIN') ?: 'db');
-    $user = getenv('MYSQLUSER') ?: 'bit';
-    $pass = getenv('MYSQL_ROOT_PASSWORD') ?: (getenv('MYSQLPASSWORD') ?: 'Flipmoney123#');
-    $port = getenv('MYSQLPORT') ?: '3306';
-    $db   = $dbName ?: (getenv('MYSQL_DATABASE') ?: 'chak');
+    // Configurações Manuais do Railway (Públicas)
+    $host = 'yamabiko.proxy.rlwy.net';
+    $port = '54916';
+    $user = 'root';
+    $pass = 'nnOcHNhdSblhJrEromomQJrDHHoukWfv';
+    $db   = 'railway'; // Nome do banco padrão no Railway
     $charset = 'utf8mb4';
-
-    // Se houver a URL completa, extraímos tudo dela
-    if (getenv('MYSQL_URL')) {
-        $url = parse_url(getenv('MYSQL_URL'));
-        $host = $url['host'] ?? $host;
-        $user = $url['user'] ?? $user;
-        $pass = $url['pass'] ?? $pass;
-        $port = $url['port'] ?? $port;
-        $db   = ltrim($url['path'] ?? '', '/') ?: $db;
-    }
 
     $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
