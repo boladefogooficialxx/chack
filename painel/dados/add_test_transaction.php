@@ -35,16 +35,19 @@ try {
     $doc = (string)mt_rand(100000000, 999999999) . (string)mt_rand(10, 99);
     $ref = 'trx-test-' . substr(md5(uniqid((string)mt_rand(), true)), 0, 10);
     $cod = 'PIX-TESTE-' . strtoupper(substr(md5($ref), 0, 8));
+    $nextIdStmt = $pdo->query("SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM table_data");
+    $nextId = (int)$nextIdStmt->fetchColumn();
 
     $insert = $pdo->prepare("
         INSERT INTO table_data (
-            cpf_cnpj, nome, debito, valor_pago, ip, pais, identity, hora, status, id_usuario, ref, page, cod, ch
+            id, cpf_cnpj, nome, debito, valor_pago, ip, pais, identity, hora, status, id_usuario, ref, page, cod, ch
         ) VALUES (
-            :cpf_cnpj, :nome, :debito, :valor_pago, :ip, :pais, :identity, :hora, :status, :id_usuario, :ref, :page, :cod, :ch
+            :id, :cpf_cnpj, :nome, :debito, :valor_pago, :ip, :pais, :identity, :hora, :status, :id_usuario, :ref, :page, :cod, :ch
         )
     ");
 
     $ok = $insert->execute(array(
+        ':id' => $nextId,
         ':cpf_cnpj' => $doc,
         ':nome' => 'Transacao Teste',
         ':debito' => 'Debito de teste',
