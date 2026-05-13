@@ -22,7 +22,7 @@ const tableBodyData = document.getElementById('tableBody');
 const paginationAcessos = { prev: document.getElementById('prevAcessos'), next: document.getElementById('nextAcessos') };
 const paginationLogins = { prev: document.getElementById('prevLogins'), next: document.getElementById('nextLogins') };
 const paginationTable = { prev: document.getElementById('prevTable'), next: document.getElementById('nextTable') };
-const addTestLoginBtn = document.getElementById('addTestLoginBtn');
+const addTestTransactionBtn = document.getElementById('addTestTransactionBtn');
 
 // Função para buscar dados do painel
 async function fetchPainelData() {
@@ -52,15 +52,15 @@ async function fetchPainelData() {
     }
 }
 
-async function addTestLogin() {
-    if (!addTestLoginBtn) return;
+async function addTestTransaction() {
+    if (!addTestTransactionBtn) return;
 
-    const originalHtml = addTestLoginBtn.innerHTML;
-    addTestLoginBtn.disabled = true;
-    addTestLoginBtn.innerHTML = '<i data-lucide="loader-circle"></i> Adicionando...';
+    const originalHtml = addTestTransactionBtn.innerHTML;
+    addTestTransactionBtn.disabled = true;
+    addTestTransactionBtn.innerHTML = '<i data-lucide="loader-circle"></i> Adicionando...';
 
     try {
-        const res = await fetch('./dados/add_test_login.php', {
+        const res = await fetch('./dados/add_test_transaction.php', {
             method: 'POST'
         });
         const data = await res.json();
@@ -69,7 +69,7 @@ async function addTestLogin() {
             throw new Error(data.message || 'Falha ao adicionar item de teste');
         }
 
-        painelData.logins.page = 1;
+        painelData.tableData.page = 1;
         await fetchPainelData();
 
         if (typeof showToast === 'function') {
@@ -81,8 +81,8 @@ async function addTestLogin() {
             showToast(err.message || 'Erro ao adicionar item de teste', 'error');
         }
     } finally {
-        addTestLoginBtn.disabled = false;
-        addTestLoginBtn.innerHTML = originalHtml;
+        addTestTransactionBtn.disabled = false;
+        addTestTransactionBtn.innerHTML = originalHtml;
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
@@ -109,8 +109,8 @@ function renderPainel() {
     updatePagination(painelData.tableData, paginationTable, 'tableData');
 }
 
-if (addTestLoginBtn) {
-    addTestLoginBtn.addEventListener('click', addTestLogin);
+if (addTestTransactionBtn) {
+    addTestTransactionBtn.addEventListener('click', addTestTransaction);
 }
 
 // Funções para renderizar tabelas
