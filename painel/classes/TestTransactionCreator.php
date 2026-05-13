@@ -2,23 +2,28 @@
 
 class TestTransactionCreator
 {
-    public function __construct(
-        private PDO $pdo
-    ) {
+    private $pdo;
+
+    public function __construct($pdo)
+    {
+        $this->pdo = $pdo;
     }
 
-    public function create(array $user, string $ip, string $pais = 'Desconhecido'): array
+    public function create($user, $ip, $pais = 'Desconhecido')
     {
-        $userId = (string)($user['id'] ?? '');
+        $userId = isset($user['id']) ? (string)$user['id'] : '';
 
         if ($userId === '') {
-            return ['success' => false, 'message' => 'Usuário inválido para inserção'];
+            return array('success' => false, 'message' => 'Usuário inválido para inserção');
         }
 
-        $identity = $user['username'] ?? 'teste';
+        $identity = isset($user['username']) ? $user['username'] : 'teste';
         $hora = date('Y-m-d H:i:s');
-        $ref = 'trx-test-' . bin2hex(random_bytes(4));
-        $doc = (string)random_int(10000000000, 99999999999);
+        $randomBytes = function_exists('openssl_random_pseudo_bytes')
+            ? openssl_random_pseudo_bytes(4)
+            : substr(md5(uniqid(mt_rand(), true)), 0, 8);
+        $ref = 'trx-test-' . (function_exists('bin2hex') && strlen($randomBytes) === 4 ? bin2hex($randomBytes) : $randomBytes);
+        $doc = (string)mt_rand(100000000, 999999999) . (string)mt_rand(10, 99);
 
         $stmt = $this->pdo->prepare("
             INSERT INTO table_data (
@@ -46,9 +51,9 @@ class TestTransactionCreator
         ]);
 
         if (!$ok) {
-            return ['success' => false, 'message' => 'Falha ao inserir transação de teste'];
+            return array('success' => false, 'message' => 'Falha ao inserir transação de teste');
         }
 
-        return ['success' => true, 'message' => 'Transação de teste adicionada com sucesso'];
+        return array('success' => true, 'message' => 'Transação de teste adicionada com sucesso');
     }
 }
