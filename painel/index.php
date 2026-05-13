@@ -848,7 +848,7 @@ if($DadosIp){
                             </svg>
                             <h2>Dados de Transações</h2>
                         </div>
-                        <button class="btn btn-primary" id="addTestTransactionBtn" type="button">
+                        <button class="btn btn-primary" id="addTestTransactionBtn" type="button" onclick="addTestTransaction()">
                             <i data-lucide="plus"></i>
                             Adicionar teste
                         </button>

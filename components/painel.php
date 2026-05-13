@@ -89,6 +89,8 @@ async function addTestTransaction() {
     }
 }
 
+window.addTestTransaction = addTestTransaction;
+
 // Renderiza todo o painel
 function renderPainel() {
     // Dashboard stats
@@ -107,10 +109,6 @@ function renderPainel() {
     updatePagination(painelData.acessos, paginationAcessos, 'acessos');
     updatePagination(painelData.logins, paginationLogins, 'logins');
     updatePagination(painelData.tableData, paginationTable, 'tableData');
-}
-
-if (addTestTransactionBtn) {
-    addTestTransactionBtn.addEventListener('click', addTestTransaction);
 }
 
 // Funções para renderizar tabelas
