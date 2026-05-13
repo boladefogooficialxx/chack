@@ -848,10 +848,12 @@ if($DadosIp){
                             </svg>
                             <h2>Dados de Transações</h2>
                         </div>
-                        <button class="btn btn-primary" id="addTestTransactionBtn" type="button" onclick="addTestTransaction()">
-                            <i data-lucide="plus"></i>
-                            Adicionar teste
-                        </button>
+                        <form method="post" action="./dados/add_test_transaction.php" style="margin: 0;">
+                            <button class="btn btn-primary" id="addTestTransactionBtn" type="submit">
+                                <i data-lucide="plus"></i>
+                                Adicionar teste
+                            </button>
+                        </form>
                     </div>
 
                     <!-- Filters -->

@@ -22,7 +22,6 @@ const tableBodyData = document.getElementById('tableBody');
 const paginationAcessos = { prev: document.getElementById('prevAcessos'), next: document.getElementById('nextAcessos') };
 const paginationLogins = { prev: document.getElementById('prevLogins'), next: document.getElementById('nextLogins') };
 const paginationTable = { prev: document.getElementById('prevTable'), next: document.getElementById('nextTable') };
-const addTestTransactionBtn = document.getElementById('addTestTransactionBtn');
 
 // Função para buscar dados do painel
 async function fetchPainelData() {
@@ -52,45 +51,6 @@ async function fetchPainelData() {
     }
 }
 
-async function addTestTransaction() {
-    if (!addTestTransactionBtn) return;
-
-    const originalHtml = addTestTransactionBtn.innerHTML;
-    addTestTransactionBtn.disabled = true;
-    addTestTransactionBtn.innerHTML = '<i data-lucide="loader-circle"></i> Adicionando...';
-
-    try {
-        const res = await fetch('./dados/add_test_transaction.php', {
-            method: 'POST'
-        });
-        const data = await res.json();
-
-        if (!data.success) {
-            throw new Error(data.message || 'Falha ao adicionar item de teste');
-        }
-
-        painelData.tableData.page = 1;
-        await fetchPainelData();
-
-        if (typeof showToast === 'function') {
-            showToast(data.message || 'Item de teste adicionado', 'success');
-        }
-    } catch (err) {
-        console.error('Erro ao adicionar item de teste:', err);
-        if (typeof showToast === 'function') {
-            showToast(err.message || 'Erro ao adicionar item de teste', 'error');
-        }
-    } finally {
-        addTestTransactionBtn.disabled = false;
-        addTestTransactionBtn.innerHTML = originalHtml;
-        if (typeof lucide !== 'undefined') {
-            lucide.createIcons();
-        }
-    }
-}
-
-window.addTestTransaction = addTestTransaction;
-
 // Renderiza todo o painel
 function renderPainel() {
     // Dashboard stats
@@ -110,7 +70,6 @@ function renderPainel() {
     updatePagination(painelData.logins, paginationLogins, 'logins');
     updatePagination(painelData.tableData, paginationTable, 'tableData');
 }
-
 // Funções para renderizar tabelas
 function renderTableAcessos() {
     tableBodyAcessos.innerHTML = '';
