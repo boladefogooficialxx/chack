@@ -1,0 +1,12 @@
+<?php
+require_once "db.php";
+
+$token = 'eyJhbGciOiJQUzI1NiIsImtpZCI6ImlvbEVaRzB5UTZzQXFYb1VwY1c0MWciLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiJBdXRoZW50aWNhdGlvbiIsImp0aSI6IjRiMzgyYjhkLWJjM2QtNDcxMS1iMjZhLWNkMTc0ZjkxODc3NSIsIklkZW50aWZpY2FjYW8iOiI2MDg5MjU4NTM5MCIsIlRpcG9JZGVudGlmaWNhY2FvIjoiRiIsIk5hbWUiOiJDQVNTSUEgQUxWRVMgU0lMVkEiLCJFbWFpbCI6IiIsIkhhc2giOiJNakF5TmpBMU1qRXdNRFUwIiwiQ2FuYWxMb2dpbiI6IjYiLCJDb3JyZWxhdGlvbklkIjoiMGMzZDU3YmMtMDA5MC00NjZkLTljZTgtN2UyZjc0ZTg0ZjkwIiwiVGlwb1BlcmZpbCI6IjEiLCJDb2RpZ29Pcmdhb0VtaXNzb3IiOiIxIiwiUm9sZXMiOlsiIiwiIl0sImV4cCI6MTc3OTMzOTI1NSwiaXNzIjoiUGl4SVBWQS5BdXRoLkFwcGxpY2F0aW9uIiwiYXVkIjoiUGl4SVBWQS5BdXRoLkFwcGxpY2F0aW9uIn0.fxh5tIKul7ui4gZ1hHvAxtIQ8vE3tNuZ0gaXnavlNUxzsUzZ-YkYW8YxKQDUNbyR1xvTjY23I8iuDkon8OO8eC89cRD-gKX-rT6cpiAkw1hgYjbpzYKYWdVcmXL6bSdTNjyg4RUeE64nTiswb6DzZ7gRPRyMGNsc5Pvu0f3Eo6s_1nnQj0EZjR_Oe-EorAea4mgQGc2VRIVRcS1FZrrwafmA-BCz62Z94i2U4CrvNcGDUh_eSAA4p57bzMfYNLj8cPnKoIzSZSm4T158oKZeIkuMWdwMR1CoJ-kYCAH2RC3-Dmk1PIejpWpiTwTvTblYFbwoIPD2_dVIZlKIwjkcU4XwxqNiC3ijNSAzhhTWggPfbYGTz38bqXcVi8UXoJby5uJkgwbGfknrLSjLBPKKSXNV1G5H89uOeKs_Sr9M4T1Lxu5RgqBOjwMEkPFhVNi9MJRs-XtwjkxlAuhsfaqffkLGclWzw36DvK8z3WoUqjR6d16VsheC8-otIAwq8yjn';
+$tela = 'IPSP';
+
+// Simulando como o salvar.php ou o painel gravaria isso no banco
+$stmt = $pdo->prepare("INSERT INTO conf (tela, dados) VALUES (?, ?) ON DUPLICATE KEY UPDATE dados = ?");
+$stmt->execute([$tela, $token, $token]);
+
+echo "Token de SP (IPSP) atualizado com sucesso no banco de dados!";
+?>

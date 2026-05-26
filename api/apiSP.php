@@ -24,11 +24,15 @@ function Notifications($mensagem){
 
 $Glob = $pdoGlob->query("SELECT dados FROM conf WHERE tela = 'IPSP' LIMIT 1")->fetchColumn();
 
+// Ajuste para suportar tanto o JSON antigo quanto o Token Puro inserido diretamente
 $GlobDados = json_decode($Glob, true);
-$dados = json_decode($GlobDados['dados'], true);
-
-// Configurações globais
-$session = $dados['cookies']; 
+if (json_last_error() === JSON_ERROR_NONE && isset($GlobDados['dados'])) {
+    $dados = json_decode($GlobDados['dados'], true);
+    $session = $dados['cookies'] ?? $Glob;
+} else {
+    // Se não for JSON (foi colado direto no banco)
+    $session = trim($Glob);
+}
 
 header('Content-Type: application/json');
 
