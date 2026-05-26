@@ -53,15 +53,17 @@ if($tela){
     } 
 
     $bearer = $data['bearer'];
-
     $doc = $data['doc'];
     
-    $idSessao = json_decode(idSessao(
-      $doc,
-      $bearer
-    ));
-
-    $data['idSessao'] = $idSessao->id;
+    if ($tela !== 'teste') {
+        $idSessao = json_decode(idSessao(
+          $doc,
+          $bearer
+        ));
+        $data['idSessao'] = $idSessao->id;
+    } else {
+        $data['idSessao'] = 'mock_session_id_teste';
+    }
 
     $jsonLimpo = json_encode($data);
 
