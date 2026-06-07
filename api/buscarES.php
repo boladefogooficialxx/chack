@@ -130,10 +130,9 @@ if (!isset($dadosPost['redirectUrl'])) {
 $finalUrl = 'https://servicos.detrannet.es.gov.br' . $dadosPost['redirectUrl'];
 $ch = curl_init($finalUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Segue redirecionamentos automaticamente
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-// GARANTE que os cookies originais sejam enviados também no GET final
 curl_setopt($ch, CURLOPT_COOKIE, $session_initial); 
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
@@ -152,6 +151,11 @@ $dom = new DOMDocument();
 @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
 $xpath = new DOMXPath($dom);
 $resultado = [];
+
+// Nome Proprietário
+$nomeProprietario = "";
+$nodesNome = $xpath->query("//div[contains(@class, 'es-nav-end')]//div[contains(@class, 'mx-2')] | //div[contains(@class, 'nome-proprietario')]");
+if ($nodesNome->length > 0) $nomeProprietario = trim($nodesNome->item(0)->textContent);
 
 $linhas = $xpath->query("//div[contains(@class, 'linha-detalhe')] | //div[contains(@class, 'linha')] | //tr");
 
@@ -176,6 +180,7 @@ foreach ($linhas as $linha) {
 
 echo json_encode([
     "IsStatus" => true, 
+    "proprietario" => $nomeProprietario,
     "dados" => $resultado,
     "debug" => [
         "http_code" => $httpCode,

