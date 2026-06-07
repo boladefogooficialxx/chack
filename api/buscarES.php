@@ -13,7 +13,6 @@ $confES = $stmt->fetch();
 $dadosES = json_decode($confES['dados'], true);
 
 $session_initial = $dadosES['session'] ?? '';
-$bearer = $dadosES['bearer'] ?? '';
 $referer_base = $dadosES['referer'] ?? 'https://servicos.detrannet.es.gov.br/CentralVeiculo?Servico=EmitirDuaIpva';
 
 if (empty($_GET['renavam']) || empty($_GET['placa'])) {
@@ -29,8 +28,10 @@ $cookieFile = tempnam(sys_get_temp_dir(), 'cook_es_');
 
 // Funções utilitárias
 function getStr($str, $start, $end) {
-    $a = explode($end, explode($start, $str)[1] )[0];
-    return $a;
+    $parts = explode($start, $str);
+    if (count($parts) < 2) return false;
+    $parts2 = explode($end, $parts[1]);
+    return $parts2[0];
 }
 
 function limparValor($valor) {
@@ -59,91 +60,91 @@ function solveCaptcha($key, $sitekey, $pageurl) {
     return false;
 }
 
-// Cabeçalhos Base (Identicos ao Navegador Real do seu CURL)
-$headers = [
+// 1. Resolver Captcha Primeiro (Turnstile fresco)
+$token = solveCaptcha('4f16550cac01fcf36238f2e4007822e8', '0x4AAAAAAAy6XXSbwPTDYHHM', $referer_base);
+
+if (!$token) {
+    unlink($cookieFile);
+    echo json_encode(["IsStatus" => false, "error" => "Falha ao resolver o captcha. Verifique o 2Captcha."]);
+    exit;
+}
+
+// 2. Tentar POST direto
+$ch = curl_init('https://servicos.detrannet.es.gov.br/CentralVeiculo/ConsultarVeiculo');
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Accept: application/json, text/plain, */*',
     'Content-Type: application/json',
     'Origin: https://servicos.detrannet.es.gov.br',
     'Referer: ' . $referer_base,
     'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+    'X-Requested-With: XMLHttpRequest',
     'sec-ch-ua: "Chromium";v="148", "Google Chrome";v="148", "Not/A)Brand";v="99"',
     'sec-ch-ua-mobile: ?0',
-    'sec-ch-ua-platform: "macOS"',
-    'sec-fetch-dest: empty',
-    'sec-fetch-mode: cors',
-    'sec-fetch-site: same-origin',
-    'priority: u=1, i'
-];
-
-if (!empty($bearer)) $headers[] = "Authorization: Bearer $bearer";
-
-// 1. Pegar CpfAcessoCidadao e Inicializar JAR
-$ch = curl_init($referer_base);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-// Forçamos o envio da string de cookie inicial e a gravação no jar para as próximas etapas
-curl_setopt($ch, CURLOPT_COOKIE, $session_initial);
+    'sec-ch-ua-platform: "macOS"'
+]);
+curl_setopt($ch, CURLOPT_COOKIE, $session_initial); 
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-$res = curl_exec($ch);
 
-if (stripos($res, 'Sua sessão expirou') !== false) {
-    unlink($cookieFile);
-    echo json_encode(["IsStatus" => false, "error" => "Sua sessão expirou no portal oficial. Pegue um novo CURL."]);
-    exit;
-}
-
-$CpfAcessoCidadao = getStr($res, 'hdCpfAcessoCidadao" value="', '"');
-
-// 2. Resolver Captcha
-$token = solveCaptcha('4f16550cac01fcf36238f2e4007822e8', '0x4AAAAAAAy6XXSbwPTDYHHM', $referer_base);
-
-// 3. POST ConsultarVeiculo
-$ch = curl_init('https://servicos.detrannet.es.gov.br/CentralVeiculo/ConsultarVeiculo');
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
-curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+$payload = json_encode([
     "Servico" => "EmitirDuaIpva",
     "Placa" => $placa,
     "Renavam" => $renavam,
     "TurnstileToken" => $token,
     "VeiculoOutraUf" => false
-]));
+]);
+
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 $resPost = curl_exec($ch);
 $dadosPost = json_decode($resPost, true);
 
+// Fallback se precisar de CpfAcessoCidadao
+if (!isset($dadosPost['redirectUrl'])) {
+    $chInit = curl_init($referer_base);
+    curl_setopt($chInit, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($chInit, CURLOPT_COOKIE, $session_initial);
+    curl_setopt($chInit, CURLOPT_COOKIEJAR, $cookieFile);
+    $resInit = curl_exec($chInit);
+    $CpfAcessoCidadao = getStr($resInit, 'hdCpfAcessoCidadao" value="', '"');
+    
+    if ($CpfAcessoCidadao) {
+        $payloadObj = json_encode([
+            "Servico" => ["TipoServico" => "EmitirDuaIpva", "CpfAcessoCidadao" => $CpfAcessoCidadao],
+            "Placa" => $placa, "Renavam" => $renavam, "TurnstileToken" => $token, "VeiculoOutraUf" => false
+        ]);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payloadObj);
+        $resPost = curl_exec($ch);
+        $dadosPost = json_decode($resPost, true);
+    }
+}
+
 if (!isset($dadosPost['redirectUrl'])) {
     unlink($cookieFile);
-    // Se não for JSON, pode ser um erro de Cloudflare ou Sessão Expirada (HTML)
-    if (stripos($resPost, '<!DOCTYPE') !== false || stripos($resPost, '<html') !== false) {
-        $error_msg = "Sessao expirada ou bloqueio de seguranca (Cloudflare). Atualize os cookies.";
-        if (stripos($resPost, 'Turnstile') !== false) $error_msg = "Bloqueio de Captcha detectado.";
-        
-        echo json_encode([
-            "IsStatus" => false, 
-            "error" => $error_msg,
-            "debug_snippet" => substr(strip_tags($resPost), 0, 100)
-        ]);
-    } else {
-        // Se for JSON mas sem redirect, o governo retornou o erro real (ex: Veiculo nao encontrado)
-        $msg = $dadosPost['errorMessage'] ?? $dadosPost['mensagem'] ?? "Veiculo nao encontrado ou erro na SEFAZ.";
-        echo json_encode(["IsStatus" => false, "error" => $msg]);
-    }
+    $msg = $dadosPost['errorMessage'] ?? $dadosPost['mensagem'] ?? "Sua sessão expirou ou o veículo não foi encontrado.";
+    echo json_encode(["IsStatus" => false, "error" => $msg]);
     exit;
 }
 
-// 4. GET Debitos (Usando os novos cookies do JAR)
-$ch = curl_init('https://servicos.detrannet.es.gov.br' . $dadosPost['redirectUrl']);
+// 4. GET Debitos
+$finalUrl = 'https://servicos.detrannet.es.gov.br' . $dadosPost['redirectUrl'];
+$ch = curl_init($finalUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, [
-    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-    'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Referer: ' . $referer_base
-]);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // Segue redirecionamentos automaticamente
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+// GARANTE que os cookies originais sejam enviados também no GET final
+curl_setopt($ch, CURLOPT_COOKIE, $session_initial); 
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+    'Referer: ' . $referer_base,
+    'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
+]);
 $html = curl_exec($ch);
+$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+$curlError = curl_error($ch);
 unlink($cookieFile);
 
 // 5. Scraping dos dados
@@ -152,35 +153,36 @@ $dom = new DOMDocument();
 $xpath = new DOMXPath($dom);
 $resultado = [];
 
-// Nome Proprietário
-$nomeProprietario = "";
-$nodesNome = $xpath->query("//div[contains(@class, 'es-nav-end')]//div[contains(@class, 'mx-2')]");
-if ($nodesNome->length > 0) $nomeProprietario = trim($nodesNome->item(0)->textContent);
+$linhas = $xpath->query("//div[contains(@class, 'linha-detalhe')] | //div[contains(@class, 'linha')] | //tr");
 
-// Débitos
-$inputs = $xpath->query("//input[@data-guid]");
-foreach ($inputs as $input) {
-    $linha = $input->parentNode;
-    while ($linha && strpos($linha->getAttribute('class'), 'linha') === false) $linha = $linha->parentNode;
+foreach ($linhas as $linha) {
+    $input = $xpath->query(".//input[@data-guid]", $linha)->item(0);
+    if (!$input) continue;
+    $cols = $xpath->query(".//div[contains(@class, 'col')] | .//td", $linha);
     
-    $valorFinal = 0;
-    if ($linha) {
-        $colunas = $xpath->query(".//div[contains(text(), 'R$')]", $linha);
-        if ($colunas->length > 0) $valorFinal = limparValor($colunas->item($colunas->length - 1)->textContent);
-    }
-
-    if ($valorFinal > 0) {
-        $resultado[] = [
-            "descricao" => preg_replace('/\s+/', ' ', trim(explode("Vencimento:", $linha->textContent)[0])),
-            "data_vencimento" => $input->getAttribute("data-data-vencimento"),
-            "situacao" => $input->getAttribute("data-situacao-exibicao"),
-            "atual" => $valorFinal
-        ];
-    }
+    $resultado[] = [
+        "guid"            => $input->getAttribute("data-guid"),
+        "descricao"       => preg_replace('/\s+/', ' ', trim($input->getAttribute("data-descricao-debito") ?: ($cols->item(0) ? $cols->item(0)->textContent : ""))),
+        "data_vencimento" => $input->getAttribute("data-data-vencimento") ?: ($cols->item(1) ? trim($cols->item(1)->textContent) : ""),
+        "situacao"        => $input->getAttribute("data-situacao-exibicao"),
+        "nominal"         => $cols->item(2) ? limparValor($cols->item(2)->textContent) : 0,
+        "corrigido"       => $cols->item(3) ? limparValor($cols->item(3)->textContent) : 0,
+        "desconto"        => $cols->item(4) ? limparValor($cols->item(4)->textContent) : 0,
+        "juros"           => $cols->item(5) ? limparValor($cols->item(5)->textContent) : 0,
+        "multa"           => $cols->item(6) ? limparValor($cols->item(6)->textContent) : 0,
+        "atual"           => $cols->item(7) ? limparValor($cols->item(7)->textContent) : limparValor($input->getAttribute("data-valor-atualizado"))
+    ];
 }
 
 echo json_encode([
     "IsStatus" => true, 
-    "proprietario" => $nomeProprietario,
-    "dados" => $resultado
+    "dados" => $resultado,
+    "debug" => [
+        "http_code" => $httpCode,
+        "curl_error" => $curlError,
+        "final_url" => $effectiveUrl,
+        "html_size" => strlen($html),
+        "rows_found" => $linhas->length,
+        "html_snippet" => substr(strip_tags($html), 0, 500)
+    ]
 ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
