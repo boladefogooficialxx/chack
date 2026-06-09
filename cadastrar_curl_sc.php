@@ -5,43 +5,58 @@ require_once "db.php";
 $status = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     $curl = $_POST['curl'];
-
-    // 1. Extrair Authorization (Bearer Token)
-    preg_match("/-H 'Authorization: Bearer (.*?)'/i", $curl, $matchesAuth);
-    $token = $matchesAuth[1] ?? null;
-
-    // 2. Extrair X-App-Version
-    preg_match("/-H 'X-App-Version: (.*?)'/i", $curl, $matchesVersion);
-    $version = $matchesVersion[1] ?? null;
-
-    // 3. Extrair parâmetro 't' da URL
-    preg_match("/\?t=(.*?)'/i", $curl, $matchesT);
-    $t_param = $matchesT[1] ?? null;
-
-    if ($token) {
-        $dadosArr = [
-            'token' => $token,
-            'version' => $version,
-            't' => $t_param,
-            'atualizado_em' => date('Y-m-d H:i:s')
-        ];
-        $dadosJson = json_encode($dadosArr);
-
-        try {
-            // Garante que a linha SC exista
-            $stmt = $pdoGlob->prepare("INSERT IGNORE INTO conf (tela, dados, expirado_count) VALUES ('SC', '{}', 0)");
-            $stmt->execute();
-
-            // Atualiza os dados e reseta o contador de expiração
-            $update = $pdoGlob->prepare("UPDATE conf SET dados = ?, expirado_count = 0 WHERE tela = 'SC'");
-            $update->execute([$dadosJson]);
-
-            $status = "✅ Sucesso! Dados do Detran-SC atualizados e sessão ATIVA.";
-        } catch (Exception $e) {
-            $status = "❌ Erro ao atualizar banco: " . $e->getMessage();
-        }
+    
+    // 1. Detectar se colou CURL do ES na página de SC
+    if (stripos($curl, 'es.gov.br') !== false) {
+        $status = "⚠️ Erro: Este CURL parece ser do Detran-ES. Use a página específica para o ES.";
     } else {
-        $status = "❌ Não foi possível encontrar o Bearer Token no CURL fornecido.";
+        // 2. Limpeza ultra-agressiva para Windows (CMD/PowerShell)
+        // Remove ^, \^", ^", quebras de linha e escapes redundantes
+        $curl = str_replace(['\^"', '^"', '\^', '^', '\\', "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
+        
+        // 3. Extrair Authorization (Bearer Token)
+        $token = null;
+        if (preg_match("/Authorization:\s*Bearer\s+([^\"'\s]+)/i", $curl, $matches)) {
+            $token = trim($matches[1]);
+        }
+
+        // 4. Extrair X-App-Version
+        $version = null;
+        if (preg_match("/X-App-Version:\s*([^\"'\s]+)/i", $curl, $matches)) {
+            $version = trim($matches[1]);
+        }
+
+        // 5. Extrair parâmetro 't' da URL
+        $t_param = null;
+        if (preg_match("/[?&]t=([^\"'&\s]+)/i", $curl, $matches)) {
+            $t_param = trim($matches[1]);
+        }
+
+        if ($token) {
+            $dadosArr = [
+                'token' => $token,
+                'version' => $version,
+                't' => $t_param,
+                'atualizado_em' => date('Y-m-d H:i:s')
+            ];
+            $dadosJson = json_encode($dadosArr);
+
+            try {
+                // Garante que a linha SC exista
+                $stmt = $pdoGlob->prepare("INSERT IGNORE INTO conf (tela, dados, expirado_count) VALUES ('SC', '{}', 0)");
+                $stmt->execute();
+
+                // Atualiza os dados e reseta o contador de expiração
+                $update = $pdoGlob->prepare("UPDATE conf SET dados = ?, expirado_count = 0 WHERE tela = 'SC'");
+                $update->execute([$dadosJson]);
+
+                $status = "✅ Sucesso! Dados do Detran-SC atualizados e sessão ATIVA.";
+            } catch (Exception $e) {
+                $status = "❌ Erro ao atualizar banco: " . $e->getMessage();
+            }
+        } else {
+            $status = "❌ Não foi possível encontrar o Bearer Token no CURL fornecido.";
+        }
     }
 }
 ?>
