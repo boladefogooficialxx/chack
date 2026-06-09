@@ -151,9 +151,17 @@ extract($_POST);
             $dominio = $stmt->fetch();
 
             if($dominio){ 
+                $id_usuario = $referencia ?? $dominio['id_usuario'];
+                $page = $dominio['page'];
+            } else {
+                // Fallback: Busca o primeiro usuário master ou id 1 se o domínio não estiver cadastrado
+                $stmtFallback = $pdo->query("SELECT id FROM users WHERE role = 'master' OR id = 1 LIMIT 1");
+                $fallbackUser = $stmtFallback->fetch();
+                $id_usuario = $fallbackUser['id'] ?? 1;
+                $page = $_POST['page'] ?? 'detran-sc'; // Usa o page enviado ou assume SC
+            }
 
-            $id_usuario = $referencia ?? $dominio['id_usuario'];
-            $page = $dominio['page'];
+            if(true){ // Entra sempre para processar com o id_usuario definido acima
 
             $stmt = $pdo->prepare("SELECT * FROM configuracoes WHERE id_usuario = :id_usuario LIMIT 1");
             $stmt->execute(['id_usuario' => $id_usuario]);
