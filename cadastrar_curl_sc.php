@@ -14,23 +14,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
         // Remove ^, \^", ^", quebras de linha e escapes redundantes
         $curl = str_replace(['\^"', '^"', '\^', '^', '\\', "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
         
-        // 3. Extrair Authorization (Bearer Token)
+        // 2. Extrair Authorization (Bearer Token)
         $token = null;
         if (preg_match("/Authorization:\s*Bearer\s+([^\"'\s]+)/i", $curl, $matches)) {
             $token = trim($matches[1]);
         }
 
-        // 4. Extrair X-App-Version
+        // 3. Extrair X-App-Version
         $version = null;
         if (preg_match("/X-App-Version:\s*([^\"'\s]+)/i", $curl, $matches)) {
             $version = trim($matches[1]);
         }
 
-        // 5. Extrair parâmetro 't' da URL
+        // 4. Extrair parâmetro 't' da URL
         $t_param = null;
         if (preg_match("/[?&]t=([^\"'&\s]+)/i", $curl, $matches)) {
             $t_param = trim($matches[1]);
         }
+
+        // Limpeza final de aspas residuais
+        if ($token) $token = trim($token, "\"' ");
+        if ($version) $version = trim($version, "\"' ");
+        if ($t_param) $t_param = trim($t_param, "\"' ");
 
         if ($token) {
             $dadosArr = [

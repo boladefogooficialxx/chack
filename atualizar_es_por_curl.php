@@ -13,11 +13,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     preg_match("/Cookie:\s+([^\"'\s\^]+)/i", $curl, $matchesCookie);
     $cookies = $matchesCookie[1] ?? "";
 
-    // 2. Extrair Referer
-    preg_match("/Referer:\s+([^\"'\s\^]+)/i", $curl, $matchesReferer);
-    $referer = $matchesReferer[1] ?? "";
+        // 2. Extrair Cookies - Suporta Cookie: , -b ou --cookie
+        $cookies = "";
+        if (preg_match("/Cookie:\s*([^\"']+)/i", $curl, $matches)) {
+            $cookies = trim($matches[1]);
+        } elseif (preg_match("/(?:-b|--cookie)\s+[\"']?([^\"'\s][^\"']*)[\"']?/i", $curl, $matches)) {
+            $cookies = trim($matches[1]);
+        }
 
-    if ($cookies) {
+        // 3. Extrair Referer
+        $referer = "";
+        if (preg_match("/Referer:\s*([^\"'\s]+)/i", $curl, $matches)) {
+            $referer = trim($matches[1]);
+        }
+
+        // Limpeza final de aspas residuais
+        $cookies = trim($cookies, "\"' ");
+        $referer = trim($referer, "\"' ");
+
+        if ($cookies) {
         $dadosArr = [
             'session' => $cookies,
             'referer' => $referer,
