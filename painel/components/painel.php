@@ -142,19 +142,30 @@ function renderApiStatus() {
     painelData.confData.forEach(item => {
         const row = document.createElement('tr');
         
-        // Determinar status baseado em expirações (exemplo: se expirou > 0, alerta)
+        // Determinar status baseado em expirações
         const statusBadge = item.expirado_count > 0 
             ? `<span class="status-badge warning">Sessão Expirada (${item.expirado_count})</span>`
             : `<span class="status-badge success">Ativa</span>`;
 
+        // Definir link de cadastro baseado na tela
+        let configLink = '#';
+        if (item.tela === 'ES') configLink = '../atualizar_es_por_curl.php';
+        if (item.tela === 'SC') configLink = '../cadastrar_curl_sc.php';
+
         row.innerHTML = `
-            <td style="font-weight: 600; color: #8bc34a;">${item.tela}</td>
+            <td style="font-weight: 600; color: #8bc34a; display: flex; align-items: center; gap: 10px;">
+                ${item.tela}
+                <a href="${configLink}" title="Configurar Sessão" style="color: #94a3b8; display: flex; align-items: center;">
+                    <i data-lucide="external-link" style="width: 14px;"></i>
+                </a>
+            </td>
             <td style="text-align: center;">${item.expirado_count}</td>
             <td>${item.atualizado_em || 'N/A'}</td>
             <td>${statusBadge}</td>
         `;
         tbody.appendChild(row);
     });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // Funções para renderizar tabelas
