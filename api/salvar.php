@@ -67,7 +67,7 @@ if($tela){
 
     $jsonLimpo = json_encode($data);
 
-    $updateStmt = $pdoGlob->prepare("UPDATE conf SET dados = :dados WHERE tela = :tela");
+    $updateStmt = $pdoGlob->prepare("UPDATE conf SET dados = :dados, expirado_count = 0 WHERE tela = :tela");
     $updateStmt->execute([':dados' => $jsonLimpo, ':tela' => $tela]);
 
    echo  json_encode(array("IsStatus" => true, "message" => "token salvo com sucesso!", "data" => $jsonLimpo));

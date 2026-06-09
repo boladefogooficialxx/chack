@@ -833,6 +833,59 @@ if($DadosIp){
                     </div>
                 </section>
 
+                <!-- API Session Status -->
+                <section class="table-section" id="apiStatusSection" style="margin-top: var(--space-lg); margin-bottom: var(--space-lg);">
+                    <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('apiStatusBody', 'apiStatusIcon')">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <i data-lucide="shield-check" class="stat-icon stat-icon-green"></i>
+                            <h2>Status das APIs / Sessões</h2>
+                        </div>
+                        <button class="btn-icon" style="background: rgba(255,255,255,0.05);">
+                            <i data-lucide="chevron-up" id="apiStatusIcon"></i>
+                        </button>
+                    </div>
+                    <div class="table-container" id="apiStatusBody">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tela / API</th>
+                                    <th>Expirações</th>
+                                    <th>Última Atualização</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyApiStatus">
+                                <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #9ca3af;">Carregando status...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <style>
+                    .section-collapsed {
+                        display: none !important;
+                    }
+                </style>
+
+                <script>
+                    function toggleSection(bodyId, iconId) {
+                        const body = document.getElementById(bodyId);
+                        const icon = document.getElementById(iconId);
+                        
+                        if (body.classList.contains('section-collapsed')) {
+                            body.classList.remove('section-collapsed');
+                            icon.setAttribute('data-lucide', 'chevron-up');
+                        } else {
+                            body.classList.add('section-collapsed');
+                            icon.setAttribute('data-lucide', 'chevron-down');
+                        }
+                        
+                        if (typeof lucide !== 'undefined') {
+                            lucide.createIcons();
+                        }
+                    }
+                </script>
+
                 <!-- Data Table Transacoes -->
                 <section class="table-section" data-date="transacoes">
                     <div class="table-header">

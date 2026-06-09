@@ -122,6 +122,21 @@ if (!isset($dadosPost['redirectUrl'])) {
 if (!isset($dadosPost['redirectUrl'])) {
     unlink($cookieFile);
     $msg = $dadosPost['errorMessage'] ?? $dadosPost['mensagem'] ?? "Sua sessão expirou ou o veículo não foi encontrado.";
+    
+    // Se a mensagem contiver "sessão expirou", incrementa o contador e notifica o painel
+    if (stripos($msg, 'sessão expirou') !== false) {
+        try {
+            // Incrementa o contador na tabela conf
+            $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'ES'")->execute();
+            
+            // Adiciona um alerta na tabela notificacoes
+            $stmtNot = $pdoGlob->prepare("INSERT INTO notificacoes (mensagem) VALUES (:msg)");
+            $stmtNot->execute([':msg' => "ES >> Erro: Sua sessão expirou. Por favor, autentique-se novamente."]);
+        } catch (Exception $e) {
+            // Silenciosamente falha se houver erro no banco (coluna faltando, etc)
+        }
+    }
+
     echo json_encode(["IsStatus" => false, "error" => $msg]);
     exit;
 }

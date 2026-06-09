@@ -169,6 +169,15 @@ function Configuracoes($pdo, $userId = null) {
     ];
 }
 
+function getConfData($pdo) {
+    try {
+        $stmt = $pdo->query("SELECT tela, expirado_count, atualizado_em FROM conf");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        return [];
+    }
+}
+
 function getPainelData($pdo, $params = []) { 
     $userId = $params['userId'] ?? null;
 
@@ -187,6 +196,7 @@ function getPainelData($pdo, $params = []) {
 
     $configuracoes = Configuracoes($pdo, $userId);
     $notificacoes = notificacoes($pdo, $userId);
+    $confData = getConfData($pdo);
 
    if (!$dashboard) {
         $dashboard = [
@@ -204,7 +214,8 @@ function getPainelData($pdo, $params = []) {
         'acessos' => getPaginatedData($pdo, 'acessos', $pageAcessos, $limitAcessos, $userId),
         'logins' => getPaginatedData($pdo, 'logins', $pageLogins, $limitLogins, $userId),
         'tableData' => getPaginatedData($pdo, 'table_data', $pageTable, $limitTable, $userId),
-        'notificacoes' => $notificacoes
+        'notificacoes' => $notificacoes,
+        'confData' => $confData
     ];
 }
 

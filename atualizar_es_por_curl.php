@@ -43,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
             $stmt = $pdo->prepare("INSERT IGNORE INTO conf (tela, dados) VALUES ('ES', '{}')");
             $stmt->execute();
 
-            // Atualiza os dados
-            $update = $pdo->prepare("UPDATE conf SET dados = ? WHERE tela = 'ES'");
+            // Atualiza os dados e reseta o contador de expiração
+            $update = $pdo->prepare("UPDATE conf SET dados = ?, expirado_count = 0 WHERE tela = 'ES'");
             $update->execute([$dadosJson]);
 
             $status = "✅ Sucesso! Dados do Detran-ES atualizados.";

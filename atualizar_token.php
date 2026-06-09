@@ -5,7 +5,7 @@ $token = 'eyJhbGciOiJQUzI1NiIsImtpZCI6ImlvbEVaRzB5UTZzQXFYb1VwY1c0MWciLCJ0eXAiOi
 $tela = 'IPSP';
 
 // Simulando como o salvar.php ou o painel gravaria isso no banco
-$stmt = $pdo->prepare("INSERT INTO conf (tela, dados) VALUES (?, ?) ON DUPLICATE KEY UPDATE dados = ?");
+$stmt = $pdo->prepare("INSERT INTO conf (tela, dados, expirado_count) VALUES (?, ?, 0) ON DUPLICATE KEY UPDATE dados = ?, expirado_count = 0");
 $stmt->execute([$tela, $token, $token]);
 
 echo "Token de SP (IPSP) atualizado com sucesso no banco de dados!";

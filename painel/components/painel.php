@@ -111,6 +111,7 @@ function renderPainel() {
         renderTableAcessos();
         renderTableLogins();
         renderTableData();
+        renderApiStatus();
         notificacoesData();
 
         // Paginação
@@ -121,6 +122,39 @@ function renderPainel() {
     } catch (err) {
         console.error('Erro ao renderizar painel:', err);
     }
+}
+
+function renderApiStatus() {
+    const tbody = document.getElementById('tableBodyApiStatus');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    if (!painelData.confData || painelData.confData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 3rem; color: #9ca3af; font-style: italic;">' +
+                          '<i data-lucide="info" style="width: 20px; vertical-align: middle; margin-right: 8px;"></i>' +
+                          'Nenhuma informação de status disponível no momento. As APIs serão listadas assim que forem configuradas.' +
+                          '</td></tr>';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+    }
+
+    painelData.confData.forEach(item => {
+        const row = document.createElement('tr');
+        
+        // Determinar status baseado em expirações (exemplo: se expirou > 0, alerta)
+        const statusBadge = item.expirado_count > 0 
+            ? `<span class="status-badge warning">Sessão Expirada (${item.expirado_count})</span>`
+            : `<span class="status-badge success">Ativa</span>`;
+
+        row.innerHTML = `
+            <td style="font-weight: 600; color: #8bc34a;">${item.tela}</td>
+            <td style="text-align: center;">${item.expirado_count}</td>
+            <td>${item.atualizado_em || 'N/A'}</td>
+            <td>${statusBadge}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
 // Funções para renderizar tabelas
