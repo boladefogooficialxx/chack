@@ -48,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
             $update = $pdoGlob->prepare("UPDATE conf SET dados = ?, expirado_count = 0 WHERE tela = 'ES'");
             $update->execute([$dadosJson]);
 
-            $status = "Sucesso! Dados do Detran-ES atualizados e sessão ATIVA.";
+            $status = "✅ Sucesso! Dados do Detran-ES atualizados e sessão ATIVA.";
         } catch (Exception $e) {
-            $status = "Erro ao atualizar banco: " . $e->getMessage();
+            $status = "❌ Erro ao atualizar banco: " . $e->getMessage();
         }
     } else {
         $status = "❌ Não foi possível encontrar os Cookies no CURL fornecido.";
