@@ -159,6 +159,11 @@ extract($_POST);
             $stmt->execute(['id_usuario' => $id_usuario]);
             $configuracoes = $stmt->fetch();
 
+            if (!$configuracoes) {
+                echo json_encode(array('status'=>false, 'error'=>'Configurações não encontradas para o usuário ID: ' . $id_usuario));
+                exit;
+            }
+
                 $client_secret = $configuracoes['secret_key'];
                 $client_key = $configuracoes['public_key'];
                 $Plataforma = $configuracoes['Plataforma'];
