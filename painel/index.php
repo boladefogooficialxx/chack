@@ -855,6 +855,18 @@ if($DadosIp){
                                 </tr>
                             </thead>
                             <tbody id="tableBodyApiStatus">
+                                <tr>
+                                    <td><strong>PGMEI (Receita)</strong></td>
+                                    <td><span id="exp-pgmei">0</span></td>
+                                    <td><span id="date-pgmei">--</span></td>
+                                    <td><a href="../atualizar_pgmei_por_curl.php" class="ver-button">CONFIGURAR CURL</a></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DETRAN ES</strong></td>
+                                    <td><span id="exp-es">0</span></td>
+                                    <td><span id="date-es">--</span></td>
+                                    <td><a href="../atualizar_es_por_curl.php" class="ver-button">CONFIGURAR CURL</a></td>
+                                </tr>
                                 <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #9ca3af;">Carregando status...</td></tr>
                             </tbody>
                         </table>

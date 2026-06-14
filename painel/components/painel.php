@@ -147,10 +147,13 @@ function renderApiStatus() {
             ? `<span class="status-badge warning">Sessão Expirada (${item.expirado_count})</span>`
             : `<span class="status-badge success">Ativa</span>`;
 
-        // Definir link de cadastro baseado na tela
+        // Definir link de cadastro baseado na tela (Busca mais flexível)
         let configLink = '#';
-        if (item.tela === 'ES') configLink = '../atualizar_es_por_curl.php';
-        if (item.tela === 'SC') configLink = '../cadastrar_curl_sc.php';
+        const telaId = item.tela.toUpperCase();
+        
+        if (telaId.includes('ES')) configLink = '../atualizar_es_por_curl.php';
+        else if (telaId.includes('SC')) configLink = '../cadastrar_curl_sc.php';
+        else if (telaId.includes('PGMEI')) configLink = '../atualizar_pgmei_por_curl.php';
 
         row.innerHTML = `
             <td style="font-weight: 600; color: #8bc34a; display: flex; align-items: center; gap: 10px;">
