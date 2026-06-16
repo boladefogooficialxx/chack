@@ -1,18 +1,20 @@
 <?php
-
-error_reporting(0);
+// pages/IPSP/index.php
+if (!isset($pdo)) {
+    require_once __DIR__ . "/../../db.php";
+    require_once __DIR__ . "/../../base/utility.php";
+    require_once __DIR__ . "/../../base/detect_device.php";
+    $id_usuario = 1; 
+    $page = 'IPSP';
+    require_once __DIR__ . "/../../base/tracker.php";
+}
 
 extract($_GET);
 
 if($sucesso){
-
-    include_once("$diretorio/IPSPhome.php");
-    
+    include_once(__DIR__ . "/IPSPhome.php");
     exit();
 }
-
-
-
 ?>
 
 <!DOCTYPE html>

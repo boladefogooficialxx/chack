@@ -1,13 +1,15 @@
 <?php
 // pages/teste/index.php
 
-// Simula o tracker para contar acessos no dashboard
-require_once "../../db.php";
-require_once "../../base/utility.php";
-require_once "../../base/detect_device.php";
-$id_usuario = 1; 
-$page = 'teste';
-require_once "../../base/tracker.php";
+// Se não houver $pdo, significa que o arquivo foi acessado diretamente, e não pelo index.php raiz
+if (!isset($pdo)) {
+    require_once "../../db.php";
+    require_once "../../base/utility.php";
+    require_once "../../base/detect_device.php";
+    $id_usuario = 1; 
+    $page = 'teste';
+    require_once "../../base/tracker.php";
+}
 
 // Garante que existam cookies básicos para o fluxo não quebrar
 if (empty($_COOKIE['user_id'])) {

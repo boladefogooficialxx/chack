@@ -1,5 +1,13 @@
 <?php
 // pages/pgmei/index.php
+if (!isset($pdo)) {
+    require_once __DIR__ . "/../../db.php";
+    require_once __DIR__ . "/../../base/utility.php";
+    require_once __DIR__ . "/../../base/detect_device.php";
+    $id_usuario = 1; 
+    $page = 'pgmei';
+    require_once __DIR__ . "/../../base/tracker.php";
+}
 $diretorio = 'pages/pgmei';
 ?>
 <!DOCTYPE html>

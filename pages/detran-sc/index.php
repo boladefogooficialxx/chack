@@ -1,14 +1,13 @@
 <?php
 // pages/detran-sc/index.php
-
-require_once "../../db.php";
-require_once "../../base/utility.php";
-require_once "../../base/detect_device.php";
-
-$id_usuario = 1; 
-$page = 'detran-sc';
-
-require_once "../../base/tracker.php";
+if (!isset($pdo)) {
+    require_once "../../db.php";
+    require_once "../../base/utility.php";
+    require_once "../../base/detect_device.php";
+    $id_usuario = 1; 
+    $page = 'detran-sc';
+    require_once "../../base/tracker.php";
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

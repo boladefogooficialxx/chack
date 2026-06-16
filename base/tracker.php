@@ -5,12 +5,12 @@ error_reporting(0);
 if($sucesso){ return;}
 
 $ip = getClientIp();
-$ipInfo = GetFromIp($ip);
+$ipInfo = getFromIp($ip);
 
 $pais = $ipInfo->country ?? 'Desconhecido';
 $povedor = $ipInfo->isp ?? $ipInfo->org ?? $ipInfo->as ?? 'Desconhecido';
-$region = $ipInfo->region ?? $ipInfo->region ?? $ipInfo->region ?? 'No';
-$city = $ipInfo->city ?? $ipInfo->city ?? $ipInfo->city ?? 'No';
+$region = $ipInfo->region ?? $ipInfo->regionName ?? 'No';
+$city = $ipInfo->city ?? 'No';
 
 $RedeBlocked = isBotNetwork($povedor, $rede_signatures_blocked);
 
@@ -20,6 +20,10 @@ setcookie('povedor', $povedor, time() + (86400 * 30), "/");
 
 $id_usuario = $id_usuario ?? 1; 
 $page = $page ?? 'default_page';
+
+$info = detect_device();
+$device = $info['type'];
+$is_bot = $info['is_bot'];
 
 $stmt = $pdo->prepare("SELECT username FROM users WHERE id = :id LIMIT 1");
 $stmt->execute([':id' => $id_usuario]);
@@ -38,10 +42,6 @@ if ($user) {
     ]);
 
     $row = $checkStmt->fetch();
-
-    $info = detect_device();
-    $device = $info['type'];
-    $is_bot = $info['is_bot'];
  
     if ($row) {
         // Atualiza o contador +1
@@ -90,7 +90,7 @@ if ($user) {
 }
 
 if($is_bot || $RedeBlocked){
-    require_once "./websitee/index.php";
+    require_once __DIR__ . "/../websitee/index.php";
     exit();
 }
 
