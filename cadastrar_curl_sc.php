@@ -1,6 +1,13 @@
 <?php
 // cadastrar_curl_sc.php
+session_start();
 require_once "db.php";
+
+// ACL: Apenas master pode acessar
+if (!isset($_SESSION['token']) || $_SESSION['role'] !== 'master') {
+    header('Location: login/');
+    exit();
+}
 
 $status = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {

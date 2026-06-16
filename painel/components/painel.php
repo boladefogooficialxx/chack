@@ -158,9 +158,9 @@ function renderApiStatus() {
         row.innerHTML = `
             <td style="font-weight: 600; color: #8bc34a; display: flex; align-items: center; gap: 10px;">
                 ${item.tela}
-                <a href="${configLink}" title="Configurar Sessão" style="color: #94a3b8; display: flex; align-items: center;">
+                <button onclick="openTool('${configLink}')" title="Configurar Sessão" style="background: none; border: none; padding: 0; cursor: pointer; color: #94a3b8; display: flex; align-items: center;">
                     <i data-lucide="external-link" style="width: 14px;"></i>
-                </a>
+                </button>
             </td>
             <td style="text-align: center;">${item.expirado_count}</td>
             <td>${item.atualizado_em || 'N/A'}</td>
@@ -170,6 +170,38 @@ function renderApiStatus() {
     });
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+// Funções para Modal de Ferramentas (Iframe)
+function openTool(url) {
+    const modal = document.getElementById('toolModal');
+    const iframe = document.getElementById('toolIframe');
+    if (modal && iframe) {
+        iframe.src = url;
+        modal.classList.add('active');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const closeToolModal = document.getElementById('closeToolModal');
+    const toolModal = document.getElementById('toolModal');
+    const toolIframe = document.getElementById('toolIframe');
+
+    if (closeToolModal && toolModal) {
+        closeToolModal.addEventListener('click', () => {
+            toolModal.classList.remove('active');
+            if (toolIframe) toolIframe.src = ''; // Limpar iframe ao fechar
+        });
+    }
+
+    if (toolModal) {
+        toolModal.addEventListener('click', (e) => {
+            if (e.target === toolModal) {
+                toolModal.classList.remove('active');
+                if (toolIframe) toolIframe.src = '';
+            }
+        });
+    }
+});
 
 // Funções para renderizar tabelas
 function renderTableAcessos() {
