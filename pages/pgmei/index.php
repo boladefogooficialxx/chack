@@ -86,7 +86,7 @@ $diretorio = 'pages/pgmei';
                 <p class="text-success"><strong>Versão: 3.14.1</strong></p>
             </div>
             <div class="pull-right">
-                <img src="PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
+                <img src="./<?= $diretorio ?>/PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
             </div>
         </footer>
     </div>
@@ -116,6 +116,11 @@ $diretorio = 'pages/pgmei';
             setTimeout(() => {
                 window.location.href = 'consulta.php?cnpj=' + cnpj;
             }, 1500);
+        }
+    </script>
+</body>
+</html>
+, 1500);
         }
     </script>
 </body>

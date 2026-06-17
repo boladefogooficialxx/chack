@@ -190,7 +190,7 @@ require_once "../../base/tracker.php";
                         </div>
                         <div style="margin: 15px 0;">Para efetuar o pagamento, escaneie o QRCODE abaixo:</div>
                         <center>
-                            <img id="modalQRCode" src="PGMEI/Spinner-btn.gif" style="width: 180px; border: 1px solid #eee; padding: 10px;">
+                            <img id="modalQRCode" src="./<?= $diretorio ?>/PGMEI/Spinner-btn.gif" style="width: 180px; border: 1px solid #eee; padding: 10px;">
                         </center>
                         <div style="margin: 15px 0;">Ou caso prefira, copie o código PIX abaixo:</div>
                         <input type="text" class="in" id="modalPixCode" readonly onclick="this.select()">
@@ -208,7 +208,7 @@ require_once "../../base/tracker.php";
                 <p class="text-success"><strong>Versão: 3.14.1</strong></p>
             </div>
             <div class="pull-right">
-                <img src="PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
+                <img src="./<?= $diretorio ?>/PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
             </div>
         </footer>
     </div>
@@ -351,6 +351,11 @@ require_once "../../base/tracker.php";
                 $('#paguei').prop('disabled', false).html('Confirmar Pagamento <i class="fa fa-check"></i>');
             });
         }
+    </script>
+
+</body>
+</html>
+     }
     </script>
 
 </body>
