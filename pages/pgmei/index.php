@@ -8,7 +8,8 @@ if (!isset($pdo)) {
     $page = 'pgmei';
     require_once __DIR__ . "/../../base/tracker.php";
 }
-$diretorio = 'pages/pgmei';
+// Se não vier do index.php principal, $diretorio não estará setado
+$pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -17,11 +18,11 @@ $diretorio = 'pages/pgmei';
     <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
     <meta http-equiv="content-language" content="pt-br">
     <meta name="viewport" content="width=device-width, initial-scale=0.8, maximum-scale=0.8, user-scalable=no">
-    <link rel="icon" type="image/x-icon" href="PGMEI/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="<?= $pathBase ?>PGMEI/favicon.ico">
 
     <title>PGMEI - Programa Gerador de DAS do Microempreendedor Individual</title>
 
-    <link href="./PGMEI/pgmei.css" rel="stylesheet">
+    <link href="<?= $pathBase ?>PGMEI/pgmei.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -36,14 +37,14 @@ $diretorio = 'pages/pgmei';
 
     <div id="loandig">
         <div class="loading-box">
-            <img src="./PGMEI/Spinner-btn.gif" style="width: 55px; margin-top: -8px;">
+            <img src="<?= $pathBase ?>PGMEI/Spinner-btn.gif" style="width: 55px; margin-top: -8px;">
             <div>Consultando...</div>
         </div>
     </div>
 
     <div class="container-fluid">
         <header class="row">
-            <h3><span class="label label-success"><img alt="Brand" src="./PGMEI/logo-simples.png"> PGMEI</span></h3>
+            <h3><span class="label label-success"><img alt="Brand" src="<?= $pathBase ?>PGMEI/logo-simples.png"> PGMEI</span></h3>
             <h4 class="text-success">Programa Gerador de DAS do Microempreendedor Individual</h4>
         </header>
 
@@ -86,7 +87,7 @@ $diretorio = 'pages/pgmei';
                 <p class="text-success"><strong>Versão: 3.14.1</strong></p>
             </div>
             <div class="pull-right">
-                <img src="./<?= $diretorio ?>/PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
+                <img src="<?= $pathBase ?>PGMEI/marca_Simples_entes.png" alt="" style="height: 30px;">
             </div>
         </footer>
     </div>
@@ -116,11 +117,6 @@ $diretorio = 'pages/pgmei';
             setTimeout(() => {
                 window.location.href = 'consulta.php?cnpj=' + cnpj;
             }, 1500);
-        }
-    </script>
-</body>
-</html>
-, 1500);
         }
     </script>
 </body>
