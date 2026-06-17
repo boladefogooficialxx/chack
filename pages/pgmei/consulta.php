@@ -28,7 +28,7 @@ require_once "../../base/tracker.php";
 
     <title>PGMEI - Programa Gerador de DAS do Microempreendedor Individual</title>
 
-    <link href="PGMEI/pgmei.css" rel="stylesheet">
+    <link href="./PGMEI/pgmei.css" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

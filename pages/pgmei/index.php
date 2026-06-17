@@ -21,7 +21,7 @@ $diretorio = 'pages/pgmei';
 
     <title>PGMEI - Programa Gerador de DAS do Microempreendedor Individual</title>
 
-    <link href="PGMEI/pgmei.css" rel="stylesheet">
+    <link href="./PGMEI/pgmei.css" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -36,14 +36,14 @@ $diretorio = 'pages/pgmei';
 
     <div id="loandig">
         <div class="loading-box">
-            <img src="PGMEI/Spinner-btn.gif" style="width: 55px; margin-top: -8px;">
+            <img src="./PGMEI/Spinner-btn.gif" style="width: 55px; margin-top: -8px;">
             <div>Consultando...</div>
         </div>
     </div>
 
     <div class="container-fluid">
         <header class="row">
-            <h3><span class="label label-success"><img alt="Brand" src="PGMEI/logo-simples.png"> PGMEI</span></h3>
+            <h3><span class="label label-success"><img alt="Brand" src="./PGMEI/logo-simples.png"> PGMEI</span></h3>
             <h4 class="text-success">Programa Gerador de DAS do Microempreendedor Individual</h4>
         </header>
 
