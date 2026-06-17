@@ -10,6 +10,12 @@ if (!isset($pdo)) {
 }
 // Se não vier do index.php principal, $diretorio não estará setado
 $pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
+
+// Roteamento interno para o domínio
+if (isset($_GET['cnpj']) || isset($_GET['doc'])) {
+    include __DIR__ . '/consulta.php';
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -115,7 +121,14 @@ $pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
             });
 
             setTimeout(() => {
-                window.location.href = 'consulta.php?cnpj=' + cnpj;
+                // Se estiver no domínio, redireciona para a raiz com o parâmetro
+                // Se estiver local direto, usa o arquivo consulta.php
+                const isDomain = window.location.pathname === '/' || window.location.pathname === '/index.php';
+                if (isDomain) {
+                    window.location.href = './?cnpj=' + cnpj;
+                } else {
+                    window.location.href = 'consulta.php?cnpj=' + cnpj;
+                }
             }, 1500);
         }
     </script>
