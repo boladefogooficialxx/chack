@@ -1,5 +1,5 @@
 <?php
-
+echo "<!-- TRACKER START -->";
 if($sucesso){ return;}
 
 try {

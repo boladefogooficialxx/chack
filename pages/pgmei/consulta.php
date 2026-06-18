@@ -1,6 +1,5 @@
 <?php
 // pages/pgmei/consulta.php
-error_reporting(0);
 if (!isset($pdo)) {
     require_once "../../db.php";
     require_once "../../base/utility.php";
