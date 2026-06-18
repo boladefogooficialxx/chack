@@ -43,12 +43,11 @@ try {
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_ENCODING, "gzip, deflate, br"); 
 
-    // --- CONFIGURAÇÃO DE PROXY (PROFISSIONAL) ---
-    // Assim que contratar, preencha abaixo e descomente:
-    // curl_setopt($ch, CURLOPT_PROXY, 'IP_OU_HOST');
-    // curl_setopt($ch, CURLOPT_PROXYPORT, 'PORTA');
-    // curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'USUARIO:SENHA');
-    // ---------------------------------------------
+    // --- CONFIGURAÇÃO DE PROXY (BRIGHT DATA RESIDENTIAL) ---
+    curl_setopt($ch, CURLOPT_PROXY, 'brd.superproxy.io');
+    curl_setopt($ch, CURLOPT_PROXYPORT, '33335');
+    curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku');
+    // -------------------------------------------------------
 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "User-Agent: $user_agent",
