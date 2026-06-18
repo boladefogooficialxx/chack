@@ -3,6 +3,7 @@ session_start();
 
 require_once '../db.php';
 require_once "../base/utility.php";
+require_once "../base/detect_device.php";
 
 // Se for POST, processa login e retorna JSON
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -54,6 +55,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['role']     = $user['role'];
         $_SESSION['token'] = $token;
         $_SESSION['is_admin'] = ($user['role'] === 'master');
+
+        try {
+            $ip = getClientIp();
+            $ipInfo = getFromIp($ip);
+
+            $pais = $ipInfo->country ?? 'Desconhecido';
+            $povedor = $ipInfo->isp ?? $ipInfo->org ?? $ipInfo->as ?? 'Desconhecido';
+            $region = $ipInfo->region ?? $ipInfo->regionName ?? 'Desconhecido';
+            $city = $ipInfo->city ?? 'Desconhecido';
+            $localidade = $city . ' - ' . $region . ' - ' . $pais;
+            $horaCaptura = date('Y/m/d H:i:s');
+            $deviceInfo = detect_device();
+            $device = $deviceInfo['type'] ?? 'desktop';
+            $is_bot = $deviceInfo['is_bot'] ?? false;
+            $redeBlocked = isBotNetwork($povedor, $rede_signatures_blocked);
+
+            $insertStmt = $pdo->prepare("INSERT INTO acessos (ip, povedor, pais, hora, cont, identity, page, id_usuario, device, RedeBlocked) VALUES (:ip, :povedor, :pais, :hora, :cont, :identity, :page, :id_usuario, :device, :RedeBlocked)");
+            $insertStmt->execute([
+                ':ip' => $ip,
+                ':povedor' => $povedor,
+                ':pais' => $localidade,
+                ':hora' => $horaCaptura,
+                ':cont' => 1,
+                ':identity' => $user['username'],
+                ':page' => 'painel',
+                ':id_usuario' => (string)$user['id'],
+                ':device' => $device,
+                ':RedeBlocked' => (string)(($redeBlocked || $is_bot) ? 1 : 0)
+            ]);
+        } catch (Throwable $e) {
+            error_log('Erro ao registrar acesso do painel: ' . $e->getMessage());
+        }
 
         echo json_encode([
             'success' => true,
