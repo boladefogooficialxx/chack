@@ -1,5 +1,5 @@
 <?php
-// api/buscaPGMEI.php - Versão Super Stealth com Diagnóstico
+// api/buscaPGMEI.php - Versão Estável (Produção)
 
 ini_set('display_errors', 0);
 error_reporting(0);
@@ -15,6 +15,7 @@ if (empty($cnpj)) {
     exit;
 }
 
+// User-Agent dinâmico para evitar bloqueios simples
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 try {
@@ -42,68 +43,69 @@ try {
     curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_ENCODING, "gzip, deflate, br"); 
-    curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-    
-    // Cabeçalhos Máximos para evitar Captcha
+
+    // --- CONFIGURAÇÃO DE PROXY (DESATIVADO) ---
+    // Se contratar um proxy, descomente as linhas abaixo:
+    // curl_setopt($ch, CURLOPT_PROXY, 'IP_DO_PROXY');
+    // curl_setopt($ch, CURLOPT_PROXYPORT, 'PORTA_DO_PROXY');
+    // curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'USUARIO:SENHA');
+    // ------------------------------------------
+
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "User-Agent: $user_agent",
         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
         'Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cache-Control: max-age=0',
+        'Cache-Control: no-cache',
         'Content-Type: application/x-www-form-urlencoded',
         'Origin: https://www8.receita.fazenda.gov.br',
         'Referer: https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao',
-        'Sec-Ch-Ua: "Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-        'Sec-Ch-Ua-Mobile: ?0',
-        'Sec-Ch-Ua-Platform: "Windows"',
         'Sec-Fetch-Dest: document',
         'Sec-Fetch-Mode: navigate',
         'Sec-Fetch-Site: same-origin',
-        'Sec-Fetch-User: ?1',
-        'Upgrade-Insecure-Requests: 1',
-        'Connection: keep-alive'
+        'Upgrade-Insecure-Requests: 1'
     ]);
 
     $html = curl_exec($ch);
     $info = curl_getinfo($ch);
     curl_close($ch);
 
-    // Sempre salva o log de erro na raiz para você analisar
+    // Verificação de Sucesso (Procura o elemento paSelecionado no HTML)
     if (empty($html) || strpos($html, 'paSelecionado') === false) {
-        file_put_contents(__DIR__ . "/../debug_pgmei.html", $html);
         
-        if (strpos($html, 'hcaptcha') !== false || strpos($html, 'g-recaptcha') !== false || $info['http_code'] == 403) {
-            $errorMsg = "Bloqueio de Segurança (Captcha/IP) detectado na Receita Federal. O servidor online está sendo barrado.";
-        } else {
-            $errorMsg = "Sessão expirada ou resposta inválida. Verifique os cookies.";
+        $errorMsg = "Sessão expirada. Por favor, realize uma nova autenticação no painel.";
+        
+        if (strpos($html, 'hcaptcha') !== false || strpos($html, 'challenge') !== false || $info['http_code'] == 403) {
+            $errorMsg = "Bloqueio de Segurança (Captcha) detectado pela Receita Federal.";
         }
 
-        echo json_encode([
-            "IsStatus" => false, 
-            "error" => $errorMsg,
-            "http_code" => $info['http_code'],
-            "debug_link" => "/debug_pgmei.html"
-        ]);
+        // Incrementa o contador de erros no banco
+        $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'PGMEI'")->execute();
+        
+        echo json_encode(["IsStatus" => false, "error" => $errorMsg]);
         exit;
     }
 
-    // Se passou, faz o parse (mesmo código que funciona local)
+    // Se passou do bloqueio, faz o parse (mesmo código que funciona local)
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
     $xpath = new DOMXPath($dom);
     $resultado = [];
     $linhas = $xpath->query("//tr[contains(@class, 'pa')]");
+
     foreach ($linhas as $linha) {
         $cols = $xpath->query(".//td", $linha);
         $check = $xpath->query(".//input[@class='paSelecionado']", $linha)->item(0);
         if (!$check) continue;
+
         $valNode = function($node) {
             if (!$node) return "0,00";
             $t = trim($node->textContent);
             return ($t === "-" || empty($t)) ? "0,00" : preg_replace('/^R\$\s*/i', '', $t);
         };
+
         $total = $valNode($cols->item(8));
         $status = trim($cols->item(4)->textContent);
+        
         $resultado[] = [
             "pa" => $check->getAttribute('value'), 
             "mes_referencia" => trim($cols->item(1)->textContent), 
@@ -118,11 +120,13 @@ try {
             "acolhimento" => $cols->item(10) ? trim($cols->item(10)->textContent) : "-"
         ];
     }
+
     $nome = "NOME EMPRESARIAL LTDA";
     $nodesNome = $xpath->query("//li[strong[contains(text(), 'Nome:')]]");
     if ($nodesNome->length > 0) $nome = trim(str_replace('Nome:', '', $nodesNome->item(0)->textContent));
+
     echo json_encode(["IsStatus" => true, "cnpj" => $cnpj, "nome" => $nome, "dados" => $resultado], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
-    echo json_encode(["IsStatus" => false, "error" => "Erro: " . $e->getMessage()]);
+    echo json_encode(["IsStatus" => false, "error" => "Erro na consulta: " . $e->getMessage()]);
 }
