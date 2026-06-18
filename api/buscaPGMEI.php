@@ -63,25 +63,37 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, [
 
 $html = curl_exec($ch);
 $info = curl_getinfo($ch);
+$curlError = curl_error($ch);
 curl_close($ch);
 
 // Debug Oculto: Se passar &debug=1 na URL, salva o HTML para análise
 if (isset($_GET['debug'])) {
-    file_put_contents("debug_pgmei.html", $html);
+    $debugFile = __DIR__ . "/../debug_pgmei.html";
+    file_put_contents($debugFile, $html);
+    // Adiciona o link do debug no retorno JSON se estiver em modo debug
+    $debugInfo = [
+        "debug_link" => "/debug_pgmei.html",
+        "file_saved" => file_exists($debugFile),
+        "html_size" => strlen($html),
+        "http_code" => $info['http_code'],
+        "curl_error" => $curlError
+    ];
 }
 
 if (empty($html) || strpos($html, 'paSelecionado') === false) {
     // 1. Incrementar contador de expirações na tabela conf
     try {
         $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'PGMEI'")->execute();
-        
+
         // 2. Adicionar notificação para o painel (opcional, mas recomendado pelo padrão do projeto)
         $msgNotif = "PGMEI >> Sessão expirada ou falha na consulta. Verifique os cookies via CURL.";
         $stmtNot = $pdoGlob->prepare("INSERT INTO notificacoes (mensagem, criado_em) VALUES (:msg, :data)");
-        $stmtNot->execute([':msg' => $msgNotif, ':data' => date('Y-m-d H:i:s')]);
+        $stmtNot.execute([':msg' => $msgNotif, ':data' => date('Y-m-d H:i:s')]);
     } catch (Exception $e) {}
 
-    echo json_encode(["IsStatus" => false, "error" => "Sessão expirada. Por favor, realize uma nova autenticação no painel."]);
+    $response = ["IsStatus" => false, "error" => "Sessão expirada. Por favor, realize uma nova autenticação no painel."];
+    if (isset($debugInfo)) $response['debug'] = $debugInfo;
+    echo json_encode($response);
     exit;
 }
 
