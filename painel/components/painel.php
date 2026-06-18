@@ -224,8 +224,6 @@ function renderTableAcessos() {
     painelData.acessos.data.forEach(item => {
         const row = document.createElement('tr');
 
-        row.className = item.RedeBlocked ? 'riscado' : '';
-
         const device = item.device || 'no';
 
         row.innerHTML = `
