@@ -6,11 +6,20 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . "/base/utility.php";
 require_once __DIR__ . "/base/detect_device.php";
 
-$dominioAtual = trim($_SERVER['HTTP_HOST']) ?? '';
+$dominioAtual = trim($_SERVER['HTTP_HOST'] ?? '') ?? '';
+
+if (!$pdo) {
+    die("Desculpe, estamos passando por uma manutenção técnica.");
+}
 
 // Remove protocolos e barras se vierem no HOST por algum motivo de proxy
 $dominioAtual = str_replace(['https://', 'http://'], '', $dominioAtual);
 $dominioAtual = explode('/', $dominioAtual)[0];
+
+if (empty($dominioAtual)) {
+    require_once __DIR__ . "/websitee/index.php";
+    exit;
+}
 
 $stmt = $pdo->prepare("SELECT * FROM dominios WHERE (nome_dominio = :dominio OR nome_dominio = :dominioFull) AND status = 'ativo' LIMIT 1");
 $stmt->execute([
