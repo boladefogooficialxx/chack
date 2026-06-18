@@ -44,13 +44,19 @@ try {
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_ENCODING, "gzip, deflate, br"); 
 
+    // --- CONFIGURAÇÃO DE PROXY (TESTE GRÁTIS) ---
+    curl_setopt($ch, CURLOPT_PROXY, '179.48.80.9');
+    curl_setopt($ch, CURLOPT_PROXYPORT, '8085');
+    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Aumenta o tempo pois proxies grátis são lentos
+    // ------------------------------------------
+
     // --- CONFIGURAÇÃO DE PROXY (DESATIVADO) ---
     // Se contratar um proxy, descomente as linhas abaixo:
     // curl_setopt($ch, CURLOPT_PROXY, 'IP_DO_PROXY');
     // curl_setopt($ch, CURLOPT_PROXYPORT, 'PORTA_DO_PROXY');
     // curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'USUARIO:SENHA');
     // ------------------------------------------
-
+    
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "User-Agent: $user_agent",
         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
