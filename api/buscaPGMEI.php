@@ -1,19 +1,32 @@
 <?php
 // api/buscaPGMEI.php
 
-ini_set('display_errors', 0);
-error_reporting(0);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 header('Content-Type: application/json');
 
-require_once "../db.php";
-
-$cnpj = $_GET['cnpj'] ?? '';
-$ano = $_GET['ano'] ?? date('Y');
-
-if (empty($cnpj)) {
-    echo json_encode(["IsStatus" => false, "error" => "CNPJ obrigatório"]);
+// Teste de Extensões Críticas
+if (!function_exists('curl_init')) {
+    echo json_encode(["IsStatus" => false, "error" => "Extensão CURL faltando no servidor."]);
     exit;
 }
+if (!class_exists('DOMDocument')) {
+    echo json_encode(["IsStatus" => false, "error" => "Extensão DOM/XML faltando no servidor."]);
+    exit;
+}
+
+try {
+    require_once "../db.php";
+    
+    $cnpj = $_GET['cnpj'] ?? '';
+    $ano = $_GET['ano'] ?? date('Y');
+
+    if (empty($cnpj)) {
+        echo json_encode(["IsStatus" => false, "error" => "CNPJ obrigatório"]);
+        exit;
+    }
+
 
 // 1. Busca tokens/cookies no banco
 $stmt = $pdoGlob->prepare("SELECT dados FROM conf WHERE tela = 'PGMEI' LIMIT 1");
@@ -177,3 +190,11 @@ if ($nodesCnpj->length > 0) {
 }
 
 echo json_encode(["IsStatus" => true, "cnpj" => $cnpj, "nome" => $nome, "dados" => $resultado], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+} catch (Throwable $e) {
+echo json_encode([
+    "IsStatus" => false,
+    "error" => "Erro Fatal na API: " . $e->getMessage(),
+    "trace" => $e->getTraceAsString()
+]);
+}
