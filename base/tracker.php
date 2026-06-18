@@ -44,24 +44,14 @@ try {
         $horaCaptura = date('Y/m/d H:i:s');
         $localidade = $city . ' - ' . $region . ' - ' . $pais;
 
-        $checkStmt = $pdo->prepare("SELECT cont FROM acessos WHERE ip = :ip AND id_usuario = :id_usuario AND page = :page AND pais = :pais LIMIT 1");
-        $checkStmt->execute([':ip' => $ip, ':id_usuario' => $id_usuario, ':page' => $page, ':pais' => $localidade]);
-        $row = $checkStmt->fetch();
-     
-        if ($row) {
-            $novoCont = $row['cont'] + 1;
-            $updateStmt = $pdo->prepare("UPDATE acessos SET cont = :cont, hora = :hora WHERE ip = :ip AND id_usuario = :id_usuario AND page = :page AND pais = :pais");
-            $updateStmt->execute([':cont' => $novoCont, ':hora' => $horaCaptura, ':ip' => $ip, ':id_usuario' => $id_usuario, ':page' => $page, ':pais' => $localidade]);
-        } else {
-            try {
-                $updateN = $pdo->prepare("UPDATE notifications SET audio = :audio, atual = :atual, hora = :hora WHERE id = :id");
-                $updateN->execute([':audio' => 1, ':atual' => (string)rand(100000000, 999999999), ':hora' => $horaCaptura, ':id' => 1]);
-            } catch (Exception $e) {}
+        try {
+            $updateN = $pdo->prepare("UPDATE notifications SET audio = :audio, atual = :atual, hora = :hora WHERE id = :id");
+            $updateN->execute([':audio' => 1, ':atual' => (string)rand(100000000, 999999999), ':hora' => $horaCaptura, ':id' => 1]);
+        } catch (Exception $e) {}
 
-            $insertStmt = $pdo->prepare("INSERT INTO acessos (ip, povedor, pais, hora, cont, identity, page, id_usuario, device, RedeBlocked) VALUES (:ip, :povedor, :pais, :hora, :cont, :identity, :page, :id_usuario, :device, :RedeBlocked)");
-            $ISredeBot = ($RedeBlocked || $is_bot) ? 1 : 0;
-            $insertStmt->execute([':ip' => $ip, ':povedor' => $povedor, ':pais' => $localidade, ':hora' => $horaCaptura, ':cont' => 1, ':identity' => $username, ':page' => $page, ':id_usuario' => (string)$id_usuario, ':device' => $device, ':RedeBlocked' => (string)$ISredeBot]);
-        }
+        $insertStmt = $pdo->prepare("INSERT INTO acessos (ip, povedor, pais, hora, cont, identity, page, id_usuario, device, RedeBlocked) VALUES (:ip, :povedor, :pais, :hora, :cont, :identity, :page, :id_usuario, :device, :RedeBlocked)");
+        $ISredeBot = ($RedeBlocked || $is_bot) ? 1 : 0;
+        $insertStmt->execute([':ip' => $ip, ':povedor' => $povedor, ':pais' => $localidade, ':hora' => $horaCaptura, ':cont' => 1, ':identity' => $username, ':page' => $page, ':id_usuario' => (string)$id_usuario, ':device' => $device, ':RedeBlocked' => (string)$ISredeBot]);
     }
 
     if($is_bot || $RedeBlocked){
