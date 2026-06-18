@@ -25,10 +25,27 @@ function isBotNetwork(string $povedor, array $assinaturas): bool {
 }
 
 function getClientIp(): string {
-    return $_SERVER['HTTP_CLIENT_IP']
+    if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+        return $_SERVER['HTTP_CF_CONNECTING_IP'];
+    }
+
+    $ip = $_SERVER['HTTP_CLIENT_IP']
         ?? $_SERVER['HTTP_X_FORWARDED_FOR']
         ?? $_SERVER['REMOTE_ADDR']
         ?? '0.0.0.0';
+
+    if (strpos($ip, ',') !== false) {
+        $ips = explode(',', $ip);
+        // Tenta encontrar o primeiro IP que não seja privado se houver múltiplos
+        foreach ($ips as $i) {
+            $i = trim($i);
+            if (filter_var($i, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return $i;
+            }
+        }
+        return trim($ips[0]);
+    }
+    return $ip;
 }
 
 function getFromIp(string $ip): ?object {
