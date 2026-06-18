@@ -51,6 +51,9 @@ if ($dominio && !empty($dominio['diretorio_raiz'])) {
     $baseDir = realpath(__DIR__ . '/pages'); 
     $targetDir = realpath(__DIR__ . '/' . $diretorio);
 
+    // DEBUG VISÍVEL (Temporário)
+    // echo "<!-- DEBUG: Dir: $diretorio | Target: $targetDir | Base: $baseDir -->";
+
     if ($targetDir && (strpos($targetDir, $baseDir) === 0)) {
 
         $indexFile = $targetDir . '/index.php';
@@ -61,10 +64,13 @@ if ($dominio && !empty($dominio['diretorio_raiz'])) {
         } elseif (file_exists($htmlFile)) {
             readfile($htmlFile);
         } else {
+            // Se o arquivo não existe, mostra erro em vez de tela branca
+            error_log("Arquivo não encontrado: $indexFile ou $htmlFile");
             http_response_code(404);
-            echo "Página não encontrada.";
+            echo "Página não encontrada no diretório: " . htmlspecialchars($diretorio);
         }
     } else {
+        error_log("Acesso negado ou Target fora da Base. Target: $targetDir");
         http_response_code(403);
         echo "Acesso proibido.";
     }
