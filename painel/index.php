@@ -44,22 +44,6 @@ $pais = $DadosIp->country ?? 'Desconhecido';
 $regionName = $DadosIp->regionName ?? 'Desconhecido';
 $city = $DadosIp->city ?? 'Desconhecido';
 
-function formatLocationLabel($city, $regionName, $pais) {
-    $parts = array_filter([
-        $city,
-        $regionName,
-        $pais
-    ], function ($value) {
-        return !empty($value) && $value !== 'Desconhecido' && $value !== 'No';
-    });
-
-    if (!$parts) {
-        return 'Localização indisponível';
-    }
-
-    return implode(' - ', $parts);
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -745,7 +729,7 @@ function formatLocationLabel($city, $regionName, $pais) {
 
                 <div class="location">
                         <i data-lucide="map-pin"></i>
-                        <span><?=formatLocationLabel($city, $regionName, $pais)?></span>
+                        <span><?=$city?>, <?=$pais?></span>
                     </div>
 
                 </div>

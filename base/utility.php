@@ -77,8 +77,9 @@ function getFromIp(string $ip): ?object {
             continue;
         }
 
+        // Ajuste para evitar warnings se as propriedades não existirem
         $data->regionName = $data->regionName ?? ($data->region ?? 'Desconhecido');
-        $data->org = $data->org ?? ($data->isp ?? $data->as ?? 'Desconhecido');
+        $data->org = $data->org ?? ($data->as ?? 'Desconhecido');
         $data->country = $data->country ?? 'Desconhecido';
         $data->city = $data->city ?? 'Desconhecido';
 
