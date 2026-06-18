@@ -85,7 +85,7 @@ try {
           AND page = :page
           AND ip = :ip
           AND pais = :pais
-          AND hora >= (NOW() - INTERVAL 20 SECOND)
+          AND hora >= (NOW() - INTERVAL 30 SECOND)
         ORDER BY id DESC
         LIMIT 1
     ");
