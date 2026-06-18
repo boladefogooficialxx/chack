@@ -31,6 +31,13 @@ if ($token) {
     $online = $user['online'];
     $username = $user['username'];
 
+    if (empty($_SESSION['painel_access_logged'])) {
+        $page = 'painel';
+        $id_usuario = $id_user;
+        require_once '../base/tracker.php';
+        $_SESSION['painel_access_logged'] = true;
+    }
+
   } else {
     // Sem token, redireciona para login
     header('Location: ../login');
