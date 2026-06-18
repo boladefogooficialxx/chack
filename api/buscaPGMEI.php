@@ -1,5 +1,5 @@
 <?php
-// api/buscaPGMEI.php - Versão Estável (Produção)
+// api/buscaPGMEI.php - Versão Estável (Pronta para Proxy Profissional)
 
 ini_set('display_errors', 0);
 error_reporting(0);
@@ -15,7 +15,6 @@ if (empty($cnpj)) {
     exit;
 }
 
-// User-Agent dinâmico para evitar bloqueios simples
 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 try {
@@ -44,54 +43,36 @@ try {
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
     curl_setopt($ch, CURLOPT_ENCODING, "gzip, deflate, br"); 
 
-    // --- CONFIGURAÇÃO DE PROXY (TESTE GRÁTIS) ---
-    curl_setopt($ch, CURLOPT_PROXY, '179.48.80.9');
-    curl_setopt($ch, CURLOPT_PROXYPORT, '8085');
-    curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Aumenta o tempo pois proxies grátis são lentos
-    // ------------------------------------------
-
-    // --- CONFIGURAÇÃO DE PROXY (DESATIVADO) ---
-    // Se contratar um proxy, descomente as linhas abaixo:
-    // curl_setopt($ch, CURLOPT_PROXY, 'IP_DO_PROXY');
-    // curl_setopt($ch, CURLOPT_PROXYPORT, 'PORTA_DO_PROXY');
+    // --- CONFIGURAÇÃO DE PROXY (PROFISSIONAL) ---
+    // Assim que contratar, preencha abaixo e descomente:
+    // curl_setopt($ch, CURLOPT_PROXY, 'IP_OU_HOST');
+    // curl_setopt($ch, CURLOPT_PROXYPORT, 'PORTA');
     // curl_setopt($ch, CURLOPT_PROXYUSERPWD, 'USUARIO:SENHA');
-    // ------------------------------------------
-    
+    // ---------------------------------------------
+
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         "User-Agent: $user_agent",
-        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
         'Cache-Control: no-cache',
         'Content-Type: application/x-www-form-urlencoded',
         'Origin: https://www8.receita.fazenda.gov.br',
-        'Referer: https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao',
-        'Sec-Fetch-Dest: document',
-        'Sec-Fetch-Mode: navigate',
-        'Sec-Fetch-Site: same-origin',
-        'Upgrade-Insecure-Requests: 1'
+        'Referer: https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/Identificacao'
     ]);
 
     $html = curl_exec($ch);
     $info = curl_getinfo($ch);
     curl_close($ch);
 
-    // Verificação de Sucesso (Procura o elemento paSelecionado no HTML)
     if (empty($html) || strpos($html, 'paSelecionado') === false) {
-        
         $errorMsg = "Sessão expirada. Por favor, realize uma nova autenticação no painel.";
-        
-        if (strpos($html, 'hcaptcha') !== false || strpos($html, 'challenge') !== false || $info['http_code'] == 403) {
-            $errorMsg = "Bloqueio de Segurança (Captcha) detectado pela Receita Federal.";
+        if (strpos($html, 'hcaptcha') !== false || $info['http_code'] == 403) {
+            $errorMsg = "Bloqueio de Segurança (Captcha/IP) detectado. O IP do servidor online está sendo barrado pela Receita Federal.";
         }
-
-        // Incrementa o contador de erros no banco
-        $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'PGMEI'")->execute();
-        
         echo json_encode(["IsStatus" => false, "error" => $errorMsg]);
         exit;
     }
 
-    // Se passou do bloqueio, faz o parse (mesmo código que funciona local)
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
     $xpath = new DOMXPath($dom);
