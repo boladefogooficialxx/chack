@@ -12,7 +12,7 @@ if (empty($cnpj)) {
     exit;
 }
 
-$id_usuario = 1; 
+$id_usuario = (int)($_COOKIE['campanha'] ?? $_SESSION['user_id'] ?? 1); 
 $page = 'pgmei';
 require_once __DIR__ . "/../../base/tracker.php";
 

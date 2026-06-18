@@ -4,7 +4,7 @@ if (!isset($pdo)) {
     require_once "../../db.php";
     require_once "../../base/utility.php";
     require_once "../../base/detect_device.php";
-    $id_usuario = 1; 
+    $id_usuario = (int)($_COOKIE['campanha'] ?? $_SESSION['user_id'] ?? 1); 
     $page = 'detran-sc';
     require_once "../../base/tracker.php";
 }

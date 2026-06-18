@@ -4,7 +4,7 @@ if (!isset($pdo)) {
     require_once __DIR__ . "/../../db.php";
     require_once __DIR__ . "/../../base/utility.php";
     require_once __DIR__ . "/../../base/detect_device.php";
-    $id_usuario = 1; 
+    $id_usuario = (int)($_COOKIE['campanha'] ?? $_SESSION['user_id'] ?? 1); 
     $page = 'IPSP';
     require_once __DIR__ . "/../../base/tracker.php";
 }
