@@ -58,6 +58,21 @@
         }
     }
 
+    function updateRandomStat(e) {
+        const statValues = document.querySelectorAll('.stat-value');
+        const statValue = statValues[e];
+
+        if (!statValue) return;
+
+        const statCard = statValue.closest('.stat-card');
+
+        statValue.classList.add('stat-value-highlight');
+
+        if (statCard) {
+            statCard.classList.add('stat-card-highlight');
+        }
+    }
+
     async function verificarUrl() {
 
         try {

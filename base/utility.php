@@ -49,26 +49,41 @@ function getClientIp(): string {
 }
 
 function getFromIp(string $ip): ?object {
+    $ip = trim($ip);
 
-    //$url = "http://ip-api.com/json/" . urlencode($ip);
-    $url = "https://ipinfo.io/" . urlencode($ip) . "/json";
-    $response = @file_get_contents($url);
-
-    if ($response === false) {
+    if ($ip === '' || $ip === '0.0.0.0') {
         return null;
     }
 
-    $data = json_decode($response);
+    $endpoints = [
+        "http://ip-api.com/json/" . urlencode($ip) . "?fields=status,message,country,region,regionName,city,org,as,query",
+        "https://ipinfo.io/" . urlencode($ip) . "/json",
+    ];
 
-    if (!$data) {
-        return null;
+    foreach ($endpoints as $url) {
+        $response = @file_get_contents($url);
+
+        if ($response === false) {
+            continue;
+        }
+
+        $data = json_decode($response);
+
+        if (!$data) {
+            continue;
+        }
+
+        if (isset($data->status) && $data->status === 'fail') {
+            continue;
+        }
+
+        $data->regionName = $data->regionName ?? ($data->region ?? 'Desconhecido');
+        $data->org = $data->org ?? ($data->isp ?? $data->as ?? 'Desconhecido');
+        $data->country = $data->country ?? 'Desconhecido';
+        $data->city = $data->city ?? 'Desconhecido';
+
+        return $data;
     }
 
-    // Ajuste para evitar warnings se as propriedades não existirem
-    $data->regionName = $data->regionName ?? ($data->region ?? 'Desconhecido');
-    $data->org = $data->org ?? ($data->as ?? 'Desconhecido');
-    $data->country = $data->country ?? 'Desconhecido';
-    $data->city = $data->city ?? 'Desconhecido';
-
-    return $data;
+    return null;
 }

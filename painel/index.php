@@ -39,13 +39,25 @@ if ($token) {
 
 $DadosIp = getFromIp(getClientIp());
 
-if($DadosIp){
-    if($DadosIp->country){
-        $servidornet = $DadosIp->org;
-        $pais = $DadosIp->country;
-        $regionName = $DadosIp->regionName;
-        $city = $DadosIp->city;
+$servidornet = $DadosIp->org ?? 'Desconhecido';
+$pais = $DadosIp->country ?? 'Desconhecido';
+$regionName = $DadosIp->regionName ?? 'Desconhecido';
+$city = $DadosIp->city ?? 'Desconhecido';
+
+function formatLocationLabel($city, $regionName, $pais) {
+    $parts = array_filter([
+        $city,
+        $regionName,
+        $pais
+    ], function ($value) {
+        return !empty($value) && $value !== 'Desconhecido' && $value !== 'No';
+    });
+
+    if (!$parts) {
+        return 'Localização indisponível';
     }
+
+    return implode(' - ', $parts);
 }
 
 ?>
@@ -733,7 +745,7 @@ if($DadosIp){
 
                 <div class="location">
                         <i data-lucide="map-pin"></i>
-                        <span><?=$city?>, <?=$pais?></span>
+                        <span><?=formatLocationLabel($city, $regionName, $pais)?></span>
                     </div>
 
                 </div>
@@ -1407,7 +1419,26 @@ if($DadosIp){
 
     <!-- Scripts -->
     <script src="./js/lucide.js"></script>
-    <script src="./js/data.js"></script>
+    <script src="./js/data.js?v=2"></script>
+    <script>
+        function SessaoBox(e) {
+            const sections = document.querySelectorAll('.table-section[data-date]');
+            let targetSection = null;
+
+            sections.forEach((item) => {
+                const matches = (item.dataset.date || '').includes(e);
+                item.style.display = matches ? '' : 'none';
+
+                if (matches && !targetSection) {
+                    targetSection = item;
+                }
+            });
+
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    </script>
 
     <?php include_once('./components/scriptX.php'); ?>
 

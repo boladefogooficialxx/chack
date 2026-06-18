@@ -8,9 +8,21 @@ var loginsData = [];
 var tableData = [];
 
 function SessaoBox(e) {
-    document.querySelectorAll('.table-section').forEach(item => {
-        (item.dataset.date.includes(e)) ? item.style = '': item.style = 'display: none;';
-     });
+    const sections = document.querySelectorAll('.table-section[data-date]');
+    let targetSection = null;
+
+    sections.forEach(item => {
+        const matches = (item.dataset.date || '').includes(e);
+        item.style.display = matches ? '' : 'none';
+
+        if (matches && !targetSection) {
+            targetSection = item;
+        }
+    });
+
+    if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 const getStatusColor = (status) => {

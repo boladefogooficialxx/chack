@@ -17,6 +17,15 @@
         .pagination-controls, .filters, .stat-change{
             display: none;
         }
+
+        .stat-value-highlight {
+            color: #4ade80 !important;
+        }
+
+        .stat-card-highlight {
+            border-color: rgba(74, 222, 128, 0.35) !important;
+            box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.16), 0 14px 30px -18px rgba(74, 222, 128, 0.55) !important;
+        }
     
         @media (max-width: 768px) {
         /* Estilo mais fino e compacto dos cards no mobile */
