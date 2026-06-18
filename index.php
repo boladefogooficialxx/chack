@@ -1,5 +1,5 @@
 <?php
-// index.php - Front Controller com Debug Robusto
+// index.php - Front Controller
 
 try {
     require_once __DIR__ . '/db.php';
@@ -13,7 +13,7 @@ try {
     $dominioAtual = explode('/', $dominioAtual)[0];
 
     if (!$pdo) {
-        die("Erro Crítico: Falha na conexão com o banco de dados.");
+        die("Erro: Falha na conexão com o banco de dados.");
     }
 
     $stmt = $pdo->prepare("SELECT * FROM dominios WHERE (nome_dominio = :dominio OR nome_dominio = :dominioFull) AND status = 'ativo' LIMIT 1");
@@ -28,8 +28,8 @@ try {
         $diretorio = $dominio['diretorio_raiz'];
         $id_usuario = $_GET['id_usuario'] ?? $dominio['id_usuario'];
         $page = $dominio['page'];
+        $sucesso = $_GET['sucesso'] ?? null;
         
-        // Lookup de usuário seguro
         try {
             $stmtU = $pdo->prepare("SELECT username FROM users WHERE id = :id_usuario LIMIT 1");
             $stmtU->execute(['id_usuario' => $id_usuario]);
@@ -39,11 +39,9 @@ try {
                 setcookie('Identity', $username, time() + (86400 * 30), "/");
                 setcookie('campanha', $id_usuario, time() + (86400 * 30), "/");
             }
-        } catch (Exception $e) {
-            // Ignora erro de tabela users se não existir
-        }
+        } catch (Exception $e) {}
 
-        // Rastreamento
+        // Tracker com caminho absoluto
         require_once __DIR__ . "/base/tracker.php";
 
         $baseDir = realpath(__DIR__ . '/pages'); 
@@ -60,27 +58,24 @@ try {
                 readfile($htmlFile);
             } else {
                 http_response_code(404);
-                echo "Página não encontrada: " . htmlspecialchars($diretorio);
+                echo "Página não encontrada.";
             }
         } else {
             http_response_code(403);
-            echo "Acesso Negado ao diretório.";
+            echo "Acesso proibido.";
         }
 
         require_once __DIR__ . "/base/script.php";
 
     } else {
-        // Se não achou domínio, tenta o decoy
         if (file_exists(__DIR__ . "/websitee/index.php")) {
             require_once __DIR__ . "/websitee/index.php";
         } else {
-            echo "Página Inicial (Sem Domínio Configurado)";
+            echo "Portal em Manutenção.";
         }
     }
 
 } catch (Throwable $e) {
-    // Captura qualquer erro fatal e exibe
-    echo "<h1>Erro de Sistema</h1>";
-    echo "<p>" . $e->getMessage() . "</p>";
-    echo "<pre>" . $e->getTraceAsString() . "</pre>";
+    error_log("Erro Fatal Index: " . $e->getMessage());
+    echo "Algo deu errado. Por favor, tente novamente mais tarde.";
 }

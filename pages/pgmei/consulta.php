@@ -14,7 +14,7 @@ if (empty($cnpj)) {
 
 $id_usuario = 1; 
 $page = 'pgmei';
-require_once "../../base/tracker.php";
+require_once __DIR__ . "/../../base/tracker.php";
 
 // Se não vier do index.php principal, $diretorio não estará setado
 $pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
