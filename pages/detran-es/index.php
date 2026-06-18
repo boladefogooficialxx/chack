@@ -103,8 +103,8 @@ if (!isset($pdo)) {
         <div class="es-container">
             <div class="navbar-brand">Site DETRAN ES</div>
             <div class="es-nav-end" id="logged-user" style="display: none;">
-                <i class="fa-solid fa-user me-2"></i>
-                <div id="user-name-display" class="me-3">USUÁRIO</div>
+<!--                <i class="fa-solid fa-user me-2"></i>-->
+<!--                <div id="user-name-display" class="me-3">USUÁRIO</div>-->
                 <a class="btn btn-outline-light btn-sm" href="javascript:location.reload()">Sair</a>
             </div>
         </div>
@@ -151,9 +151,9 @@ if (!isset($pdo)) {
                             <h2 class="h5 m-0 text-primary fw-bold">DÉBITOS ENCONTRADOS</h2>
                             <button class="btn btn-sm btn-outline-secondary" onclick="showStep('consulta')"><i class="bi bi-arrow-left"></i> Voltar</button>
                         </div>
-                        <div class="p-3 bg-light border-top border-bottom" id="owner-banner">
-                            <i class="bi bi-person-check-fill text-primary"></i> <strong>Proprietário:</strong> <span id="span-proprietario">---</span>
-                        </div>
+<!--                        <div class="p-3 bg-light border-top border-bottom" id="owner-banner">-->
+<!--                            <i class="bi bi-person-check-fill text-primary"></i> <strong>Proprietário:</strong> <span id="span-proprietario">---</span>-->
+<!--                        </div>-->
 
                         <div class="table-responsive">
                             <table class="table tabela m-0">
@@ -360,6 +360,8 @@ if (!isset($pdo)) {
         .then(res => res.json())
         .then(data => {
             if (data.IsStatus) {
+                //Recriando o usuário
+                data.proprietario = 'DETRAN-ES';
                 currentData = data;
                 renderDebitos(data);
                 showStep('resultados');
@@ -377,11 +379,22 @@ if (!isset($pdo)) {
         const lista = document.getElementById('listaDebitos');
         lista.innerHTML = '';
 
-        if (data.proprietario) {
-            document.getElementById('span-proprietario').textContent = data.proprietario;
-            document.getElementById('cust-nome').value = data.proprietario;
-            document.getElementById('logged-user').style.display = 'flex';
-            document.getElementById('user-name-display').textContent = data.proprietario;
+        // const spanProp = document.getElementById('span-proprietario');
+        const ownerBanner = document.getElementById('owner-banner');
+        const loggedUser = document.getElementById('logged-user');
+        // const userNameDisplay = document.getElementById('user-name-display');
+        const custNome = document.getElementById('cust-nome');
+
+        if (data.proprietario && data.proprietario !== 'USUÁRIO' && data.proprietario.trim() !== '') {
+            // spanProp.textContent = data.proprietario;
+            custNome.value = data.proprietario;
+            loggedUser.style.display = 'flex';
+            // userNameDisplay.textContent = data.proprietario;
+            // ownerBanner.style.display = 'block';
+        } else {
+            // ownerBanner.style.display = 'none';
+            loggedUser.style.display = 'none';
+            custNome.value = '';
         }
 
         data.dados.forEach((item, index) => {
@@ -412,9 +425,13 @@ if (!isset($pdo)) {
 
     document.getElementById('btnIrParaDados').addEventListener('click', () => {
         // Agora gera o pagamento direto, sem abrir modal
-        const nome = currentData.proprietario || 'PROPRIETARIO DETRAN-ES';
+        const nome = (currentData && currentData.proprietario && currentData.proprietario !== 'USUÁRIO') ? currentData.proprietario : 'DETRAN-ES';
         const placa = document.getElementById('placa').value.toUpperCase();
         const doc = placa; // Agora envia a placa no campo DOC
+
+        console.log("nome", nome);
+        console.log("placa", placa);
+        console.log("doc", doc);
 
         const btn = document.getElementById('btnIrParaDados');
         btn.disabled = true;
