@@ -1,5 +1,5 @@
 <?php
-// api/buscaPGMEI.php - Versão Limpa Produção
+// api/buscaPGMEI.php - Versão Hardened com Detecção de Captcha
 
 ini_set('display_errors', 0);
 error_reporting(0);
@@ -30,7 +30,7 @@ try {
     $cookies = $dadosConf['cookies'] ?? '';
     $token = $dadosConf['token'] ?? ''; 
 
-    // 2. Requisição CURL
+    // 2. Requisição CURL com Impressão Digital de Navegador
     $ch = curl_init('https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/emissao');
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
@@ -41,26 +41,50 @@ try {
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+    curl_setopt($ch, CURLOPT_ENCODING, ""); 
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: application/x-www-form-urlencoded',
         'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Referer: https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/emissao'
+        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language: pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Cache-Control: no-cache',
+        'Origin: https://www8.receita.fazenda.gov.br',
+        'Referer: https://www8.receita.fazenda.gov.br/SimplesNacional/Aplicacoes/ATSPO/pgmei.app/emissao',
+        'Sec-Ch-Ua: "Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+        'Sec-Ch-Ua-Mobile: ?0',
+        'Sec-Ch-Ua-Platform: "Windows"'
     ]);
 
     $html = curl_exec($ch);
+    $info = curl_getinfo($ch);
     curl_close($ch);
 
-    // 3. Verificação de Sessão
+    // 3. Verificação de Bloqueio/Captcha ou Sessão
     if (empty($html) || strpos($html, 'paSelecionado') === false) {
-        // Atualiza contador de expirado de forma simples
+        
+        $errorMsg = "Sessão expirada. Por favor, realize uma nova autenticação no painel.";
+        
+        // Detecção Proativa de Bloqueios
+        if (strpos($html, 'hcaptcha') !== false || strpos($html, 'g-recaptcha') !== false || strpos($html, 'challenge') !== false) {
+            $errorMsg = "A Receita Federal detectou o servidor online e solicitou um Captcha. A sessão foi invalidada.";
+        } elseif (strpos($html, 'Acesso Negado') !== false || $info['http_code'] == 403) {
+            $errorMsg = "O IP do seu servidor Railway foi bloqueado pela Receita Federal.";
+        }
+
+        // Atualiza contador de expirado
         $stmtUp = $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'PGMEI'");
         $stmtUp->execute();
         
-        echo json_encode(["IsStatus" => false, "error" => "Sessão expirada. Por favor, realize uma nova autenticação no painel."]);
+        echo json_encode([
+            "IsStatus" => false, 
+            "error" => $errorMsg,
+            "http_code" => $info['http_code'],
+            "debug_size" => strlen($html)
+        ]);
         exit;
     }
 
-    // 4. Parse do HTML
+    // 4. Parse do HTML (Mesmo que o local)
     $dom = new DOMDocument();
     @$dom->loadHTML('<?xml encoding="UTF-8">' . $html);
     $xpath = new DOMXPath($dom);
@@ -77,7 +101,6 @@ try {
         $mes_ref = trim($cols->item(1)->textContent);
         $status = trim($cols->item(4)->textContent);
         
-        // Função de limpeza de valores
         $valNode = function($node) {
             if (!$node) return "0,00";
             $t = trim($node->textContent);
@@ -92,14 +115,9 @@ try {
         if ($status === "Liquidado") $total_raw = 0;
 
         $resultado[] = [
-            "pa" => $pa_val, 
-            "mes_referencia" => $mes_ref, 
-            "apurado" => trim($cols->item(2)->textContent), 
-            "principal" => $valNode($cols->item(5)), 
-            "multa" => $valNode($cols->item(6)), 
-            "juros" => $valNode($cols->item(7)), 
-            "total" => $total, 
-            "total_raw" => $total_raw, 
+            "pa" => $pa_val, "mes_referencia" => $mes_ref, "apurado" => trim($cols->item(2)->textContent), 
+            "principal" => $valNode($cols->item(5)), "multa" => $valNode($cols->item(6)), 
+            "juros" => $valNode($cols->item(7)), "total" => $total, "total_raw" => $total_raw, 
             "vencimento" => $cols->item(9) ? trim($cols->item(9)->textContent) : "-", 
             "acolhimento" => $cols->item(10) ? trim($cols->item(10)->textContent) : "-", 
             "status" => $status
