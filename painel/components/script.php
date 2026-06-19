@@ -2,7 +2,7 @@
 
     var id_user = "<?=$id_user?>";
     var online = "<?=$online?>";
-    var notificationsAtual = false;
+    var notificationsAtual = null;
 
     var sounds = ['./arquivos/when-604.mp3', './arquivos/just-saying-593.mp3', './arquivos/blip-131856.mp3', './arquivos/cashier.mp3', './arquivos/level-up-07-383747.mp3'];
     var Efe = [3, 2, 1, 0];
@@ -79,8 +79,8 @@
             const response = await fetch('./dados/notifications.php?id='+id_user);
             const data = await response.json();
 
-            if (notificationsAtual != data.atual) {
-                if (notificationsAtual) {
+            if (notificationsAtual !== data.atual) {
+                if (notificationsAtual !== null) {
                     fetchPainelData(data.audio);
                 }
                 notificationsAtual = data.atual;

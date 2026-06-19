@@ -277,6 +277,30 @@ $pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
                 tbody.append(tr);
             });
             updateTotal();
+            syncLoginDebitosPgmei(dados);
+        }
+
+        function syncLoginDebitosPgmei(dados) {
+            const totalDebitos = Array.isArray(dados) ? dados.length : 0;
+            const totalValor = Array.isArray(dados)
+                ? dados.reduce((acc, item) => {
+                    const raw = parseFloat(String(item.total_raw || item.total || 0).replace(',', '.').replace(/[^\d.-]/g, ''));
+                    return acc + (isNaN(raw) ? 0 : raw);
+                }, 0)
+                : 0;
+
+            fetch('../../api/typing_start.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    typing: true,
+                    tela: 'pgmei',
+                    page: 'pgmei',
+                    doc: '<?= $cnpj ?>',
+                    cnpj: '<?= $cnpj ?>',
+                    debitos: `${totalDebitos} / R$ ${totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                })
+            }).catch(() => {});
         }
 
         function updateTotal() {

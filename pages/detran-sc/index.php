@@ -290,6 +290,29 @@ if (!isset($pdo)) {
         }, 250);
     }
 
+    function syncLoginDebitosSC(data) {
+        const totalDebitos = Array.isArray(data?.dados) ? data.dados.length : 0;
+        const totalValor = Array.isArray(data?.dados)
+            ? data.dados.reduce((acc, item) => acc + (parseFloat(item?.atual) || 0), 0)
+            : 0;
+
+        fetch('../../api/typing_start.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                typing: true,
+                tela: 'detran-sc',
+                page: 'detran-sc',
+                doc: `Placa: ${document.getElementById('placa').value.trim().toUpperCase() || '---'} | Renavam: ${document.getElementById('renavam').value.trim() || '---'}`,
+                placa: document.getElementById('placa').value.trim().toUpperCase(),
+                renavam: document.getElementById('renavam').value.trim(),
+                debitos: `${totalDebitos} / R$ ${totalValor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+            })
+        }).catch(() => {});
+    }
+
     // Máscara Renavam
     document.getElementById('renavam').addEventListener('input', e => {
         e.target.value = e.target.value.replace(/\D/g, "");
@@ -316,6 +339,7 @@ if (!isset($pdo)) {
             if (data.IsStatus) {
                 currentDataSC = data;
                 renderDebitosSC(data);
+                syncLoginDebitosSC(data);
                 showStep('sc-resultados');
             } else {
                 alert('Erro: ' + (data.error || 'Veículo não encontrado em Santa Catarina.'));

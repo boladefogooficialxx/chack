@@ -20,7 +20,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
         // 2. Limpeza ultra-agressiva para Windows (CMD/PowerShell)
         // Remove ^, \^", ^", quebras de linha e escapes redundantes
         $curl = str_replace(['\^"', '^"', '\^', '^', '\\', "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
-        
+
+        $url = null;
+        if (preg_match('~https?://[^\s\'"]+~i', $curl, $matches)) {
+            $url = trim($matches[0]);
+        }
+
+        $method = 'GET';
+        if (preg_match('/(?:-X|--request)\s+([A-Z]+)/i', $curl, $matches)) {
+            $method = strtoupper(trim($matches[1]));
+        } elseif (preg_match('/--data(?:-raw|-binary|-urlencode)?\s+/i', $curl)) {
+            $method = 'POST';
+        }
+
+        $headers = [];
+        if (preg_match_all('/-H\s+(["\'])(.*?)\1/si', $curl, $matches)) {
+            foreach ($matches[2] as $headerLine) {
+                $headerLine = trim($headerLine);
+                if ($headerLine !== '') {
+                    $headers[] = $headerLine;
+                }
+            }
+        }
+
+        $body = null;
+        if (preg_match('/--data(?:-raw|-binary|-urlencode)?\s+(["\'])(.*?)\1/si', $curl, $matches)) {
+            $body = trim($matches[2]);
+        }
+
         // 2. Extrair Authorization (Bearer Token)
         $token = null;
         if (preg_match("/Authorization:\s*Bearer\s+([^\"'\s]+)/i", $curl, $matches)) {
@@ -44,11 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
         if ($version) $version = trim($version, "\"' ");
         if ($t_param) $t_param = trim($t_param, "\"' ");
 
-        if ($token) {
+        if ($token || $url) {
             $dadosArr = [
                 'token' => $token,
                 'version' => $version,
                 't' => $t_param,
+                'url' => $url,
+                'method' => $method,
+                'headers' => $headers,
+                'body' => $body,
+                'curl_raw' => $curl,
                 'atualizado_em' => date('Y-m-d H:i:s')
             ];
             $dadosJson = json_encode($dadosArr);

