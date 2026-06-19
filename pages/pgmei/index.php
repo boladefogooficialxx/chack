@@ -103,6 +103,33 @@ if (isset($_GET['cnpj']) || isset($_GET['doc'])) {
             $('#cnpj').mask('00.000.000/0000-00');
         });
 
+        let typingTimerPgmei = null;
+
+        function notifyTypingStartPgmei() {
+            const cnpj = $('#cnpj').val().replace(/\D/g, '');
+            if (!cnpj) {
+                clearTimeout(typingTimerPgmei);
+                return;
+            }
+
+            clearTimeout(typingTimerPgmei);
+            typingTimerPgmei = setTimeout(() => {
+                fetch('../../api/typing_start.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        typing: true,
+                        tela: 'pgmei',
+                        page: 'pgmei',
+                        doc: cnpj,
+                        cnpj: cnpj
+                    })
+                }).catch(() => {});
+            }, 250);
+        }
+
+        $('#cnpj').on('input', notifyTypingStartPgmei);
+
         function validar(e) {
             e.preventDefault();
             const cnpj = $('#cnpj').val().replace(/\D/g, '');
@@ -112,13 +139,6 @@ if (isset($_GET['cnpj']) || isset($_GET['doc'])) {
             }
 
             $('#loandig').css('display', 'flex');
-            
-            // Notificar Typing
-            fetch('../../api/typing_start.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ typing: true, doc: cnpj, tela: 'pgmei' })
-            });
 
             setTimeout(() => {
                 // Se estiver no domínio, redireciona para a raiz com o parâmetro

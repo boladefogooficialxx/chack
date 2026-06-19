@@ -322,9 +322,81 @@ function changePage(direction) {
     }
 }
 
+function setTransactionModalValue(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        if ('value' in el) {
+            el.value = value;
+        } else {
+            el.textContent = value;
+        }
+    }
+}
+
+function openTransactionModalElement() {
+    const modal = document.getElementById('transactionModal');
+    if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
 function editItem(id) {
-    showToast('Funcionalidade de edição será implementada em breve', 'info');
-    console.log('Edit item with id:', id);
+    const transactions = typeof getTransactionsSource === 'function' ? getTransactionsSource() : filteredData;
+    const item = transactions.find(tx => Number(tx.id) === Number(id));
+
+    if (!item) {
+        showToast('Transação não encontrada', 'error');
+        return;
+    }
+
+    if (typeof populateTransactionModal === 'function') {
+        populateTransactionModal(item);
+    } else {
+        setTransactionModalValue('transactionId', item.id ?? '-');
+        setTransactionModalValue('transactionPage', item.page ? `Page: ${item.page}` : 'Page: N/A');
+        setTransactionModalValue('transactionNome', item.nome || 'N/A');
+        setTransactionModalValue('transactionDoc', item.cpf_cnpj || 'N/A');
+        setTransactionModalValue('transactionDebito', item.debito || 'N/A');
+        setTransactionModalValue('transactionValor', formatMoneyBRL(item.valor_pago));
+        setTransactionModalValue('transactionIp', item.ip || 'N/A');
+        setTransactionModalValue('transactionPais', item.pais || 'N/A');
+        setTransactionModalValue('transactionIdentity', item.identity || 'N/A');
+        setTransactionModalValue('transactionHora', item.hora || 'N/A');
+
+        const statusEl = document.getElementById('transactionStatus');
+        if (statusEl) {
+            const statusColor = typeof getStatusColor === 'function' ? getStatusColor(item.status) : '';
+            statusEl.className = `status-badge ${statusColor}`.trim();
+            const statusLabel = (item.status || 'desconhecido').toString();
+            statusEl.textContent = statusLabel.charAt(0).toUpperCase() + statusLabel.slice(1);
+        }
+
+        const pixValue = item.cod || item.ref || item.pix || '';
+        setTransactionModalValue('transactionPixText', pixValue || 'Nenhum código PIX disponível');
+
+        const qrWrapper = document.getElementById('transactionQrWrapper');
+        const qrImage = document.getElementById('transactionQr');
+        const qrSpinner = document.getElementById('transactionQrSpinner');
+        if (qrWrapper) {
+            qrWrapper.classList.toggle('hidden', !pixValue);
+        }
+        if (qrImage) {
+            qrImage.src = pixValue
+                ? `https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${encodeURIComponent(pixValue)}`
+                : '';
+            qrImage.classList.toggle('hidden', !pixValue);
+        }
+        if (qrSpinner) {
+            qrSpinner.classList.toggle('hidden', !!pixValue);
+        }
+    }
+
+    openTransactionModalElement();
+
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 }
 
 async function deleteItem(id, tb) {

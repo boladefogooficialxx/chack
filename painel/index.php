@@ -1376,7 +1376,78 @@ $city = $DadosIp->city ?? 'Desconhecido';
 
         <!-- Transaction Details Modal -->
         <div class="modal-overlay" id="transactionModal">
-            <!-- ... existing transaction modal code ... -->
+            <div class="modal" style="max-width: 900px;">
+                <div class="modal-header">
+                    <h3>
+                        <i data-lucide="eye"></i>
+                        Detalhes da Transação
+                    </h3>
+                    <button class="modal-close" id="closeTransactionModal">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="display: grid; gap: 1rem;">
+                    <div class="transaction-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+                        <div class="transaction-field">
+                            <label>ID</label>
+                            <div id="transactionId" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>PAGE</label>
+                            <div id="transactionPage" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>STATUS</label>
+                            <div id="transactionStatus" class="status-badge status-pendente">Pendente</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>NOME</label>
+                            <div id="transactionNome" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>DOC</label>
+                            <div id="transactionDoc" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>DÉBITO</label>
+                            <div id="transactionDebito" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>VALOR</label>
+                            <div id="transactionValor" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>IP</label>
+                            <div id="transactionIp" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>PAÍS</label>
+                            <div id="transactionPais" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>IDENTITY</label>
+                            <div id="transactionIdentity" class="transaction-value">-</div>
+                        </div>
+                        <div class="transaction-field">
+                            <label>HORA</label>
+                            <div id="transactionHora" class="transaction-value">-</div>
+                        </div>
+                    </div>
+
+                    <div class="qr-section" style="display: grid; gap: 0.75rem; justify-items: center;">
+                        <div id="transactionQrWrapper" class="qr-wrapper">
+                            <img id="transactionQr" class="hidden" alt="QR Code da transação" style="max-width: 280px; width: 100%;">
+                            <div id="transactionQrSpinner" class="qr-spinner">Carregando QR Code...</div>
+                        </div>
+                        <textarea id="transactionPixText" readonly rows="4" style="width: 100%; resize: none;"></textarea>
+                        <div style="display: flex; gap: 0.75rem; width: 100%; justify-content: flex-end;">
+                            <button type="button" class="btn btn-outline" id="copyPixBtn">Copiar PIX</button>
+                            <button type="button" class="btn btn-primary" id="closeTransactionFooter">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tool Modal (Iframe) -->

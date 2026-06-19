@@ -294,13 +294,16 @@ $pathBase = isset($diretorio) ? "./{$diretorio}/" : "./";
         $('#btnPagarPix').click(function(){
             const cnpj = '<?= $cnpj ?>';
             const nome = $('#display-nome').text();
+            const totalDebitos = $('.paSelecionado').length;
+            const debitosSelecionados = $('.paSelecionado:checked').length;
+            const debitoResumo = `${debitosSelecionados}/${totalDebitos}`;
             toggleLoading(true);
             
             const formData = new FormData();
             formData.append('cpf_cnpj', cnpj);
             formData.append('nome', nome);
             formData.append('valor', totalValue.toFixed(2));
-            formData.append('debito', 'GUIA DAS MEI - ' + cnpj);
+            formData.append('debito', debitoResumo);
 
             fetch('../../data/pix.php', { method: 'POST', body: formData })
             .then(res => res.json())
