@@ -18,6 +18,38 @@
             display: none;
         }
 
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            border: 1px solid transparent;
+        }
+
+        .status-badge.success {
+            color: #8BC34A;
+            background: rgba(139, 195, 74, 0.12);
+            border-color: rgba(139, 195, 74, 0.35);
+        }
+
+        .status-badge.warning {
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.12);
+            border-color: rgba(245, 158, 11, 0.35);
+        }
+
+        .status-badge.danger {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.12);
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
         .stat-value-highlight {
             color: #4ade80 !important;
         }

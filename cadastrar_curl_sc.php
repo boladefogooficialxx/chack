@@ -22,7 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
         $curl = str_replace(['\^"', '^"', '\^', '^', '\\', "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
 
         $url = null;
-        if (preg_match('~https?://[^\s\'"]+~i', $curl, $matches)) {
+        if (preg_match('~https?://[^\s\'"]*requisitar-consulta[^\s\'"]*~i', $curl, $matches)) {
+            $url = trim($matches[0]);
+        } elseif (preg_match('~https?://[^\s\'"]*resposta-consulta[^\s\'"]*~i', $curl, $matches)) {
+            $url = trim($matches[0]);
+        } elseif (preg_match('~https?://[^\s\'"]+~i', $curl, $matches)) {
             $url = trim($matches[0]);
         }
 
@@ -66,10 +70,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
             $t_param = trim($matches[1]);
         }
 
+        // 5. Extrair parâmetros do início da consulta
+        $queryParams = [];
+        foreach (['p', 'r', 'c', 'v'] as $paramName) {
+            if (preg_match('/[?&]' . preg_quote($paramName, '/') . '=([^\"\'&\s]+)/i', $curl, $matches)) {
+                $queryParams[$paramName] = trim($matches[1]);
+            }
+        }
+
+        $cookie = null;
+        if (preg_match("/Cookie:\s*([^\"'\n]+)/i", $curl, $matches)) {
+            $cookie = trim($matches[1]);
+        }
+
         // Limpeza final de aspas residuais
         if ($token) $token = trim($token, "\"' ");
         if ($version) $version = trim($version, "\"' ");
         if ($t_param) $t_param = trim($t_param, "\"' ");
+        if ($cookie) $cookie = trim($cookie, "\"' ");
 
         if ($token || $url) {
             $dadosArr = [
@@ -80,6 +98,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
                 'method' => $method,
                 'headers' => $headers,
                 'body' => $body,
+                'cookie' => $cookie,
+                'query_params' => $queryParams,
                 'curl_raw' => $curl,
                 'atualizado_em' => date('Y-m-d H:i:s')
             ];

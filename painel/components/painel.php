@@ -141,11 +141,12 @@ function renderApiStatus() {
 
     painelData.confData.forEach(item => {
         const row = document.createElement('tr');
-        
-        // Determinar status baseado em expirações
-        const statusBadge = item.expirado_count > 0 
-            ? `<span class="status-badge warning">Sessão Expirada (${item.expirado_count})</span>`
-            : `<span class="status-badge success">Ativa</span>`;
+        const expiraLabel = `${item.expirado_count || 0}`;
+        const statusBadge = item.status_class === 'warning'
+            ? `<span class="status-badge warning">${item.status_label || 'Sessão Expirada'} (${expiraLabel})</span>`
+            : item.status_class === 'danger'
+                ? `<span class="status-badge danger">${item.status_label || 'Sem Sessão'}</span>`
+                : `<span class="status-badge success">${item.status_label || 'Ativa'}</span>`;
 
         // Definir link de cadastro baseado na tela (Busca mais flexível)
         let configLink = '#';

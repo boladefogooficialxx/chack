@@ -39,6 +39,30 @@ function scFail(string $message, bool $countExpiry = false): void {
     exit;
 }
 
+function scLooksLikeSessionExpired(string $content): bool {
+    $content = strtolower($content);
+    $needles = [
+        'sessão expirou',
+        'sessao expirou',
+        'session expired',
+        'invalid credentials',
+        'unauthorized',
+        'forbidden',
+        'login',
+        'sign in',
+        'autentique-se novamente',
+        'authenticate'
+    ];
+
+    foreach ($needles as $needle) {
+        if (str_contains($content, $needle)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function scNormalizeHeaders($headers): array {
     if (!is_array($headers)) {
         return [];
@@ -168,6 +192,53 @@ function scBuildDebitoItem(array $item): array {
     ];
 }
 
+function scBuildDebitoFromDomNode(DOMXPath $xpath, DOMNode $linha): ?array {
+    $input = $xpath->query(".//input[@data-guid]", $linha)->item(0);
+    $cols = $xpath->query(".//div[contains(@class, 'col')] | .//td | .//span", $linha);
+
+    $descricao = '';
+    $dataVenc = '';
+    $situacao = '';
+    $valorAtual = 0;
+
+    if ($input instanceof DOMElement) {
+        $descricao = trim((string) ($input->getAttribute('data-descricao-debito') ?: ''));
+        $dataVenc = trim((string) ($input->getAttribute('data-data-vencimento') ?: ''));
+        $situacao = trim((string) ($input->getAttribute('data-situacao-exibicao') ?: ''));
+        $valorAtual = scParseMoney($input->getAttribute('data-valor-atualizado') ?: $input->getAttribute('data-valor'));
+    }
+
+    if ($descricao === '' && $cols->length > 0) {
+        $descricao = trim(preg_replace('/\s+/', ' ', $cols->item(0)->textContent ?? ''));
+    }
+    if ($dataVenc === '' && $cols->length > 1) {
+        $dataVenc = trim(preg_replace('/\s+/', ' ', $cols->item(1)->textContent ?? ''));
+    }
+    if ($situacao === '' && $cols->length > 2) {
+        $situacao = trim(preg_replace('/\s+/', ' ', $cols->item(2)->textContent ?? ''));
+    }
+    if ($valorAtual <= 0 && $cols->length > 3) {
+        $valorAtual = scParseMoney($cols->item(3)->textContent ?? '');
+    }
+
+    if ($descricao === '' && $valorAtual <= 0 && $dataVenc === '' && $situacao === '') {
+        return null;
+    }
+
+    return [
+        'guid' => $input instanceof DOMElement ? ($input->getAttribute('data-guid') ?: null) : null,
+        'descricao' => $descricao !== '' ? $descricao : 'Débito',
+        'data_vencimento' => $dataVenc,
+        'situacao' => $situacao,
+        'nominal' => $valorAtual,
+        'corrigido' => $valorAtual,
+        'desconto' => 0,
+        'juros' => 0,
+        'multa' => 0,
+        'atual' => $valorAtual
+    ];
+}
+
 function scRequest(string $url, array $headers = [], ?string $body = null, string $method = 'GET', string $cookie = '', bool $follow = true): array {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -217,9 +288,22 @@ $methodInicial = strtoupper($dadosSC['method'] ?? 'GET');
 $headersInicial = scNormalizeHeaders($dadosSC['headers'] ?? []);
 $bodyInicial = $dadosSC['body'] ?? null;
 $cookieInicial = $dadosSC['cookie'] ?? '';
+$queryParams = is_array($dadosSC['query_params'] ?? null) ? $dadosSC['query_params'] : [];
 
-if ($urlInicial === '' && $session_token !== '') {
-    $urlInicial = 'https://backend.detran.sc.gov.br/transito-api/veiculo/resposta-consulta?t=' . rawurlencode($session_token);
+if ($urlInicial === '' && !empty($queryParams['p']) && !empty($queryParams['r']) && !empty($queryParams['c'])) {
+    $query = [
+        'p' => $queryParams['p'],
+        'r' => $queryParams['r'],
+        'c' => $queryParams['c'],
+    ];
+
+    if (!empty($queryParams['v'])) {
+        $query['v'] = $queryParams['v'];
+    }
+
+    $urlInicial = 'https://backend.detran.sc.gov.br/transito-api/veiculo/requisitar-consulta?' . http_build_query($query);
+} elseif ($urlInicial === '' && $session_token !== '' && !empty($dadosSC['t'])) {
+    $urlInicial = 'https://backend.detran.sc.gov.br/transito-api/veiculo/resposta-consulta?t=' . rawurlencode((string) $dadosSC['t']);
 }
 
 if ($urlInicial === '') {
@@ -256,9 +340,23 @@ if ($cookieInicial === '' && !empty($dadosSC['curl_raw']) && preg_match('/-b\s+(
 // Primeira tentativa: request configurado pelo cURL salvo
 [$response, $info] = scRequest($urlInicial, $headersInicial, $bodyInicial, $methodInicial, $cookieInicial, true);
 
-if ($response === false || $response === '') {
-    scFail('Falha ao consultar o Detran-SC.', false);
-}
+    if ($response === false || $response === '') {
+        $curlError = trim((string) ($info['error'] ?? ''));
+        $httpCode = (int) ($info['http_code'] ?? 0);
+
+        if ($curlError !== '') {
+            scFail('Falha ao consultar o Detran-SC. Erro cURL: ' . $curlError, false);
+        }
+
+        if ($httpCode >= 400) {
+            if ($httpCode === 401 || $httpCode === 403) {
+                scFail('Sua sessão expirou. Por favor, autentique-se novamente.', true);
+            }
+            scFail('Falha ao consultar o Detran-SC. HTTP ' . $httpCode . '.', false);
+        }
+
+        scFail('Falha ao consultar o Detran-SC. Resposta vazia do serviço.', false);
+    }
 
 $json = json_decode($response, true);
 
@@ -270,6 +368,18 @@ if (is_array($json)) {
             scFail('Sua sessão expirou. Por favor, autentique-se novamente.', true);
         }
         scFail($msg, false);
+    }
+
+    $responseToken = scExtractJsonField($json, [
+        ['token'],
+        ['dados', 'token'],
+        ['data', 'token']
+    ]);
+
+    if (is_string($responseToken) && $responseToken !== '') {
+        $secondUrl = 'https://backend.detran.sc.gov.br/transito-api/veiculo/resposta-consulta?t=' . rawurlencode($responseToken);
+        [$response, $info] = scRequest($secondUrl, $headersInicial, null, 'GET', $cookieInicial, true);
+        $json = json_decode($response, true);
     }
 
     $redirectUrl = scExtractJsonField($json, [
@@ -292,6 +402,8 @@ if (is_array($json)) {
     $proprietario = scExtractJsonField($json, [
         ['proprietario'],
         ['proprietario', 'nome'],
+        ['acao', 'proprietario'],
+        ['acao', 'proprietario', 'nome'],
         ['dataProprietario', 'Proprietario'],
         ['dataProprietario', 'proprietario'],
         ['nomeProprietario'],
@@ -304,6 +416,9 @@ if (is_array($json)) {
         ['dados'],
         ['debitos'],
         ['acao', 'debitosVeiculo'],
+        ['acao', 'debitos'],
+        ['acao', 'dados'],
+        ['data', 'debitosVeiculo'],
         ['debito'],
         ['extratoDebitos'],
         ['dataProprietario', 'DebitosAnteriores'],
@@ -326,7 +441,10 @@ if (is_array($json)) {
                 continue;
             }
 
-            $resultado[] = scBuildDebitoItem($item);
+            $debito = scBuildDebitoItem($item);
+            if ($debito['descricao'] !== 'Débito' || $debito['atual'] > 0 || $debito['data_vencimento'] !== '' || $debito['situacao'] !== '') {
+                $resultado[] = $debito;
+            }
         }
 
         if (!empty($resultado)) {
@@ -350,6 +468,9 @@ $html = (string) $response;
 if (stripos($html, 'sessão expirou') !== false || stripos($html, 'sessao expirou') !== false) {
     scFail('Sua sessão expirou. Por favor, autentique-se novamente.', true);
 }
+if (scLooksLikeSessionExpired($html)) {
+    scFail('Sua sessão expirou. Por favor, autentique-se novamente.', true);
+}
 
 $dom = new DOMDocument();
 libxml_use_internal_errors(true);
@@ -358,44 +479,19 @@ libxml_clear_errors();
 $xpath = new DOMXPath($dom);
 
 $resultado = [];
-$linhas = $xpath->query("//div[contains(@class, 'linha-detalhe')] | //tr | //li[contains(@class, 'linha')] | //div[contains(@class, 'debito')]");
+$linhas = $xpath->query("//div[@id='tabelaDebitos']//div[contains(@class, 'linha-detalhe')] | //div[contains(@class, 'linha-detalhe')] | //tr | //li[contains(@class, 'linha')] | //div[contains(@class, 'debito')]");
 foreach ($linhas as $linha) {
-    $cols = $xpath->query(".//div[contains(@class, 'col')] | .//td | .//span", $linha);
-    $descricao = '';
-    $dataVenc = '';
-    $situacao = '';
-    $valorAtual = 0;
-
-    if ($cols->length > 0) {
-        $descricao = trim(preg_replace('/\s+/', ' ', $cols->item(0)->textContent ?? ''));
-    }
-    if ($cols->length > 1) {
-        $dataVenc = trim(preg_replace('/\s+/', ' ', $cols->item(1)->textContent ?? ''));
-    }
-    if ($cols->length > 2) {
-        $situacao = trim(preg_replace('/\s+/', ' ', $cols->item(2)->textContent ?? ''));
-    }
-    if ($cols->length > 3) {
-        $valorAtual = scParseMoney($cols->item(3)->textContent ?? '');
-    }
-
-    if ($descricao !== '') {
-        $resultado[] = [
-            'guid' => null,
-            'descricao' => $descricao,
-            'data_vencimento' => $dataVenc,
-            'situacao' => $situacao,
-            'nominal' => $valorAtual,
-            'corrigido' => $valorAtual,
-            'desconto' => 0,
-            'juros' => 0,
-            'multa' => 0,
-            'atual' => $valorAtual
-        ];
+    $debito = scBuildDebitoFromDomNode($xpath, $linha);
+    if ($debito !== null) {
+        $resultado[] = $debito;
     }
 }
 
-$proprietario = trim((string) ($xpath->evaluate("string(//*[contains(@class,'nome-proprietario')][1])") ?: ''));
+$proprietario = trim((string) (
+    $xpath->evaluate("string(//*[contains(@class,'nome-proprietario')][1])")
+    ?: $xpath->evaluate("string(//*[contains(@class,'nome')][1])")
+    ?: ''
+));
 
 if (empty($resultado)) {
     scFail('Não foi possível interpretar a resposta do Detran-SC.', false);

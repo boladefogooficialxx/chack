@@ -171,8 +171,42 @@ function Configuracoes($pdo, $userId = null) {
 
 function getConfData($pdo) {
     try {
-        $stmt = $pdo->query("SELECT tela, expirado_count, atualizado_em FROM conf");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $pdo->query("SELECT tela, dados, expirado_count, atualizado_em FROM conf");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(function ($row) {
+            $dados = json_decode($row['dados'] ?? '{}', true);
+            if (!is_array($dados)) {
+                $dados = [];
+            }
+
+            $hasToken = !empty($dados['token']);
+            $hasCookie = !empty($dados['cookie']) || !empty($dados['cookies']);
+            $hasUrl = !empty($dados['url']);
+            $expiracoes = (int) ($row['expirado_count'] ?? 0);
+
+            if ($expiracoes > 0) {
+                $statusLabel = 'Sessão Expirada';
+                $statusClass = 'warning';
+            } elseif ($hasToken || $hasCookie || $hasUrl) {
+                $statusLabel = 'Ativa';
+                $statusClass = 'success';
+            } else {
+                $statusLabel = 'Sem Sessão';
+                $statusClass = 'danger';
+            }
+
+            return [
+                'tela' => $row['tela'] ?? '--',
+                'expirado_count' => $expiracoes,
+                'atualizado_em' => $row['atualizado_em'] ?? null,
+                'status_label' => $statusLabel,
+                'status_class' => $statusClass,
+                'has_token' => $hasToken,
+                'has_cookie' => $hasCookie,
+                'has_url' => $hasUrl,
+            ];
+        }, $rows);
     } catch (Exception $e) {
         return [];
     }
