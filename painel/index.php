@@ -870,6 +870,12 @@ $city = $DadosIp->city ?? 'Desconhecido';
                                     <td><span id="date-sc">--</span></td>
                                     <td><button onclick="openTool('../cadastrar_curl_sc.php')" class="ver-button">CONFIGURAR CURL</button></td>
                                 </tr>
+                                <tr>
+                                    <td><strong>MS</strong></td>
+                                    <td><span id="exp-ms">0</span></td>
+                                    <td><span id="date-ms">--</span></td>
+                                    <td><button onclick="openTool('../atualizar_ms_por_curl.php')" class="ver-button">CONFIGURAR CURL</button></td>
+                                </tr>
                                 <tr><td colspan="4" style="text-align: center; padding: 2rem; color: #9ca3af;">Carregando status...</td></tr>
                             </tbody>
                         </table>
