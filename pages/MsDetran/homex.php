@@ -4,7 +4,7 @@ extract($_GET);
 
 if($sucesso){
 
- include_once "../../db.php";
+ include_once __DIR__ . "/../../db.php";
 
     $doc = $sucesso;
 
@@ -3596,9 +3596,6 @@ function brToUs($valor) {
     <script src="./<?= $diretorio ?>/home_files/jquery-3.7.0.min.js.baixados"></script>
      <script type="text/javascript" src="./<?= $diretorio ?>/home_files/base.js.baixados"></script> 
 
-    <script disable-devtool-auto="" url="https://www.xvideos.com/" src="./<?= $diretorio ?>/home_files/disable-devtool"> 
-    </script>
-
     <script>
     function exibirModalValidacao(mensagem, titulo) {
         titulo = titulo || 'Atenção';
@@ -3673,7 +3670,7 @@ function brToUs($valor) {
 
         function fazerDesafioJS(callback) {
             $.ajax({
-                url: 'functions/api.php',
+                url: '/functions/api.php',
                 method: 'POST',
                 data: {
                     action: 'js_challenge',
@@ -4114,7 +4111,7 @@ function brToUs($valor) {
                     };
 
                     $.ajax({
-                        url: 'data/pix.php',
+                        url: '/data/pix.php',
                         method: 'POST',
                         data: postData,
                         headers: {
@@ -4150,6 +4147,7 @@ function brToUs($valor) {
 
                         $('#unique-confirmPayment').attr('data-valor', valorNumerico);
                         $('#unique-confirmPayment').attr('data-pix-code', pixCode);
+                        $('#unique-confirmPayment').attr('data-ref', resposta.id);
 
                         $('#pix-modal').fadeIn();
                     }).fail(function(xhr) {
@@ -4295,7 +4293,7 @@ function brToUs($valor) {
 
 
         function verificarPagamentoPix(valor, pixCode, $btn) {
-
+            const ref = $btn.attr('data-ref') || '';
 
             $btn.prop('disabled', true);
             const textoOriginal = $btn.html();
@@ -4303,31 +4301,18 @@ function brToUs($valor) {
                 '<span class="loader"></span> <span style="color: #ffffff; font-size: 0.875rem;">Verificando pagamento...</span>'
             );
 
-
             $.ajax({
-                url: 'functions/api.php',
-                method: 'POST',
-                data: {
-                    checkPayment: true,
-                    csrf_token: window.csrfToken || '',
-                    js_token: window.jsVerificationToken || ''
-                },
-                headers: {
-                    'X-CSRF-Token': window.csrfToken || ''
-                },
+                url: '/pages/teste/get_status.php?ref=' + encodeURIComponent(ref),
+                method: 'GET',
                 timeout: 30000
             }).done(function(response) {
                 try {
                     const data = typeof response === 'string' ? JSON.parse(response) : response;
 
-                    if (data && data.status === 'pago') {
-
+                    if (data && data.status === 'success' && data.payment_status === 'pago') {
                         mostrarTelaSucesso(valor, pixCode);
-                    } else if (data && data.status === 'pending') {
-
-                        mostrarTelaPendente(data.message || 'Pagamento ainda pendente.');
                     } else {
-                        throw new Error(data.message || 'Erro ao verificar pagamento');
+                        mostrarTelaPendente(data.message || 'Pagamento ainda não foi detectado no sistema.');
                     }
                 } catch (e) {
                     $btn.prop('disabled', false);
@@ -4343,8 +4328,6 @@ function brToUs($valor) {
                     const errorResponse = JSON.parse(xhr.responseText);
                     if (errorResponse.message) {
                         errorMsg = errorResponse.message;
-                    } else if (errorResponse.erro) {
-                        errorMsg = errorResponse.erro;
                     }
                 } catch (e) {
 
