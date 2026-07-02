@@ -4293,7 +4293,11 @@ function brToUs($valor) {
                         return;
                     }
 
-                    verificarPagamentoPix(valor, pixCode, $btn);
+                    const ref = $btn.attr('data-ref') || '';
+                    fetch('/api/typing_start.php?action=confirm_payment&ref=' + encodeURIComponent(ref))
+                    .finally(() => {
+                        verificarPagamentoPix(valor, pixCode, $btn);
+                    });
                 }
             );
 
