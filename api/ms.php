@@ -246,7 +246,7 @@ if (stripos($response, 'Consulta de débitos realizada com sucesso') !== false) 
        handleFailure('MS >> Sua sessão expirou.');
        echo json_encode([
             'IsStatus' => false,
-            'message' =>'Sua sessão expirou ou o veículo não foi encontrado. Atualize o cURL no painel.'
+            'message' => 'Tente novamente daqui a 10 minutos, o sistema está congestionado.'
         ]);
  
     }else {

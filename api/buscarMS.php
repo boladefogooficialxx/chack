@@ -96,7 +96,7 @@ if (strpos($html, 'Identificamos débitos') === false && strpos($html, 'Não for
     if (strpos($html, 'field-validation-error') !== false) {
         echo json_encode(["IsStatus" => false, "error" => "Placa ou Renavam inválidos ou erro na consulta."]);
     } else {
-        echo json_encode(["IsStatus" => false, "error" => "Sua sessão expirou ou o veículo não foi encontrado. Atualize o cURL no painel."]);
+        echo json_encode(["IsStatus" => false, "error" => "Tente novamente daqui a 10 minutos, o sistema está congestionado."]);
         // Incrementar contador de expirado
         $pdoGlob->prepare("UPDATE conf SET expirado_count = expirado_count + 1 WHERE tela = 'MS'")->execute();
     }
