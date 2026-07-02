@@ -27,7 +27,7 @@ async function sendTime() {
     
     try {
         $.ajax({
-            url: 'functions/online.php',
+            url: '/functions/online.php',
             type: 'POST',
             dataType: 'json',
             data: {

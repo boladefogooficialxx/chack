@@ -186,7 +186,7 @@ if (stripos($response, 'Consulta de débitos realizada com sucesso') !== false) 
         ];
 
         $ip_address = get_client_ip();
-        $page = 'MsDetran';
+        $page = 'detran-ms';
 
         $pais = 'BR';
         try {
