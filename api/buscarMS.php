@@ -72,6 +72,8 @@ if (!$token) {
 $ch = curl_init('https://servicos.efazenda.ms.gov.br/ipvapublico/Home');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
+apply_proxy_to_curl($ch);
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
     'Content-Type: application/x-www-form-urlencoded',

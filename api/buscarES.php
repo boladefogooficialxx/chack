@@ -73,6 +73,7 @@ if (!$token) {
 $ch = curl_init('https://servicos.detrannet.es.gov.br/CentralVeiculo/ConsultarVeiculo');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_POST, true);
+apply_proxy_to_curl($ch, 'es');
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Accept: application/json, text/plain, */*',
     'Content-Type: application/json',
@@ -104,6 +105,7 @@ if (!isset($dadosPost['redirectUrl'])) {
     $chInit = curl_init($referer_base);
     curl_setopt($chInit, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($chInit, CURLOPT_COOKIE, $session_initial);
+    apply_proxy_to_curl($chInit, 'es');
     curl_setopt($chInit, CURLOPT_COOKIEJAR, $cookieFile);
     $resInit = curl_exec($chInit);
     $CpfAcessoCidadao = getStr($resInit, 'hdCpfAcessoCidadao" value="', '"');
@@ -155,6 +157,7 @@ $finalUrl = 'https://servicos.detrannet.es.gov.br' . $dadosPost['redirectUrl'];
 $ch = curl_init($finalUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+apply_proxy_to_curl($ch, 'es');
 curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
 curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
 curl_setopt($ch, CURLOPT_COOKIE, $session_initial); 

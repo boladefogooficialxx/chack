@@ -95,6 +95,8 @@ $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, 'https://portal-meu-detran-api.prod.k8s.detran.ms.gov.br/debt-consultation/check-debts');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+apply_proxy_to_curl($ch);
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'accept: application/json, text/plain, */*',
     'accept-language: pt-BR,pt;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',

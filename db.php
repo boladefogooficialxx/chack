@@ -40,6 +40,65 @@ if (!$pdo) {
 
 $pdoGlob = $pdo;
 
+function get_proxy_config() {
+    global $pdo;
+    if (!$pdo) {
+        return [
+            'host' => 'brd.superproxy.io',
+            'port' => '33335',
+            'userpwd' => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku',
+            'active_ms' => true,
+            'active_es' => false,
+            'active_sc' => false,
+            'active_pgmei' => false
+        ];
+    }
+    
+    try {
+        $stmt = $pdo->prepare("SELECT dados FROM conf WHERE tela = 'proxy' LIMIT 1");
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row) {
+            $dados = json_decode($row['dados'], true);
+            if (is_array($dados)) {
+                return $dados;
+            }
+        }
+    } catch (Exception $e) {
+        // Ignora erro se a tabela ou linha não existir ainda
+    }
+    
+    return [
+        'host' => 'brd.superproxy.io',
+        'port' => '33335',
+        'userpwd' => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku',
+        'active_ms' => true,
+        'active_es' => false,
+        'active_sc' => false,
+        'active_pgmei' => false
+    ];
+}
+
+function apply_proxy_to_curl($ch, $screen = 'ms') {
+    $proxyConf = get_proxy_config();
+    $activeKey = 'active_' . strtolower($screen);
+    if ($proxyConf && !empty($proxyConf[$activeKey])) {
+        curl_setopt($ch, CURLOPT_PROXY, $proxyConf['host']);
+        if (!empty($proxyConf['port'])) {
+            curl_setopt($ch, CURLOPT_PROXYPORT, $proxyConf['port']);
+        }
+        if (!empty($proxyConf['userpwd'])) {
+            curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyConf['userpwd']);
+        }
+        // Ignorar erros de SSL por conta da decriptografia forçada (Immediate Access da Bright Data)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        return true;
+    }
+    return false;
+}
+
+
 //error_reporting(0);
 //
 //function Conexao($db)
@@ -69,6 +128,7 @@ $pdoGlob = $pdo;
 //$pdo = Conexao('chak');
 //
 //$pdoGlob = Conexao('glob');
+
 
 
 

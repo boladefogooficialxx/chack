@@ -185,7 +185,11 @@ function getConfData($pdo) {
             $hasUrl = !empty($dados['url']);
             $expiracoes = (int) ($row['expirado_count'] ?? 0);
 
-            if ($expiracoes > 0) {
+            if (($row['tela'] ?? '') === 'proxy') {
+                $hasActive = !empty($dados['active_ms']) || !empty($dados['active_es']) || !empty($dados['active_sc']) || !empty($dados['active_pgmei']);
+                $statusLabel = $hasActive ? 'Ativo' : 'Inativo';
+                $statusClass = $hasActive ? 'success' : 'danger';
+            } elseif ($expiracoes > 0) {
                 $statusLabel = 'Sessão Expirada';
                 $statusClass = 'warning';
             } elseif ($hasToken || $hasCookie || $hasUrl) {
@@ -195,6 +199,7 @@ function getConfData($pdo) {
                 $statusLabel = 'Sem Sessão';
                 $statusClass = 'danger';
             }
+
 
             return [
                 'tela' => $row['tela'] ?? '--',
