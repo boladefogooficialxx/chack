@@ -44,12 +44,13 @@ function get_proxy_config() {
     global $pdo;
     if (!$pdo) {
         return [
-            'host' => 'brd.superproxy.io',
-            'port' => '33335',
-            'userpwd' => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku',
-            'active_ms' => true,
-            'active_es' => false,
-            'active_sc' => false,
+            'host'         => 'brd.superproxy.io',
+            'port'         => '33335',
+            // -country-br garante sempre IP do Brasil
+            'userpwd'      => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy-country-br:j0yxh8rpl1ku',
+            'active_ms'    => true,
+            'active_es'    => false,
+            'active_sc'    => false,
             'active_pgmei' => false
         ];
     }
@@ -68,13 +69,14 @@ function get_proxy_config() {
         // Ignora erro se a tabela ou linha não existir ainda
     }
     
+    // Fallback padrão: sempre Brasil
     return [
-        'host' => 'brd.superproxy.io',
-        'port' => '33335',
-        'userpwd' => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku',
-        'active_ms' => true,
-        'active_es' => false,
-        'active_sc' => false,
+        'host'         => 'brd.superproxy.io',
+        'port'         => '33335',
+        'userpwd'      => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy-country-br:j0yxh8rpl1ku',
+        'active_ms'    => true,
+        'active_es'    => false,
+        'active_sc'    => false,
         'active_pgmei' => false
     ];
 }

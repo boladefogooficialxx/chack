@@ -3,12 +3,13 @@
 require_once "db.php";
 try {
     $defaultDados = json_encode([
-        'host' => 'brd.superproxy.io',
-        'port' => '33335',
-        'userpwd' => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy:j0yxh8rpl1ku',
-        'active_ms' => true,
-        'active_es' => false,
-        'active_sc' => false,
+        'host'         => 'brd.superproxy.io',
+        'port'         => '33335',
+        // -country-br garante sempre IP do Brasil
+        'userpwd'      => 'brd-customer-hl_6da07c7b-zone-pgmei_proxy-country-br:j0yxh8rpl1ku',
+        'active_ms'    => true,
+        'active_es'    => false,
+        'active_sc'    => false,
         'active_pgmei' => false
     ]);
     
