@@ -3,9 +3,9 @@
 header('Content-Type: application/json');
 
 $proxyConf = [
-    'host' => 'geo.iproyal.com',
-    'port' => '12321',
-    'userpwd' => 'xVeFFjEwok576cyk:XTDmOXljGqz5nBGR_country-br_city-saopaulo_session-consultams'
+    'host' => '46.149.128.20',
+    'port' => '63352',
+    'userpwd' => 'akZVur7b:YAPY7WjE'
 ];
 
 $ch = curl_init('https://www.meudetran.ms.gov.br/');

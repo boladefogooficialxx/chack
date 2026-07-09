@@ -7,7 +7,7 @@ header('Content-Type: application/json');
 $proxyConf = get_proxy_config();
 
 // Força o proxy independente dos flags active_*, apenas para teste
-$ch = curl_init('https://geo.brdtest.com/mygeo.json');
+$ch = curl_init('https://api.ipify.org?format=json');
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
