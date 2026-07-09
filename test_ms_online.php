@@ -30,7 +30,9 @@ try {
     
     // Captura saídas HTML se existirem
     ob_start();
-    include "api/ms.php";
+    chdir('api'); // Altera o diretório para resolver o ../db.php interno da API
+    include "ms.php";
+    chdir('..'); // Restaura o diretório
     $apiOutput = ob_get_clean();
 
     echo "\n=== RETORNO DA API ===\n";

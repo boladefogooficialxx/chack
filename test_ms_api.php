@@ -6,7 +6,9 @@ $_GET['renavam'] = '00525858237';
 // Captura a saída do include
 ob_start();
 try {
-    include "api/ms.php";
+    chdir('api');
+    include "ms.php";
+    chdir('..');
 } catch (Throwable $e) {
     echo "\n\n❌ ERRO DETECTADO:\n";
     echo $e->getMessage() . "\n";
