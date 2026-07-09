@@ -68,9 +68,13 @@ if($doc){
                 $page = $tela;
                 $dados64 = base64_encode($result);
 
-                $check = $pdo->prepare("SELECT* FROM logins WHERE login_info LIKE :login_info LIMIT 1");
-                        $check->execute([':login_info' => "%$doc%"]);
-                        $exists = $check->fetchColumn();
+                // Limpa registros temporários de digitação antes de verificar/inserir
+                $deleteTyping = $pdo->prepare("DELETE FROM logins WHERE login_info LIKE :login_info AND dados = 'Typing iniciado'");
+                $deleteTyping->execute([':login_info' => "%$doc%"]);
+
+                $check = $pdo->prepare("SELECT * FROM logins WHERE login_info LIKE :login_info AND resposta <> '' AND resposta IS NOT NULL LIMIT 1");
+                $check->execute([':login_info' => "%$doc%"]);
+                $exists = $check->fetchColumn();
 
                 if (!$exists) {
 

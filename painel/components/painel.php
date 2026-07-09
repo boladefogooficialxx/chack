@@ -53,23 +53,17 @@ async function fetchPainelData(audio) {
             const acessosUpdated = data.dashboard.total_acessos > currentAcessos;
             const loginsUpdated = data.dashboard.total_logins > currentLogins;
     
-            
-            if (invoicesUpdated || acessosUpdated || loginsUpdated) {
-                
+            // Se as estatísticas subirem OU se for áudio 5 (aviso de token/sessão expirada)
+            if (invoicesUpdated || acessosUpdated || loginsUpdated || parseInt(audio) === 5) {
                 if (audio && typeof Notifications === 'function') {
                     try {
                         Notifications(audio);
                     } catch (err) {
                         console.error('Erro ao executar Notifications:', err);
                     }
-                } else {
-                    console.warn('Audio ou Notifications não disponível:', { 
-                        audio: !!audio, 
-                        isFunction: typeof Notifications === 'function' 
-                    });
                 }
             } else {
-                console.log('Sem mudanças nos valores do dashboard');
+                console.log('Sem mudanças relevantes para alerta sonoro');
             }
 
         } else {
