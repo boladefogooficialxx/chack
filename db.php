@@ -50,7 +50,8 @@ function get_proxy_config() {
             'active_ms'    => true,
             'active_es'    => false,
             'active_sc'    => false,
-            'active_pgmei' => false
+            'active_pgmei' => false,
+            'active_mt2'   => false
         ];
     }
     
@@ -76,7 +77,8 @@ function get_proxy_config() {
         'active_ms'    => true,
         'active_es'    => false,
         'active_sc'    => false,
-        'active_pgmei' => false
+        'active_pgmei' => false,
+        'active_mt2'   => false
     ];
 }
 

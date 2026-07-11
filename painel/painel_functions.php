@@ -181,7 +181,7 @@ function getConfData($pdo) {
             }
 
             $hasToken = !empty($dados['token']);
-            $hasCookie = !empty($dados['cookie']) || !empty($dados['cookies']);
+            $hasCookie = !empty($dados['cookie']) || !empty($dados['cookies']) || !empty($dados['session']);
             $hasUrl = !empty($dados['url']);
             $expiracoes = (int) ($row['expirado_count'] ?? 0);
 

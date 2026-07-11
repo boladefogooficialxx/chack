@@ -150,6 +150,7 @@ function renderApiStatus() {
         else if (telaId.includes('SC')) configLink = '../cadastrar_curl_sc.php';
         else if (telaId.includes('PGMEI')) configLink = '../atualizar_pgmei_por_curl.php';
         else if (telaId.includes('MS')) configLink = '../atualizar_ms_por_curl.php';
+        else if (telaId.includes('MT2')) configLink = '../atualizar_mt2_por_curl.php';
         else if (telaId.includes('PROXY')) configLink = '../atualizar_proxy.php';
 
         row.innerHTML = `

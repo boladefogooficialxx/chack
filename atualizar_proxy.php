@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $active_es = isset($_POST['active_es']) && $_POST['active_es'] == '1';
     $active_sc = isset($_POST['active_sc']) && $_POST['active_sc'] == '1';
     $active_pgmei = isset($_POST['active_pgmei']) && $_POST['active_pgmei'] == '1';
+    $active_mt2 = isset($_POST['active_mt2']) && $_POST['active_mt2'] == '1';
     
     $host = trim($_POST['host'] ?? '');
     $port = trim($_POST['port'] ?? '');
@@ -30,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'active_ms' => $active_ms,
             'active_es' => $active_es,
             'active_sc' => $active_sc,
-            'active_pgmei' => $active_pgmei
+            'active_pgmei' => $active_pgmei,
+            'active_mt2' => $active_mt2
         ];
         $dadosJson = json_encode($dadosArr);
         
@@ -309,6 +311,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <label class="switch">
                         <input type="checkbox" name="active_pgmei" value="1" <?php echo !empty($proxyConf['active_pgmei']) ? 'checked' : ''; ?>>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="switch-container">
+                    <div>
+                        <span class="switch-label">MT2 (eFazenda)</span>
+                        <span class="switch-desc">Ativa proxy nas consultas do MT2 (eFazenda)</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="active_mt2" value="1" <?php echo !empty($proxyConf['active_mt2']) ? 'checked' : ''; ?>>
                         <span class="slider"></span>
                     </label>
                 </div>
