@@ -17,10 +17,9 @@ function mt2_extract_first_match(string $pattern, string $curl): string {
     return "";
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     $curl = (string) $_POST['curl'];
-    // Remove escapes e quebras de linha típicas de comandos copiados do terminal Windows
-    $curl = str_replace(['\^"', '^"', '\^', '^', "\\", "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
+    // Remove escapes, quebras de linha e o prefixo de aspas de shell ($')
+    $curl = str_replace(["$'", '\^"', '^"', '\^', '^', "\\", "\r", "\n"], ["'", '', '"', '', '', '', ' ', ' '], $curl);
 
     // Extração de cookies
     $cookie = "";

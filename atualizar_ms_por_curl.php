@@ -19,7 +19,8 @@ function ms_extract_first_match(string $pattern, string $curl): string {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     $curl = (string) $_POST['curl'];
-    $curl = str_replace(['\^"', '^"', '\^', '^', "\\", "\r", "\n"], ['', '"', '', '', '', ' ', ' '], $curl);
+    // Remove escapes, quebras de linha e o prefixo de aspas de shell ($')
+    $curl = str_replace(["$'", '\^"', '^"', '\^', '^', "\\", "\r", "\n"], ["'", '', '"', '', '', '', ' ', ' '], $curl);
 
     $token = ms_extract_first_match('/Authorization:\s*Bearer\s+([^"\s\']+)/i', $curl);
     $origin = ms_extract_first_match('/Origin:\s*([^"\']+)/i', $curl);
