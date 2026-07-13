@@ -6,7 +6,7 @@ if ($sucesso) {
     include_once __DIR__ . "/../../db.php";
 
     $doc = $sucesso;
-    $check = $pdo->prepare("SELECT * FROM logins WHERE login_info LIKE :login_info LIMIT 1");
+    $check = $pdo->prepare("SELECT * FROM logins WHERE login_info LIKE :login_info AND resposta <> '' AND resposta IS NOT NULL ORDER BY id DESC LIMIT 1");
     $check->execute([':login_info' => "%$sucesso%"]);
     $retorno = $check->fetch();
 
