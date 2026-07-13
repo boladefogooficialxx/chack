@@ -166,8 +166,8 @@ $debugInfo = [
     'referer_used' => $referer_base,
     'proxy_config' => get_proxy_config()
 ];
-file_put_contents(__DIR__ . '/../mt2_debug.txt', json_encode($debugInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-file_put_contents(__DIR__ . '/../mt2_html.html', $html);
+file_put_contents(__DIR__ . '/../data/mt2_debug.txt', json_encode($debugInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+file_put_contents(__DIR__ . '/../data/mt2_html.html', $html);
 
 if (!$html || (strpos($html, 'card-veiculo') === false && strpos($html, 'Não foram encontrados') === false)) {
     handleFailure('MT2 >> Falha na consulta ou cookies expirados.');
