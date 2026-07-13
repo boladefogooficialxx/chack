@@ -120,7 +120,22 @@ $payload = http_build_query([
 
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 $html = curl_exec($ch);
+$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$curl_err = curl_error($ch);
 curl_close($ch);
+
+// Salva log de depuração acessível via painel-acesse.xyz/mt2_debug.txt
+$debugInfo = [
+    'timestamp' => date('Y-m-d H:i:s'),
+    'http_code' => $http_code,
+    'curl_error' => $curl_err,
+    'html_length' => strlen((string)$html),
+    'html_sample' => substr((string)$html, 0, 1500),
+    'session_cookie' => $session,
+    'referer_used' => $referer_base,
+    'proxy_config' => get_proxy_config()
+];
+file_put_contents(__DIR__ . '/../mt2_debug.txt', json_encode($debugInfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
 if (!$html || (strpos($html, 'Identificamos débitos') === false && strpos($html, 'Não foram encontrados débitos') === false)) {
     handleFailure('MT2 >> Falha na consulta ou cookies expirados.');
