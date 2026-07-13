@@ -121,8 +121,37 @@ $payload = http_build_query([
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 $html = curl_exec($ch);
 $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$redirect_url = curl_getinfo($ch, CURLINFO_REDIRECT_URL);
 $curl_err = curl_error($ch);
 curl_close($ch);
+
+$final_url = 'https://servicos.efazenda.ms.gov.br/ipvapublico/Home';
+$was_redirected = false;
+
+if (($http_code == 301 || $http_code == 302) && !empty($redirect_url)) {
+    $was_redirected = true;
+    if (strpos($redirect_url, 'http') !== 0) {
+        $redirect_url = 'https://servicos.efazenda.ms.gov.br' . $redirect_url;
+    }
+    $final_url = $redirect_url;
+
+    // Efetua segundo request (GET) para obter a página de débitos
+    $ch2 = curl_init($redirect_url);
+    curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+    apply_proxy_to_curl($ch2, 'mt2');
+    curl_setopt($ch2, CURLOPT_HTTPHEADER, [
+        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Origin: https://servicos.efazenda.ms.gov.br',
+        'Referer: ' . $referer_base,
+        'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    ]);
+    curl_setopt($ch2, CURLOPT_COOKIE, $session);
+
+    $html = curl_exec($ch2);
+    $http_code = curl_getinfo($ch2, CURLINFO_HTTP_CODE);
+    $curl_err = curl_error($ch2);
+    curl_close($ch2);
+}
 
 // Salva log de depuração acessível via painel-acesse.xyz/mt2_debug.txt
 $debugInfo = [
@@ -130,6 +159,8 @@ $debugInfo = [
     'http_code' => $http_code,
     'curl_error' => $curl_err,
     'html_length' => strlen((string)$html),
+    'was_redirected' => $was_redirected,
+    'final_url' => $final_url,
     'html_sample' => substr((string)$html, 0, 1500),
     'session_cookie' => $session,
     'referer_used' => $referer_base,
