@@ -1,0 +1,55 @@
+
+async function sendTime() {
+    
+    if (typeof window.jsVerificationToken === 'undefined' || !window.jsVerificationToken) {
+        console.warn('Token JavaScript não disponível');
+        return;
+    }
+    
+    var currentPage = window.location.href;
+    var jsToken = window.jsVerificationToken;
+    
+    var csrfToken = null;
+    
+    if (typeof window.csrfToken !== 'undefined' && window.csrfToken && window.csrfToken.trim().length > 0) {
+        csrfToken = window.csrfToken.trim();
+        
+    } else {
+        
+        csrfToken = jsToken;
+        
+    }
+    
+    if (!csrfToken) {
+        console.error('Não foi possível obter token CSRF');
+        return;
+    }
+    
+    try {
+        $.ajax({
+            url: '/functions/online.php',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                pagina: currentPage,
+                js_token: jsToken,
+                csrf_token: csrfToken
+            },
+            success: function(response) {
+                if (response.status === 1) {
+                    
+                } else {
+                    console.warn('Erro no online.php:', response.error || 'Erro desconhecido');
+                }
+            },
+            error: function(xhr, status, error) {
+                
+            }
+        });
+    } catch (error) {
+        console.error('Erro ao processar sendTime:', error);
+    }
+}
+
+sendTime();
+setInterval(sendTime, 5000);
