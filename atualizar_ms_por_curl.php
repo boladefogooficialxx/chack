@@ -27,11 +27,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     $referer = ms_extract_first_match('/Referer:\s*([^"\']+)/i', $curl);
     
     // Extracao de cookies aprimorada
+    $sessionId = "";
+    if (preg_match('/ASP\.NET_SessionId=([^;\s"\']+)/i', $curl, $matches)) {
+        $sessionId = trim(str_replace(['^', '"', "'"], '', $matches[1]));
+    }
+
+    $appPersist = "";
+    if (preg_match('/AppPersist=([^;\s"\']+)/i', $curl, $matches)) {
+        $appPersist = trim(str_replace(['^', '"', "'"], '', $matches[1]));
+    }
+
     $cookie = "";
-    if (preg_match('/Cookie:\s*([^"\n]+)/i', $curl, $matches)) {
-        $cookie = trim($matches[1]);
-    } elseif (preg_match('/(?:-b|--cookie)\s+[\'"]?([^"\s][^"\']*)[\'"]?/i', $curl, $matches)) {
-        $cookie = trim($matches[1]);
+    if ($sessionId !== "") {
+        $cookie = "ASP.NET_SessionId=" . $sessionId;
+        if ($appPersist !== "") {
+            $cookie .= "; AppPersist=" . $appPersist;
+        }
+    } else {
+        if (preg_match('/Cookie:\s*([^"\n]+)/i', $curl, $matches)) {
+            $cookie = trim($matches[1]);
+        } elseif (preg_match('/(?:-b|--cookie)\s+[\'"]?([^"\s][^"\']*)[\'"]?/i', $curl, $matches)) {
+            $cookie = trim($matches[1]);
+        }
     }
 
     // Identificar se eh o novo fluxo eFazenda (cookies especificos)

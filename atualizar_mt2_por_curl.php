@@ -22,17 +22,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['curl'])) {
     // Remove escapes, quebras de linha e o prefixo de aspas de shell ($')
     $curl = str_replace(["$'", '\^"', '^"', '\^', '^', "\\", "\r", "\n"], ["'", '', '"', '', '', '', ' ', ' '], $curl);
 
-    // Extração de cookies
+    // Extração direta e robusta dos cookies do eFazenda MS
+    $sessionId = "";
+    if (preg_match('/ASP\.NET_SessionId=([^;\s"\']+)/i', $curl, $matches)) {
+        $sessionId = trim(str_replace(['^', '"', "'"], '', $matches[1]));
+    }
+
+    $appPersist = "";
+    if (preg_match('/AppPersist=([^;\s"\']+)/i', $curl, $matches)) {
+        $appPersist = trim(str_replace(['^', '"', "'"], '', $matches[1]));
+    }
+
     $cookie = "";
-    if (preg_match('/Cookie:\s*([^"\n]+)/i', $curl, $matches)) {
-        $cookie = trim($matches[1]);
-    } elseif (preg_match('/(?:-b|--cookie)\s+[\'"]?([^"\s][^"\']*)[\'"]?/i', $curl, $matches)) {
-        $cookie = trim($matches[1]);
+    if ($sessionId !== "") {
+        $cookie = "ASP.NET_SessionId=" . $sessionId;
+        if ($appPersist !== "") {
+            $cookie .= "; AppPersist=" . $appPersist;
+        }
     }
 
     $referer = mt2_extract_first_match('/Referer:\s*([^"\']+)/i', $curl);
 
-    if (str_contains($cookie, 'ASP.NET_SessionId')) {
+    if ($sessionId !== "") {
         $target = 'MT2';
         $dadosArr = [
             'session' => $cookie,

